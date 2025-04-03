@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.chatting.entity;
 
+import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,33 +13,33 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "chatting_rooms")
+@Table(name = "messages")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class ChattingRoom {
+public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id")
-    private User doctor;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id")
-    private User patient;
+    @JoinColumn(name = "chatting_room_id")
+    private ChattingRoom chattingRoom;
 
-    private Boolean isActive;
+    private String contents;
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Builder
-    public ChattingRoom(User doctor, User patient, Boolean isActive) {
-        this.doctor = doctor;
-        this.patient = patient;
-        this.isActive = isActive;
+    public Message(User user, ChattingRoom chattingRoom, String contents) {
+        this.user = user;
+        this.chattingRoom = chattingRoom;
+        this.contents = contents;
     }
 }
