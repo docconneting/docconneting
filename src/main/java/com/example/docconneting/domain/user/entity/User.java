@@ -1,6 +1,8 @@
 package com.example.docconneting.domain.user.entity;
 
 import com.example.docconneting.common.base.BaseEntity;
+import com.example.docconneting.common.enums.Major;
+import com.example.docconneting.common.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,13 +27,14 @@ public class User extends BaseEntity {
 
     private Integer point;
 
-    private String major;
+    @Enumerated(EnumType.STRING)
+    private Major major;
 
     private String image;
 
-    private LocalDateTime start_time;
+    private LocalDateTime startTime;
 
-    private LocalDateTime end_time;
+    private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
@@ -39,15 +42,15 @@ public class User extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public User(String email, String password, String username, Integer point, String major, String image, LocalDateTime start_time, LocalDateTime end_time, Boolean isDeleted, UserRole userRole) {
+    public User(String email, String password, String username, Integer point, Major major, String image, LocalDateTime startTime, LocalDateTime endTime, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.point = point;
         this.major = major;
         this.image = image;
-        this.start_time = start_time;
-        this.end_time = end_time;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.isDeleted = isDeleted;
         this.userRole = userRole;
     }

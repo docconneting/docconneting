@@ -1,11 +1,14 @@
 package com.example.docconneting.domain.coupon.entity;
 
+import com.example.docconneting.common.enums.CouponStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "patient_coupons")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class PatientCoupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,17 +35,18 @@ public class PatientCoupon {
     @Enumerated(EnumType.STRING)
     private CouponStatus couponStatus;
 
-    private LocalDateTime createdAt;
-
     private LocalDateTime endDate;
 
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
     @Builder
-    public PatientCoupon(User user, Coupon coupon, Integer availableCount, CouponStatus couponStatus, LocalDateTime createdAt, LocalDateTime endDate) {
+    public PatientCoupon(User user, Coupon coupon, Integer availableCount, CouponStatus couponStatus, LocalDateTime endDate) {
         this.user = user;
         this.coupon = coupon;
         this.availableCount = availableCount;
         this.couponStatus = couponStatus;
-        this.createdAt = createdAt;
         this.endDate = endDate;
     }
 }

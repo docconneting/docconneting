@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.payment.entity;
 
+import com.example.docconneting.common.enums.PaymentStatus;
 import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -44,7 +45,6 @@ public class PaymentHistory {
     private LocalDateTime createdAt;
 
     @Builder
-
     public PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
         this.user = user;
         this.order = order;

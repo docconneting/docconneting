@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.point.entity;
 
+import com.example.docconneting.common.enums.PointType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

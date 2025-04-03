@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.order.entity;
+package com.example.docconneting.common.enums;
 
 public enum OrderProduct {
     POINT_1000,

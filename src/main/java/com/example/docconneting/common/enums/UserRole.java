@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.user.entity;
+package com.example.docconneting.common.enums;
 
 public enum UserRole {
     PATIENT,

@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.payment.entity;
+package com.example.docconneting.common.enums;
 
 public enum PaymentStatus {
     REQUESTED,

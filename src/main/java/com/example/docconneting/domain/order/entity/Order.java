@@ -1,5 +1,7 @@
 package com.example.docconneting.domain.order.entity;
 
+import com.example.docconneting.common.enums.OrderProduct;
+import com.example.docconneting.common.enums.OrderType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
