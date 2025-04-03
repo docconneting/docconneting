@@ -1,9 +1,11 @@
 package com.example.docconneting.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 public class Response<T> {
     private T data;
