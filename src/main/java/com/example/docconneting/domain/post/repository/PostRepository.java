@@ -1,0 +1,7 @@
+package com.example.docconneting.domain.post.repository;
+
+import com.example.docconneting.domain.post.entity.Post;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PostRepository extends JpaRepository<Post, Long> {
+}
