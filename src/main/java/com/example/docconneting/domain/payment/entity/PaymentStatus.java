@@ -1,6 +1,6 @@
 package com.example.docconneting.domain.payment.entity;
 
-public enum Status {
+public enum PaymentStatus {
     REQUESTED,
     COMPLETED,
     FAILED

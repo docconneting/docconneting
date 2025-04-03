@@ -33,7 +33,7 @@ public class PaymentHistory {
     private Integer price;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private PaymentStatus paymentStatus;
 
     private String payment_key;
 
@@ -45,11 +45,11 @@ public class PaymentHistory {
 
     @Builder
 
-    public PaymentHistory(User user, Order order, Integer price, Status status, String payment_key, LocalDateTime approvedAt, LocalDateTime createdAt) {
+    public PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt, LocalDateTime createdAt) {
         this.user = user;
         this.order = order;
         this.price = price;
-        this.status = status;
+        this.paymentStatus = paymentStatus;
         this.payment_key = payment_key;
         this.approvedAt = approvedAt;
         this.createdAt = createdAt;
