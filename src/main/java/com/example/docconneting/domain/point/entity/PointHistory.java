@@ -1,6 +1,5 @@
-package com.example.docconneting.domain.payment.entity;
+package com.example.docconneting.domain.point.entity;
 
-import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,11 +12,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payment_histories")
+@Table(name = "point_histories")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class PaymentHistory {
+public class PointHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,31 +25,25 @@ public class PaymentHistory {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private Long postId;
 
-    private Integer price;
+    private Boolean isRefunded;
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus;
+    private PointType pointType;
 
-    private String payment_key;
-
-    private LocalDateTime approvedAt;
+    private Integer point;
 
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-
-    public PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
+    public PointHistory(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
         this.user = user;
-        this.order = order;
-        this.price = price;
-        this.paymentStatus = paymentStatus;
-        this.payment_key = payment_key;
-        this.approvedAt = approvedAt;
+        this.postId = postId;
+        this.isRefunded = isRefunded;
+        this.pointType = pointType;
+        this.point = point;
     }
 }

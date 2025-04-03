@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -24,12 +25,13 @@ public class CouponHistory {
 
     private Long postId;
 
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime userAt;
 
     @Builder
-    public CouponHistory(PatientCoupon patientCoupon, Long postId, LocalDateTime userAt) {
+    public CouponHistory(PatientCoupon patientCoupon, Long postId) {
         this.patientCoupon = patientCoupon;
         this.postId = postId;
-        this.userAt = userAt;
     }
 }
