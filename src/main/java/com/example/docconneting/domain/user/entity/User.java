@@ -33,6 +33,7 @@ public class User extends BaseEntity {
 
     private LocalDateTime end_time;
 
+    @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
     private Boolean isDeleted;

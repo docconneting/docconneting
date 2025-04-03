@@ -1,5 +1,6 @@
-package com.example.docconneting.domain.order.entity;
+package com.example.docconneting.domain.payment.entity;
 
+import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,11 +13,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "payment_historys")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Order {
+public class PaymentHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,26 +26,32 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    private OrderType orderType;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     private Integer price;
 
-    private Long chattingRoomId;
-
     @Enumerated(EnumType.STRING)
-    private OrderProduct orderProduct;
+    private Status status;
+
+    private String payment_key;
+
+    private LocalDateTime approvedAt;
 
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public Order(User user, OrderType orderType, Integer price, Long chattingRoomId, OrderProduct orderProduct) {
+
+    public PaymentHistory(User user, Order order, Integer price, Status status, String payment_key, LocalDateTime approvedAt, LocalDateTime createdAt) {
         this.user = user;
-        this.orderType = orderType;
+        this.order = order;
         this.price = price;
-        this.chattingRoomId = chattingRoomId;
-        this.orderProduct = orderProduct;
+        this.status = status;
+        this.payment_key = payment_key;
+        this.approvedAt = approvedAt;
+        this.createdAt = createdAt;
     }
 }

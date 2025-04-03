@@ -27,6 +27,7 @@ public class Post extends BaseEntity {
 
     private String contents;
 
+    @Enumerated(EnumType.STRING)
     private Major major;
 
     private Boolean isPaid;
