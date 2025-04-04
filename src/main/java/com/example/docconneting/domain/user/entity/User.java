@@ -2,7 +2,7 @@ package com.example.docconneting.domain.user.entity;
 
 import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
-import com.example.docconneting.common.enums.UserRole;
+import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -42,7 +42,7 @@ public class User extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public User(String email, String password, String username, Integer point, Major major, String image, LocalDateTime startTime, LocalDateTime endTime, Boolean isDeleted, UserRole userRole) {
+    private User(String email, String password, String username, Integer point, Major major, String image, LocalDateTime startTime, LocalDateTime endTime, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.username = username;

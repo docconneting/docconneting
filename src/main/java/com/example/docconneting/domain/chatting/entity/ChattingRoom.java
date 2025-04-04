@@ -36,7 +36,7 @@ public class ChattingRoom {
     private LocalDateTime created_at;
 
     @Builder
-    public ChattingRoom(User doctor, User patient, Boolean isActive) {
+    private ChattingRoom(User doctor, User patient, Boolean isActive) {
         this.doctor = doctor;
         this.patient = patient;
         this.isActive = isActive;

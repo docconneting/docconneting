@@ -37,7 +37,7 @@ public class Message {
     private LocalDateTime createdAt;
 
     @Builder
-    public Message(User user, ChattingRoom chattingRoom, String contents) {
+    private Message(User user, ChattingRoom chattingRoom, String contents) {
         this.user = user;
         this.chattingRoom = chattingRoom;
         this.contents = contents;

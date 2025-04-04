@@ -38,7 +38,7 @@ public class PatientCoupon {
     private LocalDateTime createdAt;
 
     @Builder
-    public PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
+    private PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
         this.user = user;
         this.coupon = coupon;
         this.availableCount = availableCount;

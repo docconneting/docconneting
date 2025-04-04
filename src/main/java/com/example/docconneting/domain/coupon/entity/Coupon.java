@@ -33,7 +33,7 @@ public class Coupon {
     private LocalDateTime createdAt;
 
     @Builder
-    public Coupon(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
+    private Coupon(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
         this.availableCount = availableCount;
         this.quantity = quantity;
         this.startDate = startDate;

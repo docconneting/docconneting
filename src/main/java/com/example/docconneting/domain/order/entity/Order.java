@@ -1,7 +1,7 @@
 package com.example.docconneting.domain.order.entity;
 
-import com.example.docconneting.common.enums.OrderProduct;
-import com.example.docconneting.common.enums.OrderType;
+import com.example.docconneting.domain.order.enums.OrderProduct;
+import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -42,7 +42,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @Builder
-    public Order(User user, OrderType orderType, Integer price, Long chattingRoomId, OrderProduct orderProduct) {
+    private Order(User user, OrderType orderType, Integer price, Long chattingRoomId, OrderProduct orderProduct) {
         this.user = user;
         this.orderType = orderType;
         this.price = price;

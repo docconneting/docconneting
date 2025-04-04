@@ -33,7 +33,7 @@ public class Alarm {
     private LocalDateTime createdAt;
 
     @Builder
-    public Alarm(String content, Long fromId, Long toId, Boolean isViewed) {
+    private Alarm(String content, Long fromId, Long toId, Boolean isViewed) {
         this.content = content;
         this.fromId = fromId;
         this.toId = toId;

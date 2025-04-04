@@ -1,6 +1,6 @@
 package com.example.docconneting.domain.point.entity;
 
-import com.example.docconneting.common.enums.PointType;
+import com.example.docconneting.domain.point.enums.PointType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -40,7 +40,7 @@ public class PointHistory {
     private LocalDateTime createdAt;
 
     @Builder
-    public PointHistory(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
+    private PointHistory(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
         this.user = user;
         this.postId = postId;
         this.isRefunded = isRefunded;

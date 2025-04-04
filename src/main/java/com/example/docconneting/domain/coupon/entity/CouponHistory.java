@@ -32,7 +32,7 @@ public class CouponHistory {
     private LocalDateTime userAt;
 
     @Builder
-    public CouponHistory(PatientCoupon patientCoupon, Long postId) {
+    private CouponHistory(PatientCoupon patientCoupon, Long postId) {
         this.patientCoupon = patientCoupon;
         this.postId = postId;
     }
