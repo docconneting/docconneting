@@ -21,6 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -41,7 +42,6 @@ class PostServiceTest {
         // when, then
         ClientException clientException = assertThrows(ClientException.class, () -> postService.findPostById(postId));
 
-        assertThat(clientException).isInstanceOf(ClientException.class);
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
     }
 
@@ -99,5 +99,36 @@ class PostServiceTest {
         assertThat(postSingleResponse.getDeadline()).isEqualTo(savedPost.getDeadline());
         assertThat(postSingleResponse.getCreatedAt()).isEqualTo(savedPost.getCreatedAt());
         assertThat(postSingleResponse.getModifiedAt()).isEqualTo(savedPost.getModifiedAt());
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 삭제시 게시물이 없을 떄")
+    void deletePostByIdFailTest(){
+        // given
+        Long postId = 1L;
+
+        given(postRepository.findById(postId)).willReturn(Optional.empty());
+
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.deletePostById(postId));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 삭제 테스트")
+    void deletePostByIdSuccessTest(){
+        // given
+        Long postId = 1L;
+
+        Post post = new Post();
+        ReflectionTestUtils.setField(post, "isDeleted", false);
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // when, then
+        postService.deletePostById(postId);
+
+        assertThat(post.getIsDeleted()).isTrue();
     }
 }
