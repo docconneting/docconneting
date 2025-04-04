@@ -31,7 +31,6 @@ public class CouponHistory {
     @Column(updatable = false)
     private LocalDateTime userAt;
 
-    @Builder
     private CouponHistory(PatientCoupon patientCoupon, Long postId) {
         this.patientCoupon = patientCoupon;
         this.postId = postId;

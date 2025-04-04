@@ -39,7 +39,6 @@ public class PointHistory {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder
     private PointHistory(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
         this.user = user;
         this.postId = postId;
