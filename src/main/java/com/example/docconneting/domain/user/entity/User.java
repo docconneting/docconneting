@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,7 +41,6 @@ public class User extends BaseEntity {
 
     private Boolean isDeleted;
 
-    @Builder
     private User(String email, String password, String username, Integer point, Major major, String image, LocalDateTime startTime, LocalDateTime endTime, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
