@@ -4,7 +4,6 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
