@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "posts")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,16 +38,4 @@ public class Post extends BaseEntity {
     private Boolean isReplied;
 
     private LocalDateTime deadline;
-
-    @Builder
-    private Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
-        this.patient = patient;
-        this.title = title;
-        this.contents = contents;
-        this.major = major;
-        this.isPaid = isPaid;
-        this.isDeleted = isDeleted;
-        this.isReplied = isReplied;
-        this.deadline = deadline;
-    }
 }

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "comments")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Comment extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,11 +26,4 @@ public class Comment extends BaseEntity {
     private Post post;
 
     private String contents;
-
-    @Builder
-    private Comment(Post post, User user, String contents) {
-        this.post = post;
-        this.user = user;
-        this.contents = contents;
-    }
 }

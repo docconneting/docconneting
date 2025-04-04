@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "messages")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Message {
     @Id
@@ -35,11 +35,4 @@ public class Message {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private Message(User user, ChattingRoom chattingRoom, String contents) {
-        this.user = user;
-        this.chattingRoom = chattingRoom;
-        this.contents = contents;
-    }
 }
