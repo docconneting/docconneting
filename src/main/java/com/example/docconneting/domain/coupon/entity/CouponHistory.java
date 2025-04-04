@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "coupon_histories")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class CouponHistory {
     @Id
@@ -31,7 +31,6 @@ public class CouponHistory {
     @Column(updatable = false)
     private LocalDateTime userAt;
 
-    @Builder
     private CouponHistory(PatientCoupon patientCoupon, Long postId) {
         this.patientCoupon = patientCoupon;
         this.postId = postId;
