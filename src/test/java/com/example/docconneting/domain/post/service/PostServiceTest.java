@@ -4,9 +4,12 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
+import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
+import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +24,15 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
     @Mock
     PostRepository postRepository;
+
+    @Mock
+    EntityManager entityManager;
 
     @InjectMocks
     PostService postService;
@@ -42,6 +49,8 @@ class PostServiceTest {
         ClientException clientException = assertThrows(ClientException.class, () -> postService.findPostById(postId));
 
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
+
+        verify(postRepository, times(1)).findById(postId);
     }
 
     @Test
@@ -60,6 +69,8 @@ class PostServiceTest {
 
         assertThat(clientException).isInstanceOf(ClientException.class);
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
+
+        verify(postRepository, times(1)).findById(postId);
     }
 
     @Test
@@ -98,6 +109,8 @@ class PostServiceTest {
         assertThat(postSingleResponse.getDeadline()).isEqualTo(savedPost.getDeadline());
         assertThat(postSingleResponse.getCreatedAt()).isEqualTo(savedPost.getCreatedAt());
         assertThat(postSingleResponse.getModifiedAt()).isEqualTo(savedPost.getModifiedAt());
+
+        verify(postRepository, times(1)).findById(postId);
     }
 
     @Test
@@ -112,6 +125,8 @@ class PostServiceTest {
         ClientException clientException = assertThrows(ClientException.class, () -> postService.deletePostById(postId));
 
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
+
+        verify(postRepository, times(1)).findById(postId);
     }
 
     @Test
@@ -129,5 +144,88 @@ class PostServiceTest {
         postService.deletePostById(postId);
 
         assertThat(post.getIsDeleted()).isTrue();
+
+        verify(postRepository, times(1)).findById(postId);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 수정시 게시물이 없을 때")
+    void updatePostFailedTest(){
+        // given
+        Long postId = 1L;
+
+        PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(postUpdateRequest, "title", "tile");
+        ReflectionTestUtils.setField(postUpdateRequest, "contents", "content");
+
+        given(postRepository.findById(postId)).willReturn(Optional.empty());
+
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(postId, postUpdateRequest));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
+
+        verify(postRepository, times(1)).findById(postId);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 수정시 게시물이 삭제된 게시물 일 때")
+    void updatePostAlreadyDeletedTest(){
+        // given
+        Long postId = 1L;
+
+        Post post = new Post();
+        ReflectionTestUtils.setField(post, "isDeleted", true);
+
+        PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(postUpdateRequest, "title", "tile");
+        ReflectionTestUtils.setField(postUpdateRequest, "contents", "content");
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(postId, postUpdateRequest));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
+
+        verify(postRepository, times(1)).findById(postId);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 수정 테스트")
+    void updatePostTest(){
+        // given
+        Long postId = 1L;
+
+        Post post = new Post();
+        ReflectionTestUtils.setField(post, "isDeleted", false);
+        ReflectionTestUtils.setField(post, "id", postId);
+        ReflectionTestUtils.setField(post, "title", "title");
+        ReflectionTestUtils.setField(post, "contents", "content");
+        ReflectionTestUtils.setField(post, "major", Major.ORTHOPEDICS);
+        ReflectionTestUtils.setField(post, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(post, "modifiedAt", LocalDateTime.now());
+
+        PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(postUpdateRequest, "title", "updateTitle");
+        ReflectionTestUtils.setField(postUpdateRequest, "contents", "updateContent");
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        doNothing().when(entityManager).flush();
+
+        // when
+        PostUpdateResponse postUpdateResponse = postService.updatePost(postId, postUpdateRequest);
+
+        // then
+        assertThat(postUpdateResponse.getId()).isEqualTo(postId);
+        assertThat(postUpdateResponse.getTitle()).isEqualTo(postUpdateRequest.getTitle());
+        assertThat(postUpdateResponse.getContents()).isEqualTo(postUpdateRequest.getContents());
+        assertThat(postUpdateResponse.getMajor()).isEqualTo(Major.ORTHOPEDICS.name());
+        assertThat(postUpdateResponse.getCreatedAt()).isEqualTo(post.getCreatedAt());
+        assertThat(postUpdateResponse.getModifiedAt()).isEqualTo(post.getModifiedAt());
+
+        verify(postRepository, times(1)).findById(postId);
+        verify(entityManager, times(1)).flush();
     }
 }
