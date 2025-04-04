@@ -18,6 +18,6 @@ public class PointController {
     @GetMapping("/api/v1/points")
     public ResponseEntity<Response<PointResponse>> findPoint(@Auth AuthUser authUser) {
         Long userId = authUser.getId();
-        return new ResponseEntity<>(Response.of(pointService.findPoint(userId)), HttpStatus.OK);
+        return ResponseEntity.ok().body(Response.of(pointService.findPoint(userId)));
     }
 }
