@@ -37,7 +37,6 @@ public class PatientCoupon {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder
     private PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
         this.user = user;
         this.coupon = coupon;

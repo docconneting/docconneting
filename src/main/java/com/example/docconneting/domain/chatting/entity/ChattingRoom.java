@@ -35,7 +35,6 @@ public class ChattingRoom {
     @Column(updatable = false)
     private LocalDateTime created_at;
 
-    @Builder
     private ChattingRoom(User doctor, User patient, Boolean isActive) {
         this.doctor = doctor;
         this.patient = patient;

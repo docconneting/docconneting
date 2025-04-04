@@ -41,7 +41,6 @@ public class Order {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder
     private Order(User user, OrderType orderType, Integer price, Long chattingRoomId, OrderProduct orderProduct) {
         this.user = user;
         this.orderType = orderType;

@@ -44,7 +44,6 @@ public class PaymentHistory {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder
     private PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
         this.user = user;
         this.order = order;

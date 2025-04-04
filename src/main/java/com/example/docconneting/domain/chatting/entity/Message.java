@@ -36,7 +36,6 @@ public class Message {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder
     private Message(User user, ChattingRoom chattingRoom, String contents) {
         this.user = user;
         this.chattingRoom = chattingRoom;

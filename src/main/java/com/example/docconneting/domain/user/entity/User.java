@@ -41,7 +41,6 @@ public class User extends BaseEntity {
 
     private Boolean isDeleted;
 
-    @Builder
     private User(String email, String password, String username, Integer point, Major major, String image, LocalDateTime startTime, LocalDateTime endTime, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
