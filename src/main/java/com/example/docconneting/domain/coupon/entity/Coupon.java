@@ -2,7 +2,6 @@ package com.example.docconneting.domain.coupon.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,12 +30,4 @@ public class Coupon {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private Coupon(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
-        this.availableCount = availableCount;
-        this.quantity = quantity;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
 }

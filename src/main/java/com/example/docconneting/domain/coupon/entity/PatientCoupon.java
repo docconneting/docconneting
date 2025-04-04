@@ -3,7 +3,6 @@ package com.example.docconneting.domain.coupon.entity;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,12 +35,4 @@ public class PatientCoupon {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
-        this.user = user;
-        this.coupon = coupon;
-        this.availableCount = availableCount;
-        this.endDate = endDate;
-    }
 }
