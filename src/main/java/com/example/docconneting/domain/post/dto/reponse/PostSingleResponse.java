@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.post.dto;
+package com.example.docconneting.domain.post.dto.reponse;
 
 import lombok.Builder;
 import lombok.Getter;
