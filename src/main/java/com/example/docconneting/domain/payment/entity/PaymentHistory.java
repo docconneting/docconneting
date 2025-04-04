@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "payment_histories")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class PaymentHistory {
     @Id
@@ -43,14 +43,4 @@ public class PaymentHistory {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
-        this.user = user;
-        this.order = order;
-        this.price = price;
-        this.paymentStatus = paymentStatus;
-        this.payment_key = payment_key;
-        this.approvedAt = approvedAt;
-    }
 }

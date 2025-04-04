@@ -15,8 +15,11 @@ public enum ErrorCode {
 
     // 게시물 에러 코드
 
-    // 404
+    // 404 NOT_FOUND
     NOT_FOUND_POST(HttpStatus.NOT_FOUND, "존재하지 않는 게시물 입니다.");
+
+    // 410 GONE
+
 
     private final HttpStatus status;
     private final String message;

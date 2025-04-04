@@ -20,6 +20,10 @@ public class PostService {
     public PostSingleResponse findPostById(Long postId){
         Post findPost = postRepository.findById(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
+        if(findPost.getIsDeleted()){
+            throw new ClientException(ErrorCode.NOT_FOUND_POST);
+        }
+
         return PostSingleResponse.builder()
                 .id(findPost.getId())
                 .patientName(findPost.getPatient().getUsername())
