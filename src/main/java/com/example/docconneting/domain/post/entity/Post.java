@@ -39,6 +39,14 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deadline;
 
+    public void updateTitle(String title){
+        this.title = title;
+    }
+
+    public void updateContents(String contents){
+        this.contents = contents;
+    }
+
     public void delete(){
         isDeleted = true;
     }

@@ -1,6 +1,6 @@
 package com.example.docconneting.domain.post.controller;
 
-import com.example.docconneting.domain.post.dto.PostSingleResponse;
+import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.service.PostService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -13,8 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;

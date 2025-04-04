@@ -1,15 +1,15 @@
 package com.example.docconneting.domain.post.controller;
 
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.post.dto.PostSingleResponse;
+import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
+import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
+import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +25,13 @@ public class PostController {
         return ResponseEntity
                 .ok()
                 .body(Response.of(postService.findPostById(postId)));
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<Response<PostUpdateResponse>> updatePost(@PathVariable Long postId, @Valid @RequestBody PostUpdateRequest postUpdateRequest){
+        return ResponseEntity
+                .ok()
+                .body(Response.of(postService.updatePost(postId, postUpdateRequest)));
     }
 
     @DeleteMapping("/{postId}")

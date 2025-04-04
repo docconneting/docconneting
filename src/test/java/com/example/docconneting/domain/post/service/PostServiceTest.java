@@ -3,7 +3,7 @@ package com.example.docconneting.domain.post.service;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
-import com.example.docconneting.domain.post.dto.PostSingleResponse;
+import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
@@ -21,7 +21,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
