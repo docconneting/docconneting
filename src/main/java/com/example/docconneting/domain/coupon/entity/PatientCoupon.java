@@ -1,6 +1,5 @@
 package com.example.docconneting.domain.coupon.entity;
 
-import com.example.docconneting.common.enums.CouponStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -32,9 +31,6 @@ public class PatientCoupon {
 
     private Integer availableCount;
 
-    @Enumerated(EnumType.STRING)
-    private CouponStatus couponStatus;
-
     private LocalDateTime endDate;
 
     @CreatedDate
@@ -42,11 +38,10 @@ public class PatientCoupon {
     private LocalDateTime createdAt;
 
     @Builder
-    public PatientCoupon(User user, Coupon coupon, Integer availableCount, CouponStatus couponStatus, LocalDateTime endDate) {
+    public PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
         this.user = user;
         this.coupon = coupon;
         this.availableCount = availableCount;
-        this.couponStatus = couponStatus;
         this.endDate = endDate;
     }
 }
