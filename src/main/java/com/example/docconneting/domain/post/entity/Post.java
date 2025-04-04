@@ -38,4 +38,8 @@ public class Post extends BaseEntity {
     private Boolean isReplied;
 
     private LocalDateTime deadline;
+
+    public void delete(){
+        isDeleted = true;
+    }
 }
