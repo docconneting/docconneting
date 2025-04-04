@@ -1,10 +1,8 @@
 package com.example.docconneting.domain.chatting.entity;
 
-import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,11 +33,4 @@ public class Message {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private Message(User user, ChattingRoom chattingRoom, String contents) {
-        this.user = user;
-        this.chattingRoom = chattingRoom;
-        this.contents = contents;
-    }
 }

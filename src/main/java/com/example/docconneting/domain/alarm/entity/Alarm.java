@@ -2,7 +2,6 @@ package com.example.docconneting.domain.alarm.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,13 +30,5 @@ public class Alarm {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private Alarm(String content, Long fromId, Long toId, Boolean isViewed) {
-        this.content = content;
-        this.fromId = fromId;
-        this.toId = toId;
-        this.isViewed = isViewed;
-    }
 }
 

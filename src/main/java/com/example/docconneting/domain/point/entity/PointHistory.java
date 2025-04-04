@@ -4,7 +4,6 @@ import com.example.docconneting.domain.point.enums.PointType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,13 +37,4 @@ public class PointHistory {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private PointHistory(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
-        this.user = user;
-        this.postId = postId;
-        this.isRefunded = isRefunded;
-        this.pointType = pointType;
-        this.point = point;
-    }
 }

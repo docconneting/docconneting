@@ -1,11 +1,10 @@
 package com.example.docconneting.domain.payment.entity;
 
-import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.order.entity.Order;
+import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -43,14 +42,4 @@ public class PaymentHistory {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    @Builder
-    private PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
-        this.user = user;
-        this.order = order;
-        this.price = price;
-        this.paymentStatus = paymentStatus;
-        this.payment_key = payment_key;
-        this.approvedAt = approvedAt;
-    }
 }
