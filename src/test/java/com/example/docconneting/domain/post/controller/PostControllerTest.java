@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,5 +66,19 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.data.deadline", Matchers.startsWith(postSingleResponse.getDeadline().toString().substring(0,19))))
                 .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(postSingleResponse.getCreatedAt().toString().substring(0,19))))
                 .andExpect(jsonPath("$.data.modifiedAt", Matchers.startsWith(postSingleResponse.getModifiedAt().toString().substring(0,19))));
+    }
+
+    @Test
+    @DisplayName("컨트롤러에서 게시물 삭제")
+    void deletePostByIdTest() throws Exception {
+        // given
+        Long postId = 1L;
+
+        doNothing().when(postService).deletePostById(postId);
+
+        // when, then
+        mockMvc.perform(delete("/api/v1/posts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.message").value("게시물이 성공적으로 삭제되었습니다."));
     }
 }
