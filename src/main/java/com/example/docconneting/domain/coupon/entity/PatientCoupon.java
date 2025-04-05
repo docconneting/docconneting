@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "patient_coupons")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class PatientCoupon {
     @Id
@@ -35,4 +35,11 @@ public class PatientCoupon {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
+        this.user = user;
+        this.coupon = coupon;
+        this.availableCount = availableCount;
+        this.endDate = endDate;
+    }
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "point_histories")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class PointHistory {
     @Id
@@ -37,4 +37,12 @@ public class PointHistory {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private PointHistory(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
+        this.user = user;
+        this.postId = postId;
+        this.isRefunded = isRefunded;
+        this.pointType = pointType;
+        this.point = point;
+    }
 }
