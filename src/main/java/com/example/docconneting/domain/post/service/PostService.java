@@ -2,6 +2,9 @@ package com.example.docconneting.domain.post.service;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.common.response.PageInfo;
+import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
@@ -9,8 +12,13 @@ import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +47,31 @@ public class PostService {
                 .createdAt(findPost.getCreatedAt())
                 .modifiedAt(findPost.getModifiedAt())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<PostListResponse> findAllPosts(Pageable pageable, String title, String major){
+
+        Page<Post> posts = postRepository.findPosts(pageable, title, major);
+
+        List<Post> content = posts.getContent();
+        Pageable postsPageable = posts.getPageable();
+
+        List<PostListResponse> postsListResponses = content.stream().map(post -> PostListResponse.builder()
+                        .id(post.getId())
+                        .patientName(post.getPatient().getUsername())
+                        .title(post.getTitle())
+                        .contents(post.getContents())
+                        .major(post.getMajor().name())
+                        .isReplied(post.getIsReplied())
+                        .createdAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        PageInfo pageInfo = new PageInfo(postsPageable.getPageNumber(), postsPageable.getPageSize(), posts.getTotalElements(), posts.getTotalPages());
+
+        return new PageResult<>(postsListResponses, pageInfo);
     }
 
     // 게시물 수정
