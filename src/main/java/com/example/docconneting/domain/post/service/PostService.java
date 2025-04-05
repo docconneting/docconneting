@@ -22,7 +22,7 @@ public class PostService {
     // 게시물 단건 조회
     @Transactional(readOnly = true)
     public PostSingleResponse findPostById(Long postId){
-        Post findPost = postRepository.findById(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
+        Post findPost = postRepository.findByIdWithUser(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
         if(findPost.getIsDeleted()){
             throw new ClientException(ErrorCode.NOT_FOUND_POST);

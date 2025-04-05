@@ -32,15 +32,14 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-<<<<<<< HEAD
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-=======
+
     // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
->>>>>>> b51d58e89f5b14cd8307e2c066b8204b0d12260b
+
 }
 
 tasks.named('test') {
