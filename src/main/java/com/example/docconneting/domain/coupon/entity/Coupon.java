@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "coupons")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Coupon {
     @Id
@@ -32,7 +32,6 @@ public class Coupon {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Builder
     private Coupon(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
         this.availableCount = availableCount;
         this.quantity = quantity;
