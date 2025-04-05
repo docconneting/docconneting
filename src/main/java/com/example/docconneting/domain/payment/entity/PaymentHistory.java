@@ -43,4 +43,13 @@ public class PaymentHistory {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
+        this.user = user;
+        this.order = order;
+        this.price = price;
+        this.paymentStatus = paymentStatus;
+        this.payment_key = payment_key;
+        this.approvedAt = approvedAt;
+    }
 }

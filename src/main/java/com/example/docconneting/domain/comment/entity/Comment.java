@@ -26,4 +26,10 @@ public class Comment extends BaseEntity {
     private Post post;
 
     private String contents;
+
+    private Comment(Post post, User user, String contents) {
+        this.post = post;
+        this.user = user;
+        this.contents = contents;
+    }
 }

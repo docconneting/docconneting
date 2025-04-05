@@ -35,4 +35,10 @@ public class Message {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private Message(User user, ChattingRoom chattingRoom, String contents) {
+        this.user = user;
+        this.chattingRoom = chattingRoom;
+        this.contents = contents;
+    }
 }

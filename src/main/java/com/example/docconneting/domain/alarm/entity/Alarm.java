@@ -31,5 +31,12 @@ public class Alarm {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private Alarm(String content, Long fromId, Long toId, Boolean isViewed) {
+        this.content = content;
+        this.fromId = fromId;
+        this.toId = toId;
+        this.isViewed = isViewed;
+    }
 }
 

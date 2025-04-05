@@ -40,4 +40,12 @@ public class Order {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private Order(User user, OrderType orderType, Integer price, Long chattingRoomId, OrderProduct orderProduct) {
+        this.user = user;
+        this.orderType = orderType;
+        this.price = price;
+        this.chattingRoomId = chattingRoomId;
+        this.orderProduct = orderProduct;
+    }
 }
