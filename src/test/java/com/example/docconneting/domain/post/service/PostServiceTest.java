@@ -43,14 +43,14 @@ class PostServiceTest {
         // given
         Long postId = 1L;
 
-        given(postRepository.findById(postId)).willReturn(Optional.empty());
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.empty());
 
         // when, then
         ClientException clientException = assertThrows(ClientException.class, () -> postService.findPostById(postId));
 
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
@@ -62,7 +62,7 @@ class PostServiceTest {
         Post post = new Post();
         ReflectionTestUtils.setField(post, "isDeleted", true);
 
-        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
 
         // when, then
         ClientException clientException = assertThrows(ClientException.class, () -> postService.findPostById(postId));
@@ -70,7 +70,7 @@ class PostServiceTest {
         assertThat(clientException).isInstanceOf(ClientException.class);
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
@@ -94,7 +94,7 @@ class PostServiceTest {
         ReflectionTestUtils.setField(savedPost, "createdAt", LocalDateTime.now());
         ReflectionTestUtils.setField(savedPost, "modifiedAt", LocalDateTime.now());
 
-        given(postRepository.findById(postId)).willReturn(Optional.of(savedPost));
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(savedPost));
 
         // when
         PostSingleResponse postSingleResponse = postService.findPostById(postId);
@@ -110,7 +110,7 @@ class PostServiceTest {
         assertThat(postSingleResponse.getCreatedAt()).isEqualTo(savedPost.getCreatedAt());
         assertThat(postSingleResponse.getModifiedAt()).isEqualTo(savedPost.getModifiedAt());
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
