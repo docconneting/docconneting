@@ -4,7 +4,6 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "posts")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +37,7 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deadline;
 
-    public Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
+    Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
         this.patient = patient;
         this.title = title;
         this.contents = contents;
