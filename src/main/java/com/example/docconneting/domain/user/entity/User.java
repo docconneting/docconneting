@@ -4,12 +4,11 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "users")
@@ -32,12 +31,35 @@ public class User extends BaseEntity {
 
     private String image;
 
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
     private Boolean isDeleted;
+
+    // 환자 생성자
+    public User(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.point = point;
+        this.isDeleted = isDeleted;
+        this.userRole = userRole;
+    }
+
+    // 의사 생성자
+    public User(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.major = major;
+        this.image = image;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.isDeleted = isDeleted;
+        this.userRole = userRole;
+    }
 }

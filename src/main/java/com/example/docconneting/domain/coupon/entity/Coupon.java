@@ -31,4 +31,11 @@ public class Coupon {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    private Coupon(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
+        this.availableCount = availableCount;
+        this.quantity = quantity;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }
