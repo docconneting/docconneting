@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+//                @Index(name = "idx_user_category", columnList = "major"),
+        }
+)
 @Getter
 @NoArgsConstructor
 public class User extends BaseEntity {

@@ -25,6 +25,8 @@ public class UserRepositoryQueryImpl implements UserRepositoryQuery{
                     .select(user)
                     .from(user)
                     .where(categoryEq(category), nameEq(name))
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
                     .fetch();
 
         JPAQuery<Long> countQuery = jpaQueryFactory
