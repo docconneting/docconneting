@@ -2,6 +2,7 @@ package com.example.docconneting.common.resolver;
 
 import com.example.docconneting.domain.Auth.annotation.Auth;
 import com.example.docconneting.domain.Auth.dto.AuthUser;
+import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -35,10 +36,9 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
     ) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
-        // JwtFilter 에서 set 한 userId 값을 가져옴
+        // JwtFilter 에서 set 한 userId와 userRole 값을 가져옴
         Long userId = (Long) request.getAttribute("userId");
-        System.out.println("아이디 가져옴");
-        AuthUser authUser = new AuthUser(userId);
-        return authUser;
+        UserRole userRole = (UserRole) request.getAttribute("userRole");
+        return new AuthUser(userId,userRole);
     }
 }

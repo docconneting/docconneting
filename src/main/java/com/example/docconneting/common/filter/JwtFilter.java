@@ -1,6 +1,7 @@
 package com.example.docconneting.common.filter;
 
 import com.example.docconneting.common.config.JwtUtil;
+import com.example.docconneting.domain.user.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -55,7 +56,12 @@ public class JwtFilter implements Filter {
                 return;
             }
 
-            httpRequest.setAttribute("userId", Long.parseLong(claims.getSubject()));
+            Long userId = Long.parseLong(claims.getSubject());
+            String role = claims.get("role", String.class);
+            UserRole userRole = UserRole.valueOf(role);
+            httpRequest.setAttribute("userId", userId);
+            httpRequest.setAttribute("userRole", userRole);
+
             chain.doFilter(request, response);
 
         } catch (SecurityException | MalformedJwtException e) {
