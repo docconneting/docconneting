@@ -15,9 +15,7 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -86,10 +84,10 @@ public class AuthService {
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new ClientException(ErrorCode.PASSWORD_NOT_EQUAL);
+            throw new ClientException(ErrorCode.INVALID_PASSWORD);
         }
 
-        String accessToken = jwtUtil.createToken(user.getId());
+        String accessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
         String refreshToken = jwtUtil.createRefreshToken(user.getId());
 
         return UserSignInResponseDto.builder()

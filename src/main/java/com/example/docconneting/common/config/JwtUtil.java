@@ -1,6 +1,7 @@
 package com.example.docconneting.common.config;
 
 
+import com.example.docconneting.domain.user.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -32,12 +33,13 @@ public class JwtUtil {
     }
 
     //어세스 토큰 발급
-    public String createToken(Long userId) {
+    public String createToken(Long userId, UserRole userRole) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(String.valueOf(userId))
+                        .setSubject(String.valueOf(userId)) //id값 세팅
+                        .claim("role", userRole.name()) //role 값 세팅
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘
