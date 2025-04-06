@@ -62,4 +62,14 @@ public class User extends BaseEntity {
         this.isDeleted = isDeleted;
         this.userRole = userRole;
     }
+
+    //비밀번호 setter
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+    //의사 이미지 setter
+    public void updateImage(String newImage){
+        this.image = newImage;
+    }
 }
