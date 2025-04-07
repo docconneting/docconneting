@@ -1,14 +1,14 @@
-package com.example.docconneting.domain.auth.controller;
+package com.example.docconneting.domain.Auth.controller;
 
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.auth.annotation.Auth;
-import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.auth.service.AuthService;
-import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSigninRequest;
-import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponseDto;
-import com.example.docconneting.domain.auth.dto.response.UserSignInResponseDto;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
+import com.example.docconneting.domain.Auth.service.AuthService;
+import com.example.docconneting.domain.Auth.dto.request.UserRefreshTokenRequestDto;
+import com.example.docconneting.domain.Auth.dto.request.UserSignUpRequestDto;
+import com.example.docconneting.domain.Auth.dto.request.UserSigninRequestDto;
+import com.example.docconneting.domain.Auth.dto.response.UserRefreshTokenResponseDto;
+import com.example.docconneting.domain.Auth.dto.response.UserSignInResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class AuthController {
     //회원가입
     @PostMapping("/signup")
     public ResponseEntity<Response<Map<String, String>>> signUp(
-            @Valid @RequestBody UserSignUpRequest requestDto
+            @Valid @RequestBody UserSignUpRequestDto requestDto
     ) {
         Map<String, String> response = authService.signUp(requestDto);
 
@@ -39,7 +39,7 @@ public class AuthController {
     //로그인
     @PostMapping("/signin")
     public ResponseEntity<Response<UserSignInResponseDto>> signIn(
-            @Valid @RequestBody UserSigninRequest requestDto
+            @Valid @RequestBody UserSigninRequestDto requestDto
     ) {
         UserSignInResponseDto response = authService.signIn(requestDto);
 
@@ -50,7 +50,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<Response<UserRefreshTokenResponseDto>> refreshToken(
             @Auth AuthUser authUser,
-            @Valid @RequestBody UserRefreshTokenRequest requestDto
+            @Valid @RequestBody UserRefreshTokenRequestDto requestDto
     ) {
         UserRefreshTokenResponseDto response = authService.refreshAccessToken(authUser, requestDto);
 

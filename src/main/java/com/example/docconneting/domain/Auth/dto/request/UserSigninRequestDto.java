@@ -1,10 +1,10 @@
-package com.example.docconneting.domain.auth.dto.request;
+package com.example.docconneting.domain.Auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class UserSigninRequest {
+public class UserSigninRequestDto {
     @NotBlank(message = "이메일은 필수 입력값입니다.")
     private String email;
 

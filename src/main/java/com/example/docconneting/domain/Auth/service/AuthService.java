@@ -1,19 +1,21 @@
-package com.example.docconneting.domain.auth.service;
+package com.example.docconneting.domain.Auth.service;
 
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.config.PasswordEncoder;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
-import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSigninRequest;
-import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponseDto;
-import com.example.docconneting.domain.auth.dto.response.UserSignInResponseDto;
+import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
+import com.example.docconneting.domain.Auth.dto.request.UserRefreshTokenRequestDto;
+import com.example.docconneting.domain.Auth.dto.request.UserSignUpRequestDto;
+import com.example.docconneting.domain.Auth.dto.request.UserSigninRequestDto;
+import com.example.docconneting.domain.Auth.dto.response.UserRefreshTokenResponseDto;
+import com.example.docconneting.domain.Auth.dto.response.UserSignInResponseDto;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,11 +34,7 @@ public class AuthService {
 
     // 회원가입
     @Transactional
-    public Map<String, String> signUp(UserSignUpRequest dto) {
-        if(userRepository.findByEmail(dto.getEmail()).isPresent())
-        {
-            throw new ClientException(ErrorCode.EMAIL_ALREADY_EXISTS);
-        }
+    public Map<String, String> signUp(UserSignUpRequestDto dto) {
         String password = passwordEncoder.encode(dto.getPassword());
         UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
 
@@ -97,7 +95,7 @@ public class AuthService {
 
     // 로그인
     @Transactional(readOnly = true)
-    public UserSignInResponseDto signIn(UserSigninRequest requestDto) {
+    public UserSignInResponseDto signIn(UserSigninRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
@@ -116,7 +114,7 @@ public class AuthService {
 
     //토큰 재발급
     @Transactional
-    public UserRefreshTokenResponseDto refreshAccessToken(AuthUser authuser, UserRefreshTokenRequest dto) {
+    public UserRefreshTokenResponseDto refreshAccessToken(AuthUser authuser, UserRefreshTokenRequestDto dto) {
         User user = userRepository.findById(authuser.getId())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 

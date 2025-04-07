@@ -2,8 +2,8 @@ package com.example.docconneting.common.resolver;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ServerException;
-import com.example.docconneting.domain.auth.annotation.Auth;
-import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

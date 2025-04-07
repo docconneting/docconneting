@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.auth.annotation;
+package com.example.docconneting.domain.Auth.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
