@@ -1,8 +1,11 @@
 package com.example.docconneting.domain.post.controller;
 
+import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
@@ -10,6 +13,7 @@ import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.service.PostService;
 import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bytebuddy.asm.Advice;
 import org.hamcrest.Matchers;
@@ -17,10 +21,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,6 +43,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(PostController.class)
+@TestPropertySource(properties = {
+        "jwt.secret.key=5Gk6hibHDtKLFVk4NdBX039rvehSLNjfKsdXpm/pHsU="
+})
+@Import(JwtUtil.class)
 class PostControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -49,6 +59,9 @@ class PostControllerTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    JwtUtil jwtUtil;
 
     @Test
     @DisplayName("컨트롤러에서 게시물 단건 조회")
@@ -96,6 +109,8 @@ class PostControllerTest {
     @DisplayName("컨트롤러에서 게시물 수정")
     void updatePostTest() throws Exception{
         // given
+        String accessToken = jwtUtil.createToken(1L, UserRole.PATIENT);
+
         Long postId = 1L;
 
         PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
@@ -106,12 +121,13 @@ class PostControllerTest {
 
         PostUpdateResponse postUpdateResponse = PostUpdateResponse.of(postId, "updateTitle", "updateContent", Major.ORTHOPEDICS.name(), LocalDateTime.now(), LocalDateTime.now());
 
-        given(postService.updatePost(any(Long.class), any(PostUpdateRequest.class))).willReturn(postUpdateResponse);
+        given(postService.updatePost(any(AuthUser.class), any(Long.class), any(PostUpdateRequest.class))).willReturn(postUpdateResponse);
 
         // when, then
         mockMvc.perform(patch("/api/v1/posts/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(postUpdateRequestJson))
+                        .content(postUpdateRequestJson)
+                        .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(postId))
                 .andExpect(jsonPath("$.data.title").value(postUpdateResponse.getTitle()))
@@ -120,7 +136,7 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(postUpdateResponse.getCreatedAt().toString().substring(0,19))))
                 .andExpect(jsonPath("$.data.modifiedAt", Matchers.startsWith(postUpdateResponse.getModifiedAt().toString().substring(0,19))));
 
-        verify(postService, times(1)).updatePost(any(Long.class), any(PostUpdateRequest.class));
+        verify(postService, times(1)).updatePost(any(AuthUser.class), any(Long.class), any(PostUpdateRequest.class));
     }
 
     @Test
