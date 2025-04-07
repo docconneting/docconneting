@@ -1,6 +1,7 @@
 package com.example.docconneting.domain.user.repository;
 
 import com.example.docconneting.domain.user.entity.User;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
             "AND u.userRole = 'DOCTOR' " +
             "AND u.isDeleted = FALSE ")
     Optional<User> findByDoctorId(Long id);
+
+    Optional<User> findByEmail(String email);
 }
