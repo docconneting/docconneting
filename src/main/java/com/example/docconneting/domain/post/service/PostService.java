@@ -4,12 +4,14 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
+import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -65,11 +67,20 @@ public class PostService {
 
     // 게시물 수정
     @Transactional
-    public PostUpdateResponse updatePost(Long postId, PostUpdateRequest postUpdateRequest){
-        Post findPost = postRepository.findById(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
+    public PostUpdateResponse updatePost(AuthUser authUser, Long postId, PostUpdateRequest postUpdateRequest){
+
+        if(authUser.getUserRole() != UserRole.PATIENT){
+            throw new ClientException(ErrorCode.PATIENT_ONLY_ACCESS);
+        }
+
+        Post findPost = postRepository.findByIdWithUser(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
         if(findPost.getIsDeleted()){
             throw new ClientException(ErrorCode.NOT_FOUND_POST);
+        }
+
+        if(authUser.getId() != findPost.getPatient().getId()){
+            throw new ClientException(ErrorCode.ONLY_AUTHOR_CAN_UPDATE_OR_DELETED);
         }
 
         findPost.updateTitle(postUpdateRequest.getTitle());
