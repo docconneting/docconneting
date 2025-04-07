@@ -7,6 +7,7 @@ import com.example.docconneting.domain.doctor.dto.DoctorResponse;
 import com.example.docconneting.domain.doctor.service.DoctorService;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -36,6 +37,41 @@ class DoctorControllerTest {
     @MockitoBean
     private DoctorService doctorService;
 
+    private User user1;
+    private User user2;
+
+    @BeforeEach
+    void setUp() {
+        String majorName = "INTERNAL_MEDICINE";
+        Major major = Major.of(majorName);
+
+        user1 = new User(
+                "test1@naver.com",
+                "password",
+                "kimdoctor",
+                major,
+                "https://example.com/image.jpg",
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                false,
+                UserRole.DOCTOR
+        );
+        ReflectionTestUtils.setField(user1, "id", 1L);
+
+        user2 = new User(
+                "test2@naver.com",
+                "password",
+                "leedoctor",
+                major,
+                "https://example.com/image.jpg",
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                false,
+                UserRole.DOCTOR
+        );
+        ReflectionTestUtils.setField(user2, "id", 2L);
+    }
+
     @Test
     public void 의사_단건_조회() throws Exception {
         // given
@@ -64,29 +100,10 @@ class DoctorControllerTest {
         int totalElement = 2;
         int totalPages = 1;
 
-        long userId1 = 1L;
-        String email1 = "test1@naver.com";
-        String password = "password";
-        String username1 = "kimdoctor";
-        String majorName = "INTERNAL_MEDICINE";
-        Major major = Major.of(majorName);
-        String image = "https://example.com/image.jpg";
-        LocalTime startTime = LocalTime.of(9, 0);
-        LocalTime endTime = LocalTime.of(18, 0);
-        boolean isDeleted = false;
-        UserRole userRole = UserRole.DOCTOR;
-        User user1 = new User(email1, password, username1, major, image, startTime, endTime, isDeleted, userRole);
-        ReflectionTestUtils.setField(user1, "id", userId1);
-
-        long userId2 = 2L;
-        String email2 = "test2@naver.com";
-        String username2 = "leedoctor";
-        User user2 = new User(email2, password, username2, major, image, startTime, endTime, isDeleted, userRole);
-        ReflectionTestUtils.setField(user2, "id", userId2);
-
         List<User> users = new ArrayList<>();
         users.add(user1);
         users.add(user2);
+        List<DoctorResponse> doctors = DoctorResponse.toDoctorResponse(users);
 
         PageInfo pageInfo = PageInfo.builder()
                 .pageNum(page)
@@ -95,7 +112,7 @@ class DoctorControllerTest {
                 .totalPage(totalPages)
                 .build();
 
-        PageResult<User> pageResult = new PageResult<>(users, pageInfo);
+        PageResult<DoctorResponse> pageResult = new PageResult<>(doctors, pageInfo);
 
         given(doctorService.findDoctors(page, size, "", "")).willReturn(pageResult);
 
@@ -106,10 +123,10 @@ class DoctorControllerTest {
                 .param("category", "")
                 .param("name", ""))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(userId1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].username").value(username1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].id").value(userId2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].username").value(username2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(user1.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].name").value(user1.getUsername()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].id").value(user2.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].name").value(user2.getUsername()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.page.pageNum").value(page))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.page.pageSize").value(size))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.page.totalElement").value(totalElement))
