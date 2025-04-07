@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        indexes = { @Index(name = "idx1", columnList = "isDeleted"),
+                    @Index(name = "idx2", columnList = "major, isDeleted") }
+)
 @Getter
 @NoArgsConstructor
 public class User extends BaseEntity {
