@@ -31,20 +31,20 @@ class PostRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
-    @Test
-    void createPosts(){
-        User user = new User();
-        User savedUser = userRepository.save(user);
-        Random random = new Random(System.currentTimeMillis());
-        List<Post> posts = new ArrayList<>();
-        for(int i=0;i<10000;i++){
-            int randomNumber = random.nextInt(5);
-            Major[] majors = Major.values();
-            Post post = Post.of(savedUser, "title"+(i+1), "contents"+(i+1), majors[randomNumber], false, false, false, LocalDateTime.now());
-            posts.add(post);
-        }
-        postRepository.saveAll(posts);
-    }
+//    @Test
+//    void createPosts(){
+//        User user = new User();
+//        User savedUser = userRepository.save(user);
+//        Random random = new Random(System.currentTimeMillis());
+//        List<Post> posts = new ArrayList<>();
+//        for(int i=0;i<10000;i++){
+//            int randomNumber = random.nextInt(5);
+//            Major[] majors = Major.values();
+//            Post post = Post.of(savedUser, "title"+(i+1), "contents"+(i+1), majors[randomNumber], false, false, false, LocalDateTime.now());
+//            posts.add(post);
+//        }
+//        postRepository.saveAll(posts);
+//    }
 
     @BeforeEach
     @Transactional
