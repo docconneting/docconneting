@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.comment.service;
 
+import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ServerException;
 import com.example.docconneting.domain.comment.dto.request.CommentRequestDto;
@@ -9,6 +10,7 @@ import com.example.docconneting.domain.comment.repository.CommentRepository;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +49,18 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        user = new User("test@test.com", "test!123", "name");
+        user = new User(
+                "test@test.com",
+                "test!123",
+                "name",
+                Major.INTERNAL_MEDICINE,   // 전공
+                null,                      // image
+                null,                      // startTime
+                null,                      // endTime
+                false,                     // isDeleted
+                UserRole.DOCTOR            // 역할
+        );
+
         ReflectionTestUtils.setField(user, "id", 1L);
 
         post = new Post();
@@ -107,8 +120,24 @@ class CommentServiceTest {
             CommentResponseDto response = commentService.createComment(1L, 1L, request);
 
             assertNotNull(response);
-            assertEquals("comments", response.getId());
+            assertEquals("comments", response.getContents());
             assertEquals(10L, response.getId());
+        }
+
+        @Test
+        @Order(4)
+        void 의사가_아니면_댓글_작성_불가() {
+            ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+            CommentRequestDto request = new CommentRequestDto("comments");
+
+            ServerException ex = assertThrows(ServerException.class, () ->
+                    commentService.createComment(1L, 1L, request)
+            );
+
+            assertEquals(ErrorCode.NOT_ALLOWED_TO_COMMENT, ex.getErrorCode());
         }
     }
 
@@ -144,15 +173,31 @@ class CommentServiceTest {
         @Test
         @Order(2)
         void 작성자가_아니면_예외() throws Exception {
-            User user = new User("test@test.com", "test!123", "name");
+            // 현재 로그인한 사용자
+            Long currentUserId = 1L;
+
+            // 댓글의 작성자(다른 사람)
+            User anotherUser = new User(
+                    "another@test.com",
+                    "test!123",
+                    "name",
+                    Major.INTERNAL_MEDICINE,   // 전공
+                    null,                      // image
+                    null,                      // startTime
+                    null,                      // endTime
+                    false,                     // isDeleted
+                    UserRole.DOCTOR            // 역할
+            );
+
+            // 다른 유저의 id(id = 99L)
+            Field anotherUserIdField = User.class.getDeclaredField("id");
+            anotherUserIdField.setAccessible(true);
+            anotherUserIdField.set(user, 99L);
+
+            Comment anotherComment = new Comment(anotherUser, post, "anotherComments");
             Field commentIdField = Comment.class.getDeclaredField("id");
             commentIdField.setAccessible(true);
-            commentIdField.set(user, 99L);
-
-            Comment anotherComment = new Comment(user, post, "anotherComments");
-            Field commentIdField2 = Comment.class.getDeclaredField("id");
-            commentIdField2.setAccessible(true);
-            commentIdField2.set(anotherComment, 100L);
+            commentIdField.set(comment, 100L);
 
             when(commentRepository.findById(100L)).thenReturn(Optional.of(anotherComment));
 
@@ -178,7 +223,7 @@ class CommentServiceTest {
 
             assertNotNull(response);
             assertEquals(100L, response.getId());
-            assertEquals("updateComments", response.getId());
+            assertEquals("updateComments", response.getContents());
         }
     }
 }
