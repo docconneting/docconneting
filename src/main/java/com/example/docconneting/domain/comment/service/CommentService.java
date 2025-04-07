@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -39,11 +40,13 @@ public class CommentService {
 
         Comment saved = commentRepository.save(comment);
 
-        return CommentResponseDto.builder()
-                .id(saved.getId())
-                .contents(request.getContents())
-                .createdAt(comment.getCreatedAt())
-                .build();
+        CommentResponseDto response = CommentResponseDto.of(
+                comment.getId(),
+                comment.getContents(),
+                comment.getCreatedAt(),
+                comment.getModifiedAt());
+
+        return response;
     }
 
     @Transactional
@@ -54,15 +57,15 @@ public class CommentService {
 
         validateCommentPermission(userId, findComment);
 
-        Comment createComment = commentRepository.save(findComment);
+        findComment.updateContents(request.getContents());
 
-        return CommentResponseDto.builder()
-                .id(createComment.getId())
-                .contents(request.getContents())
-                .createdAt(findComment.getCreatedAt())
-                .updatedAt(findComment.getModifiedAt())
-                .build();
+        CommentResponseDto response = CommentResponseDto.of(
+                findComment.getId(),
+                findComment.getContents(),
+                findComment.getCreatedAt(),
+                findComment.getModifiedAt());
 
+        return response;
     }
 
     private void validateCommentPermission(Long userId, Comment findComment) {

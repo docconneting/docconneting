@@ -25,23 +25,22 @@ public class DoctorService {
     public DoctorResponse findDoctor(Long id) {
         User user = userRepository.findByDoctorId(id).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
 
-        DoctorResponse response = DoctorResponse.builder()
-                .id(user.getId())
-                .name(user.getUsername())
-                .major(user.getMajor().name())
-                .imageUrl(user.getImage())
-                .startTime(user.getStartTime())
-                .endTime(user.getEndTime())
-                .build();
+        DoctorResponse response = DoctorResponse.of(
+                user.getId(),
+                user.getUsername(),
+                user.getMajor().name(),
+                user.getImage(),
+                user.getStartTime(),
+                user.getEndTime());
 
         return response;
     }
 
     // 의사 다건 조회 검색
-    public PageResult<User> findDoctors(int page, int size, String category, String name) {
+    public PageResult<DoctorResponse> findDoctors(int page, int size, String category, String name) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<User> result = userRepository.findDoctors(pageable, category, name);
-        List<User> users = result.getContent().stream().toList();
+        List<DoctorResponse> doctors = DoctorResponse.toDoctorResponse(result.getContent());
 
         PageInfo pageInfo = PageInfo.builder()
                 .pageNum(page)
@@ -50,6 +49,6 @@ public class DoctorService {
                 .totalPage(result.getTotalPages())
                 .build();
 
-        return new PageResult<>(users, pageInfo);
+        return new PageResult<>(doctors, pageInfo);
     }
 }

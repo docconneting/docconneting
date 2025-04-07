@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.comment.controller;
 
+import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.comment.dto.request.CommentRequestDto;
 import com.example.docconneting.domain.comment.dto.response.CommentResponseDto;
 import com.example.docconneting.domain.comment.service.CommentService;
@@ -17,20 +18,20 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<CommentResponseDto> createComment(
+    public ResponseEntity<Response<CommentResponseDto>> createComment(
             @RequestHeader Long userId,
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequestDto request
     ) {
-        return new ResponseEntity<>(commentService.createComment(userId, postId, request), HttpStatus.CREATED);
+        return new ResponseEntity<>(Response.of(commentService.createComment(userId, postId, request)), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<CommentResponseDto> updateComment(
+    public ResponseEntity<Response<CommentResponseDto>> updateComment(
         @RequestHeader Long userId,
         @PathVariable Long commentId,
         @Valid @RequestBody CommentRequestDto request
     ) {
-        return new ResponseEntity<>(commentService.updateComment(userId, commentId, request), HttpStatus.OK);
+        return new ResponseEntity<>(Response.of(commentService.updateComment(userId, commentId, request)), HttpStatus.OK);
     }
 }

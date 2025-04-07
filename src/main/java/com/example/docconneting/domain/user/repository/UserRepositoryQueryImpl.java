@@ -24,15 +24,21 @@ public class UserRepositoryQueryImpl implements UserRepositoryQuery{
         List<User> users = jpaQueryFactory
                     .select(user)
                     .from(user)
-                    .where(categoryEq(category), nameEq(name))
+                    .where(categoryEq(category), isDeletedEq(), nameEq(name))
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
                     .fetch();
 
         JPAQuery<Long> countQuery = jpaQueryFactory
                     .select(user.count())
                     .from(user)
-                    .where(categoryEq(category), nameEq(name));
+                    .where(categoryEq(category), isDeletedEq(), nameEq(name));
 
         return PageableExecutionUtils.getPage(users, pageable, countQuery::fetchOne);
+    }
+
+    BooleanExpression isDeletedEq() {
+        return user.isDeleted.eq(Boolean.FALSE);
     }
 
     BooleanExpression categoryEq(String category) {

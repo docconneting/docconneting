@@ -31,6 +31,10 @@ public class Comment extends BaseEntity {
         this.contents = contents;
     }
 
+    public static Comment of(User user, Post post, String contents) {
+        return new Comment(user, post, contents);
+    }
+
     public void updateContents(String contents) {
         this.contents = contents;
     }
