@@ -53,6 +53,11 @@ public class User extends BaseEntity {
         this.userRole = userRole;
     }
 
+    // 환자 생성 메서드
+    public static User of(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole){
+        return new User(email, password, username, point, isDeleted, userRole);
+    }
+
     // 의사 생성자
     private User(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
         this.email = email;
@@ -65,14 +70,9 @@ public class User extends BaseEntity {
         this.isDeleted = isDeleted;
         this.userRole = userRole;
     }
-
-    //환자 of
-    public static User of(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
-        return new User(email, password, username, point, isDeleted, userRole);
-    }
-
-    //의사 of
-    public static User of(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
+  
+    // 의사 생성 메서드
+    public static User of(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole){
         return new User(email, password, username, major, image, startTime, endTime, isDeleted, userRole);
     }
 
@@ -84,5 +84,6 @@ public class User extends BaseEntity {
     //의사 이미지 setter
     public void updateImage(String newImage) {
         this.image = newImage;
-    }
+    
+  
 }
