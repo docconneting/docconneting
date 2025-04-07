@@ -19,6 +19,9 @@ public enum ErrorCode {
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "의사만 접근 가능한 기능입니다."),
     USERROLE_NOT_FOUND(HttpStatus.UNAUTHORIZED, "권한 이름을 잘못 입력하셨습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"리프레시 토큰이 일치하지 않습니다." ),
+    //404
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않습니다."),
 
     //404
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지는 필수 입력 값입니다."),

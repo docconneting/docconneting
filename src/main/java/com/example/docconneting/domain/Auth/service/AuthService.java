@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.Auth.authservice;
+package com.example.docconneting.domain.Auth.service;
 
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.config.PasswordEncoder;
@@ -6,6 +6,7 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.Auth.dto.AuthUser;
 import com.example.docconneting.domain.Auth.dto.request.UserRefreshTokenRequestDto;
 import com.example.docconneting.domain.Auth.dto.request.UserSignUpRequestDto;
 import com.example.docconneting.domain.Auth.dto.request.UserSigninRequestDto;
@@ -14,6 +15,7 @@ import com.example.docconneting.domain.Auth.dto.response.UserSignInResponseDto;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -89,7 +92,8 @@ public class AuthService {
 
         String accessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
         String refreshToken = jwtUtil.createRefreshToken(user.getId());
-
+        // refreshToken을 Redis에 저장
+        refreshTokenService.saveRefreshToken(user.getId(), refreshToken);
         return UserSignInResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -98,7 +102,22 @@ public class AuthService {
 
     //토큰 재발급
     @Transactional
-    public UserRefreshTokenResponseDto refreshToken(UserRefreshTokenRequestDto requestDto) {
-        return null;
+    public UserRefreshTokenResponseDto refreshToken(AuthUser authuser, UserRefreshTokenRequestDto dto) {
+        User user = userRepository.findById(authuser.getId())
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+        String token = jwtUtil.substringToken(dto.getRefreshToken());
+        Claims claims = jwtUtil.extractClaims(token);
+
+        String savedToken = refreshTokenService.getRefreshToken(user.getId());
+        if (!token.equals(savedToken)) {
+            throw new ClientException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        String newAccessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
+
+        return UserRefreshTokenResponseDto.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(savedToken)
+                .build();
     }
 }

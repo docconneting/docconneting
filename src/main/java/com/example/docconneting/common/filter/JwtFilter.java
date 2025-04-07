@@ -44,7 +44,7 @@ public class JwtFilter implements Filter {
         String bearerJwt = httpRequest.getHeader("Authorization");
 
         if (bearerJwt == null || !bearerJwt.startsWith("Bearer ")) {
-            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "JWT 토큰이 필요합니다.");
+            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 토큰이 필요합니다.");
             return;
         }
 
@@ -58,6 +58,10 @@ public class JwtFilter implements Filter {
 
             Long userId = Long.parseLong(claims.getSubject());
             String role = claims.get("role", String.class);
+            if (role == null) {
+                httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT에 role 정보가 없습니다.");
+                return;
+            }
             UserRole userRole = UserRole.valueOf(role);
             httpRequest.setAttribute("userId", userId);
             httpRequest.setAttribute("userRole", userRole);
@@ -81,15 +85,17 @@ public class JwtFilter implements Filter {
 
     // URI + HTTP Method 기반 화이트리스트
     private boolean isWhiteList(String requestURI, String method) {
-        if (!"GET".equals(method)) {
-            return false;
+        if (requestURI.startsWith("/api/v1/signup") || requestURI.startsWith("/api/v1/signin")) {
+            return true;
         }
 
-        return requestURI.matches("^/api/v1/posts$") ||                          // /posts
-                requestURI.matches("^/api/v1/posts/\\d+$") ||                    // /posts/{id}
-                requestURI.matches("^/api/v1/posts/\\d+/comments$") ||           // /posts/{id}/comments
-                requestURI.startsWith("/api/v1/signup") ||
-                requestURI.startsWith("/api/v1/signin");
+        if ("GET".equals(method)) {
+            return requestURI.matches("^/api/v1/posts$") ||
+                    requestURI.matches("^/api/v1/posts/\\d+$") ||
+                    requestURI.matches("^/api/v1/posts/\\d+/comments$");
+        }
+
+        return false;
     }
 
     @Override
