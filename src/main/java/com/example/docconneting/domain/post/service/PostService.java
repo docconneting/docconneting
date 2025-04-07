@@ -36,17 +36,15 @@ public class PostService {
             throw new ClientException(ErrorCode.NOT_FOUND_POST);
         }
 
-        return PostSingleResponse.builder()
-                .id(findPost.getId())
-                .patientName(findPost.getPatient().getUsername())
-                .title(findPost.getTitle())
-                .contents(findPost.getContents())
-                .major(findPost.getMajor().name())
-                .isReplied(findPost.getIsReplied())
-                .deadline(findPost.getDeadline())
-                .createdAt(findPost.getCreatedAt())
-                .modifiedAt(findPost.getModifiedAt())
-                .build();
+        return PostSingleResponse.of(findPost.getId(),
+                findPost.getPatient().getUsername(),
+                findPost.getTitle(),
+                findPost.getContents(),
+                findPost.getMajor().name(),
+                findPost.getIsReplied(),
+                findPost.getDeadline(),
+                findPost.getCreatedAt(),
+                findPost.getModifiedAt());
     }
 
     @Transactional(readOnly = true)
@@ -57,17 +55,7 @@ public class PostService {
         List<Post> content = posts.getContent();
         Pageable postsPageable = posts.getPageable();
 
-        List<PostListResponse> postsListResponses = content.stream().map(post -> PostListResponse.builder()
-                        .id(post.getId())
-                        .patientName(post.getPatient().getUsername())
-                        .title(post.getTitle())
-                        .contents(post.getContents())
-                        .major(post.getMajor().name())
-                        .isReplied(post.getIsReplied())
-                        .createdAt(post.getCreatedAt())
-                        .modifiedAt(post.getModifiedAt())
-                        .build())
-                .collect(Collectors.toList());
+        List<PostListResponse> postsListResponses = PostListResponse.toPostListResponses(content);
 
         PageInfo pageInfo = new PageInfo(postsPageable.getPageNumber(), postsPageable.getPageSize(), posts.getTotalElements(), posts.getTotalPages());
 
@@ -89,14 +77,12 @@ public class PostService {
         // flush() 시점에 @LastModifiedDate 이 작동한다
         entityManager.flush();
 
-        return PostUpdateResponse.builder()
-                .id(findPost.getId())
-                .title(findPost.getTitle())
-                .contents(findPost.getContents())
-                .major(findPost.getMajor().name())
-                .createdAt(findPost.getCreatedAt())
-                .modifiedAt(findPost.getModifiedAt())
-                .build();
+        return PostUpdateResponse.of(findPost.getId(),
+                findPost.getTitle(),
+                findPost.getContents(),
+                findPost.getMajor().name(),
+                findPost.getCreatedAt(),
+                findPost.getModifiedAt());
     }
 
     // 게시물 삭제

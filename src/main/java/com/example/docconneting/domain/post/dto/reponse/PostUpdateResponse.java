@@ -19,13 +19,17 @@ public class PostUpdateResponse {
 
     private final LocalDateTime modifiedAt;
 
-    @Builder
-    public PostUpdateResponse(Long id, String title, String contents, String major, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+
+    private PostUpdateResponse(Long id, String title, String contents, String major, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.title = title;
         this.contents = contents;
         this.major = major;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+    }
+
+    public static PostUpdateResponse of(Long id, String title, String contents, String major, LocalDateTime createdAt, LocalDateTime modifiedAt){
+        return new PostUpdateResponse(id, title, contents, major, createdAt, modifiedAt);
     }
 }

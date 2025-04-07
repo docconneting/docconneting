@@ -44,7 +44,7 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deadline;
 
-    public Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
+    private Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
         this.patient = patient;
         this.title = title;
         this.contents = contents;
