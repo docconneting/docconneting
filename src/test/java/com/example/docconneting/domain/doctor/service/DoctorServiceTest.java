@@ -50,7 +50,7 @@ class DoctorServiceTest {
         majorName = "INTERNAL_MEDICINE";
         Major major = Major.of(majorName);
 
-        user1 = new User(
+        user1 = User.of(
                 "test1@naver.com",
                 "password",
                 "kimdoctor",
@@ -63,7 +63,7 @@ class DoctorServiceTest {
         );
         ReflectionTestUtils.setField(user1, "id", 1L);
 
-        user2 = new User(
+        user2 = User.of(
                 "test2@naver.com",
                 "password",
                 "leedoctor",
