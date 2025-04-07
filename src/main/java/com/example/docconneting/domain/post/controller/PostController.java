@@ -2,6 +2,8 @@ package com.example.docconneting.domain.post.controller;
 
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
@@ -45,10 +47,10 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<Response<PostUpdateResponse>> updatePost(@PathVariable Long postId, @Valid @RequestBody PostUpdateRequest postUpdateRequest){
+    public ResponseEntity<Response<PostUpdateResponse>> updatePost(@Auth AuthUser authUser, @PathVariable Long postId, @Valid @RequestBody PostUpdateRequest postUpdateRequest){
         return ResponseEntity
                 .ok()
-                .body(Response.of(postService.updatePost(postId, postUpdateRequest)));
+                .body(Response.of(postService.updatePost(authUser, postId, postUpdateRequest)));
     }
 
     @DeleteMapping("/{postId}")

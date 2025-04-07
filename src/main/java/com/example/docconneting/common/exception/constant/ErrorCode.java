@@ -12,6 +12,10 @@ public enum ErrorCode {
 
     // 게시물 에러 코드
 
+    // 403
+    PATIENT_ONLY_ACCESS(HttpStatus.FORBIDDEN, "게시물 수정, 삭제는 환자만 접근 가능 합니다."),
+    ONLY_AUTHOR_CAN_UPDATE_OR_DELETED(HttpStatus.FORBIDDEN, "게시물은 작성자만 수정 혹은 삭제 가능합니다."),
+
     // 404 NOT_FOUND
     NOT_FOUND_POST(HttpStatus.NOT_FOUND, "존재하지 않는 게시물 입니다."),
 
