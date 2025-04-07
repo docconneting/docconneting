@@ -100,8 +100,18 @@ public class PostService {
 
     // 게시물 삭제
     @Transactional
-    public void deletePostById(Long postId){
-        Post findPost = postRepository.findById(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
+    public void deletePostById(AuthUser authUser, Long postId){
+
+        if(authUser.getUserRole() != UserRole.PATIENT){
+            throw new ClientException(ErrorCode.PATIENT_ONLY_ACCESS);
+        }
+
+        Post findPost = postRepository.findByIdWithUser(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
+
+        if(authUser.getId() != findPost.getPatient().getId()){
+            throw new ClientException(ErrorCode.ONLY_AUTHOR_CAN_UPDATE_OR_DELETED);
+        }
+
         findPost.delete();
     }
 }
