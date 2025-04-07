@@ -1,10 +1,12 @@
 package com.example.docconneting.domain.doctor.dto;
 
+import com.example.docconneting.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class DoctorResponse {
@@ -24,5 +26,19 @@ public class DoctorResponse {
         this.imageUrl = imageUrl;
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+
+    public static List<DoctorResponse> toDoctorResponse(List<User> users) {
+        List<DoctorResponse> doctorResponseList = users.stream()
+                .map(user -> new DoctorResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getMajor().name(),
+                        user.getImage(),
+                        user.getStartTime(),
+                        user.getEndTime()
+                ))
+                .collect(Collectors.toList());
+        return doctorResponseList;
     }
 }
