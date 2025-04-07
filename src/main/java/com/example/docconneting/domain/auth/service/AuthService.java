@@ -35,6 +35,10 @@ public class AuthService {
     public Map<String, String> signUp(UserSignUpRequest dto) {
         String password = passwordEncoder.encode(dto.getPassword());
         UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
+        if (userRepository.findByEmail(dto.getEmail()).isPresent())
+        {
+            throw new ClientException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
 
         User user = switch (role) {
             case DOCTOR -> {

@@ -6,6 +6,8 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
+import com.example.docconneting.domain.user.dto.response.DoctorMyPageResponse;
+import com.example.docconneting.domain.user.dto.response.PatientMyPageResponse;
 import com.example.docconneting.domain.user.dto.response.UserMyPageResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -31,10 +33,10 @@ public class UserService {
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getUserRole().equals(UserRole.DOCTOR)) {
-            return UserMyPageResponse.of(user.getUsername());
+            return DoctorMyPageResponse.of(user.getUsername());
         }
 
-        return UserMyPageResponse.of(user.getUsername(), user.getPoint());
+        return PatientMyPageResponse.of(user.getUsername(), user.getPoint());
     }
 
     //비밀번호 수정
