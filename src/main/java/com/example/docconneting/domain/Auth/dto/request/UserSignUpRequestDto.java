@@ -1,10 +1,7 @@
 package com.example.docconneting.domain.Auth.dto.request;
 
-import com.example.docconneting.common.enums.Major;
-import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -21,7 +18,7 @@ public class UserSignUpRequestDto {
     @NotBlank(message = "이름은 필수 입력 값입니다.")
     private String username;
 
-    @NotNull(message = "역할은 필수 입력 값입니다.")
+    @NotBlank(message = "역할은 필수 입력 값입니다.")
     private String userRole; // DOCTOR or PATIENT or ADMIN
 
     // 의사 전용 필드

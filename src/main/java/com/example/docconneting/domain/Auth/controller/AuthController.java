@@ -31,9 +31,9 @@ public class AuthController {
     public ResponseEntity<Response<Map<String, String>>> signUp(
             @Valid @RequestBody UserSignUpRequestDto requestDto
     ) {
-        Response<Map<String, String>> response = authService.signUp(requestDto);
+        Map<String, String> response = authService.signUp(requestDto);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Response.of(response));
     }
 
     //로그인
@@ -52,7 +52,7 @@ public class AuthController {
             @Auth AuthUser authUser,
             @Valid @RequestBody UserRefreshTokenRequestDto requestDto
     ) {
-        UserRefreshTokenResponseDto response = authService.refreshToken(authUser, requestDto);
+        UserRefreshTokenResponseDto response = authService.refreshAccessToken(authUser, requestDto);
 
         return ResponseEntity.ok(Response.of(response));
     }

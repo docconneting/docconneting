@@ -34,7 +34,7 @@ public class AuthService {
 
     // 회원가입
     @Transactional
-    public Response<Map<String, String>> signUp(UserSignUpRequestDto dto) {
+    public Map<String, String> signUp(UserSignUpRequestDto dto) {
         String password = passwordEncoder.encode(dto.getPassword());
         UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
 
@@ -90,7 +90,7 @@ public class AuthService {
 
         Map<String, String> message = new HashMap<>();
         message.put("message", "회원 가입이 성공적으로 됐습니다");
-        return Response.of(message);
+        return message;
     }
 
     // 로그인
@@ -105,6 +105,7 @@ public class AuthService {
 
         String accessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
         String refreshToken = jwtUtil.createRefreshToken(user.getId());
+
         // refreshToken을 Redis에 저장
         refreshTokenService.saveRefreshToken(user.getId(), refreshToken);
 
@@ -113,19 +114,33 @@ public class AuthService {
 
     //토큰 재발급
     @Transactional
-    public UserRefreshTokenResponseDto refreshToken(AuthUser authuser, UserRefreshTokenRequestDto dto) {
+    public UserRefreshTokenResponseDto refreshAccessToken(AuthUser authuser, UserRefreshTokenRequestDto dto) {
         User user = userRepository.findById(authuser.getId())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
-        String refreshToken = jwtUtil.substringToken(dto.getRefreshToken());
-        Claims claims = jwtUtil.extractClaims(refreshToken);
 
-        String savedToken = refreshTokenService.getRefreshToken(user.getId());
-        if (!refreshToken.equals(savedToken)) {
+        // Redis에서 저장된 토큰 조회
+        String savedToken = refreshTokenService.getRefreshToken(authuser.getId());
+
+        //리프레시 토큰 만료 확인
+        Long ttl = refreshTokenService.getRefreshTokenTTL(authuser.getId());
+        if (ttl == null || ttl <= 0) {
+            throw new ClientException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
+
+        //dto와 DB에 있는 리프레시 토큰 비교
+        if (savedToken == null ||!dto.getRefreshToken().equals(savedToken)) {
             throw new ClientException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
+        //어세스 토큰 재발급
         String newAccessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
 
-        return UserRefreshTokenResponseDto.of(newAccessToken, refreshToken);
+        //리프레시 토큰 재발급
+        String newRefreshToken = jwtUtil.createRefreshToken(user.getId());
+
+        //리프레시 토큰 레디스에 업데이트
+        refreshTokenService.saveRefreshToken(user.getId(), newRefreshToken);
+
+        return UserRefreshTokenResponseDto.of(newAccessToken, newRefreshToken);
     }
 }
