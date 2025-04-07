@@ -8,10 +8,12 @@ public class UserMyPageResponseDto {
     private String username;
     private Integer point;
 
-    @Builder
-    public UserMyPageResponseDto(String username, Integer point)
-    {
+    private UserMyPageResponseDto(String username, Integer point) {
         this.username = username;
         this.point = point;
+    }
+
+    public static UserMyPageResponseDto of(String username, Integer point) {
+        return new UserMyPageResponseDto(username, point);
     }
 }

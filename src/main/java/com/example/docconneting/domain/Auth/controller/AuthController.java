@@ -2,7 +2,7 @@ package com.example.docconneting.domain.Auth.controller;
 
 import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.Auth.annotation.Auth;
-import com.example.docconneting.domain.Auth.dto.AuthUser;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.Auth.service.AuthService;
 import com.example.docconneting.domain.Auth.dto.request.UserRefreshTokenRequestDto;
 import com.example.docconneting.domain.Auth.dto.request.UserSignUpRequestDto;
