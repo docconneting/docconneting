@@ -45,7 +45,7 @@ class DoctorControllerTest {
         String majorName = "INTERNAL_MEDICINE";
         Major major = Major.of(majorName);
 
-        user1 = User.Of(
+        user1 = User.of(
                 "test1@naver.com",
                 "password",
                 "kimdoctor",
@@ -58,7 +58,7 @@ class DoctorControllerTest {
         );
         ReflectionTestUtils.setField(user1, "id", 1L);
 
-        user2 = User.Of(
+        user2 = User.of(
                 "test2@naver.com",
                 "password",
                 "leedoctor",
@@ -82,7 +82,7 @@ class DoctorControllerTest {
         LocalTime startTime = LocalTime.of(9, 0);
         LocalTime endTime = LocalTime.of(18, 0);
 
-        given(doctorService.findDoctor(userId)).willReturn(DoctorResponse.Of(userId, username, major, imageUrl, startTime, endTime));
+        given(doctorService.findDoctor(userId)).willReturn(DoctorResponse.of(userId, username, major, imageUrl, startTime, endTime));
 
         // when & then
         mockMvc.perform(get("/api/v1/doctors/{id}", userId))
