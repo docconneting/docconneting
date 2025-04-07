@@ -26,5 +26,135 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class PostRepositoryTest {
+    @Autowired
+    PostRepository postRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+//    @Test
+//    void createPosts(){
+//        User user = userRepository.findById(1L).get();
+//        Random random = new Random(System.currentTimeMillis());
+//        List<Post> posts = new ArrayList<>();
+//        for(int i=0;i<1000000;i++){
+//            int randomNumber = random.nextInt(5);
+//            Major[] majors = Major.values();
+//            Post post = new Post(user, "title"+(i+1), "contents"+(i+1), majors[randomNumber], false, false, false, LocalDateTime.now());
+//            posts.add(post);
+//        }
+//        postRepository.saveAll(posts);
+//    }
+
+    @BeforeEach
+    void setData(){
+        User user = new User();
+        User savedUser = userRepository.save(user);
+
+        User findUser = userRepository.findById(savedUser.getId()).get();
+
+        Random random = new Random(System.currentTimeMillis());
+        List<Post> posts = new ArrayList<>();
+        for(int i=0;i<50;i++){
+            Major major = Major.values()[i % 5];
+            String title = "title" + (i % 5);
+            Post post = Post.of(findUser, title, "contents"+(i+1), major, false, false, false, LocalDateTime.now());
+            posts.add(post);
+        }
+        postRepository.saveAll(posts);
+    }
+
+    @Test
+    void findAllPostsTest(){
+        // given
+        Pageable pageable = PageRequest.of(0,10);
+        String title = null;
+        String major = null;
+
+        // when
+        Page<Post> posts = postRepository.findPosts(pageable, title, major);
+
+        // then
+        assertThat(posts.getTotalElements()).isEqualTo(50);
+        assertThat(posts.getTotalPages()).isEqualTo(5);
+        assertThat(posts.getPageable().getPageNumber()).isEqualTo(0);
+        assertThat(posts.getPageable().getPageSize()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllPostsByMajorTest(){
+        // given
+        Pageable pageable = PageRequest.of(0,10);
+        String title = null;
+        String major =  Major.values()[0].name();
+
+        // when
+        Page<Post> posts = postRepository.findPosts(pageable, title, major);
+
+        // then
+        assertThat(posts.getTotalElements()).isEqualTo(10);
+        assertThat(posts.getTotalPages()).isEqualTo(1);
+        assertThat(posts.getPageable().getPageNumber()).isEqualTo(0);
+        assertThat(posts.getPageable().getPageSize()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllPostsByTitleTest(){
+        // given
+        Pageable pageable = PageRequest.of(0,10);
+        String title = "title";
+        String major = null;
+
+        // when
+        Page<Post> posts = postRepository.findPosts(pageable, title, major);
+
+        // then
+        assertThat(posts.getTotalElements()).isEqualTo(50);
+        assertThat(posts.getTotalPages()).isEqualTo(5);
+        assertThat(posts.getPageable().getPageNumber()).isEqualTo(0);
+        assertThat(posts.getPageable().getPageSize()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllPostsByMajorAndTitleTest(){
+        // given
+        Pageable pageable = PageRequest.of(0,10);
+
+        String title = "title0";
+        String major =  Major.values()[0].name();
+
+        // when
+        Page<Post> posts = postRepository.findPosts(pageable, title, major);
+
+        // then
+        assertThat(posts.getTotalElements()).isEqualTo(10);
+        assertThat(posts.getTotalPages()).isEqualTo(1);
+        assertThat(posts.getPageable().getPageNumber()).isEqualTo(0);
+        assertThat(posts.getPageable().getPageSize()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllPostsOrderByCreatedAtTest(){
+        // given
+        Pageable pageable = PageRequest.of(0,10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        String title = null;
+        String major = null;
+
+        // when
+        Page<Post> posts = postRepository.findPosts(pageable, title, major);
+        List<Post> content = posts.getContent();
+
+        // then
+        assertThat(posts.getTotalElements()).isEqualTo(50);
+        assertThat(posts.getTotalPages()).isEqualTo(5);
+        assertThat(posts.getPageable().getPageNumber()).isEqualTo(0);
+        assertThat(posts.getPageable().getPageSize()).isEqualTo(10);
+
+        for(int i=0;i<content.size()-1;i++){
+            LocalDateTime current = content.get(i).getCreatedAt();
+            LocalDateTime next = content.get(i+1).getCreatedAt();
+            assertThat(current).isAfterOrEqualTo(next);
+        }
+    }
 }
