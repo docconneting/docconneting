@@ -1,6 +1,8 @@
 package com.example.docconneting.common.config;
 
 
+import com.example.docconneting.common.exception.constant.ErrorCode;
+import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.user.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -63,7 +65,7 @@ public class JwtUtil {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(7);
         }
-        throw new IllegalStateException("Not Found Token");
+        throw new ClientException(ErrorCode.TOKEN_NOT_FOUND);
     }
 
     public Claims extractClaims(String token) {
