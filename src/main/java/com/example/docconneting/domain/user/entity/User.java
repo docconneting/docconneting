@@ -5,7 +5,6 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -53,4 +52,19 @@ public class User extends BaseEntity {
         this.isDeleted = isDeleted;
         this.userRole = userRole;
     }
+
+    // 테스트용 생성자
+    public User(String email, String password, String username) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.point = 0;
+        this.major = Major.INTERNAL_MEDICINE; // 기본값 필요
+        this.image = null;
+        this.startTime = null;
+        this.endTime = null;
+        this.isDeleted = false;
+        this.userRole = UserRole.DOCTOR; // 기본값 필요
+    }
+
 }
