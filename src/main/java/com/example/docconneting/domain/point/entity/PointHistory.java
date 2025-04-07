@@ -3,7 +3,6 @@ package com.example.docconneting.domain.point.entity;
 import com.example.docconneting.domain.point.enums.PointType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
