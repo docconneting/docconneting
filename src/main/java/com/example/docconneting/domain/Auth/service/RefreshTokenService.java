@@ -16,13 +16,18 @@ public class RefreshTokenService {
 
     //refreshToken 저장
     public void saveRefreshToken(Long userId, String refreshToken) {
-        String pureRefreshToken = jwtUtil.substringToken(refreshToken);
-        redisTemplate.opsForValue().set("refreshToken:" + userId, pureRefreshToken, Duration.ofSeconds(REFRESH_TOKEN_EXPIRE_TIME));
+        redisTemplate.opsForValue().set("refreshToken:" + userId, refreshToken, Duration.ofSeconds(REFRESH_TOKEN_EXPIRE_TIME));
     }
 
     //refreshToken 찾기
     public String getRefreshToken(Long userId) {
         return redisTemplate.opsForValue().get("refreshToken:" + userId);
     }
+
+    //refreshToken 만료시간 확인
+    public Long getRefreshTokenTTL(Long userId) {
+        return redisTemplate.getExpire("refreshToken:" + userId);
+    }
+
 }
 

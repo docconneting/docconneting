@@ -12,7 +12,3 @@ logging:
 spring:
   profiles:
     active: local
-
-jwt:
-  secret:
-    key: rC1fZ3pYzPiNL2RzZHYtN3Q5MHJsT3pkZVNyT2lYa2M

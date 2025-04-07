@@ -1,7 +1,6 @@
 package com.example.docconneting.domain.Auth.dto.response;
 
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter

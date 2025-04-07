@@ -1,5 +1,7 @@
 package com.example.docconneting.common.resolver;
 
+import com.example.docconneting.common.exception.constant.ErrorCode;
+import com.example.docconneting.common.exception.object.ServerException;
 import com.example.docconneting.domain.Auth.annotation.Auth;
 import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -21,7 +23,7 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
         // @Auth 어노테이션과 AuthUser 타입이 함께 사용되지 않은 경우 예외 발생
         if (hasAuthAnnotation != isAuthUserType) {
-            throw new IllegalStateException("@Auth와 AuthUser 타입은 함께 사용되어야 합니다.");
+            throw new ServerException(ErrorCode.AUTH_WITHOUT_AUTHUSER);
         }
 
         return hasAuthAnnotation;

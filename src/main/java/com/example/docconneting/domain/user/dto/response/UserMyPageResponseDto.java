@@ -1,6 +1,5 @@
 package com.example.docconneting.domain.user.dto.response;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
