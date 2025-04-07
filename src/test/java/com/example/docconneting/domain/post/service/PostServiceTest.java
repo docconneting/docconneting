@@ -3,6 +3,9 @@ package com.example.docconneting.domain.post.service;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.common.response.PageInfo;
+import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
@@ -16,9 +19,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -227,5 +236,40 @@ class PostServiceTest {
 
         verify(postRepository, times(1)).findById(postId);
         verify(entityManager, times(1)).flush();
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 리스트 조회")
+    void findAllPostsTest(){
+        // given
+        User user = new User();
+        ReflectionTestUtils.setField(user, "username", "testName");
+
+        Pageable pageable = PageRequest.of(0, 10);
+        String title = "title";
+        String major = Major.values()[0].name();
+
+        List<Post> content = new ArrayList<>();
+        for(int i=0;i<50;i++){
+            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
+            content.add(post);
+        }
+
+        Page<Post> posts = new PageImpl<>(content, pageable, content.size());
+
+        given(postRepository.findPosts(pageable, title, major)).willReturn(posts);
+
+        // when
+        PageResult<PostListResponse> pageResult = postService.findAllPosts(pageable, title, major);
+
+        List<PostListResponse> getContent = pageResult.getContent();
+        PageInfo pageInfo = pageResult.getPageInfo();
+
+        // then
+        assertThat(getContent.size()).isEqualTo(content.size());
+        assertThat(pageInfo.getPageNum()).isEqualTo(pageable.getPageNumber());
+        assertThat(pageInfo.getPageSize()).isEqualTo(pageable.getPageSize());
+        assertThat(pageInfo.getTotalPage()).isEqualTo(posts.getTotalPages());
+        assertThat(pageInfo.getTotalElement()).isEqualTo(posts.getTotalElements());
     }
 }
