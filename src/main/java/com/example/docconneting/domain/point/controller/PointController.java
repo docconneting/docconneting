@@ -1,10 +1,11 @@
 package com.example.docconneting.domain.point.controller;
 
 import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.point.dto.response.PointResponse;
 import com.example.docconneting.domain.point.service.PointService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
