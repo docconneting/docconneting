@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.post.dto.reponse;
 
+import com.example.docconneting.domain.post.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -25,8 +26,7 @@ public class PostSingleResponse {
 
     private final LocalDateTime modifiedAt;
 
-    @Builder
-    public PostSingleResponse(Long id, String patientName, String title, String contents, String major, Boolean isReplied, LocalDateTime deadline, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private PostSingleResponse(Long id, String patientName, String title, String contents, String major, Boolean isReplied, LocalDateTime deadline, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.patientName = patientName;
         this.title = title;
@@ -36,5 +36,9 @@ public class PostSingleResponse {
         this.deadline = deadline;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+    }
+
+    public static PostSingleResponse of(Long id, String patientName, String title, String contents, String major, Boolean isReplied, LocalDateTime deadline, LocalDateTime createdAt, LocalDateTime modifiedAt){
+        return new PostSingleResponse(id, patientName, title, contents, major, isReplied, deadline, createdAt, modifiedAt);
     }
 }
