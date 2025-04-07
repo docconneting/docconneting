@@ -271,5 +271,7 @@ class PostServiceTest {
         assertThat(pageInfo.getPageSize()).isEqualTo(pageable.getPageSize());
         assertThat(pageInfo.getTotalPage()).isEqualTo(posts.getTotalPages());
         assertThat(pageInfo.getTotalElement()).isEqualTo(posts.getTotalElements());
+
+        verify(postRepository, times(1)).findPosts(pageable, title, major);
     }
 }

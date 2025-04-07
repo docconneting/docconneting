@@ -1,0 +1,146 @@
+package com.example.docconneting.domain.Auth.service;
+
+import com.example.docconneting.common.config.JwtUtil;
+import com.example.docconneting.common.config.PasswordEncoder;
+import com.example.docconneting.common.enums.Major;
+import com.example.docconneting.common.exception.constant.ErrorCode;
+import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
+import com.example.docconneting.domain.Auth.dto.request.UserRefreshTokenRequestDto;
+import com.example.docconneting.domain.Auth.dto.request.UserSignUpRequestDto;
+import com.example.docconneting.domain.Auth.dto.request.UserSigninRequestDto;
+import com.example.docconneting.domain.Auth.dto.response.UserRefreshTokenResponseDto;
+import com.example.docconneting.domain.Auth.dto.response.UserSignInResponseDto;
+import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
+import com.example.docconneting.domain.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
+    // 회원가입
+    @Transactional
+    public Map<String, String> signUp(UserSignUpRequestDto dto) {
+        String password = passwordEncoder.encode(dto.getPassword());
+        UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
+
+        User user = switch (role) {
+            case DOCTOR -> {
+                if (dto.getMajor() == null) {
+                    throw new ClientException(ErrorCode.MAJOR_NOT_FOUND);
+                }
+                if (dto.getImage() == null) {
+                    throw new ClientException(ErrorCode.IMAGE_NOT_FOUND);
+                }
+                if (dto.getStartTime() == null) {
+                    throw new ClientException(ErrorCode.STARTTIME_NOT_FOUND);
+                }
+                if (dto.getEndTime() == null) {
+                    throw new ClientException(ErrorCode.ENDTIME_NOT_FOUND);
+                }
+
+                Major major = Major.of(dto.getMajor().toUpperCase());
+                yield User.of(
+                        dto.getEmail(),
+                        password,
+                        dto.getUsername(),
+                        major,
+                        dto.getImage(),
+                        dto.getStartTime(),
+                        dto.getEndTime(),
+                        false,
+                        role
+                );
+            }
+
+            case ADMIN -> User.of(
+                    dto.getEmail(),
+                    password,
+                    dto.getUsername(),
+                    0,
+                    false,
+                    role
+            );
+
+            case PATIENT -> User.of(
+                    dto.getEmail(),
+                    password,
+                    dto.getUsername(),
+                    0,
+                    false,
+                    UserRole.PATIENT
+            );
+        };
+
+        userRepository.save(user);
+
+        Map<String, String> message = new HashMap<>();
+        message.put("message", "회원 가입이 성공적으로 됐습니다");
+        return message;
+    }
+
+    // 로그인
+    @Transactional(readOnly = true)
+    public UserSignInResponseDto signIn(UserSigninRequestDto requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new ClientException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        String accessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
+        String refreshToken = jwtUtil.createRefreshToken(user.getId());
+
+        // refreshToken을 Redis에 저장
+        refreshTokenService.saveRefreshToken(user.getId(), refreshToken);
+
+        return UserSignInResponseDto.of(accessToken, refreshToken);
+    }
+
+    //토큰 재발급
+    @Transactional
+    public UserRefreshTokenResponseDto refreshAccessToken(AuthUser authuser, UserRefreshTokenRequestDto dto) {
+        User user = userRepository.findById(authuser.getId())
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+
+        // Redis에서 저장된 토큰 조회
+        String savedToken = refreshTokenService.getRefreshToken(authuser.getId());
+
+        //리프레시 토큰 만료 확인
+        Long ttl = refreshTokenService.getRefreshTokenTTL(authuser.getId());
+        if (ttl == null || ttl <= 0) {
+            throw new ClientException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
+
+        //dto와 DB에 있는 리프레시 토큰 비교
+        if (savedToken == null ||!dto.getRefreshToken().equals(savedToken)) {
+            throw new ClientException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        //어세스 토큰 재발급
+        String newAccessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
+
+        //리프레시 토큰 재발급
+        String newRefreshToken = jwtUtil.createRefreshToken(user.getId());
+
+        //리프레시 토큰 레디스에 업데이트
+        refreshTokenService.saveRefreshToken(user.getId(), newRefreshToken);
+
+        return UserRefreshTokenResponseDto.of(newAccessToken, newRefreshToken);
+    }
+}

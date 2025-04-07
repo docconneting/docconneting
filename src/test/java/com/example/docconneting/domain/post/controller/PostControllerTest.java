@@ -1,10 +1,15 @@
 package com.example.docconneting.domain.post.controller;
 
 import com.example.docconneting.common.enums.Major;
+import com.example.docconneting.common.response.PageInfo;
+import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
+import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.service.PostService;
+import com.example.docconneting.domain.user.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bytebuddy.asm.Advice;
 import org.hamcrest.Matchers;
@@ -12,6 +17,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,6 +26,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -112,5 +121,40 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.data.modifiedAt", Matchers.startsWith(postUpdateResponse.getModifiedAt().toString().substring(0,19))));
 
         verify(postService, times(1)).updatePost(any(Long.class), any(PostUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("컨트롤러에서 게시물 리스트 조회")
+    void findAllPostsTest() throws Exception {
+        // given
+        User user = new User();
+        ReflectionTestUtils.setField(user, "username", "testName");
+
+        Pageable pageable = PageRequest.of(0, 10);
+        String title = "title";
+        String major = Major.values()[0].name();
+
+        List<Post> posts = new ArrayList<>();
+        for(int i=0;i<pageable.getPageSize();i++){
+            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
+            posts.add(post);
+        }
+
+        List<PostListResponse> postListResponses = PostListResponse.toPostListResponses(posts);
+
+        PageInfo pageInfo = new PageInfo(pageable.getPageNumber(), pageable.getPageSize(), postListResponses.size(), postListResponses.size()/pageable.getPageSize());
+
+        PageResult<PostListResponse> pageResult = new PageResult<>(postListResponses, pageInfo);
+
+        given(postService.findAllPosts(any(Pageable.class), any(String.class), any(String.class))).willReturn(pageResult);
+
+        // when, then
+        mockMvc.perform(get("/api/v1/posts").param("title", title).param("major", major))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.pageNum").value(pageInfo.getPageNum()))
+                .andExpect(jsonPath("$.page.pageSize").value(pageInfo.getPageSize()))
+                .andExpect(jsonPath("$.page.totalElement").value(pageInfo.getTotalElement()))
+                .andExpect(jsonPath("$.page.totalPage").value(pageInfo.getTotalPage()))
+                .andExpect(jsonPath("$.data.size()").value(postListResponses.size()));
     }
 }

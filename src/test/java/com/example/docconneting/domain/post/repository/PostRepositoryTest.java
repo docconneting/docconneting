@@ -24,7 +24,6 @@ import java.util.Random;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
 class PostRepositoryTest {
     @Autowired
     PostRepository postRepository;
@@ -32,21 +31,23 @@ class PostRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
-//    @Test
-//    void createPosts(){
-//        User user = userRepository.findById(1L).get();
-//        Random random = new Random(System.currentTimeMillis());
-//        List<Post> posts = new ArrayList<>();
-//        for(int i=0;i<1000000;i++){
-//            int randomNumber = random.nextInt(5);
-//            Major[] majors = Major.values();
-//            Post post = new Post(user, "title"+(i+1), "contents"+(i+1), majors[randomNumber], false, false, false, LocalDateTime.now());
-//            posts.add(post);
-//        }
-//        postRepository.saveAll(posts);
-//    }
+    @Test
+    void createPosts(){
+        User user = new User();
+        User savedUser = userRepository.save(user);
+        Random random = new Random(System.currentTimeMillis());
+        List<Post> posts = new ArrayList<>();
+        for(int i=0;i<10000;i++){
+            int randomNumber = random.nextInt(5);
+            Major[] majors = Major.values();
+            Post post = Post.of(savedUser, "title"+(i+1), "contents"+(i+1), majors[randomNumber], false, false, false, LocalDateTime.now());
+            posts.add(post);
+        }
+        postRepository.saveAll(posts);
+    }
 
     @BeforeEach
+    @Transactional
     void setData(){
         User user = new User();
         User savedUser = userRepository.save(user);
@@ -65,6 +66,7 @@ class PostRepositoryTest {
     }
 
     @Test
+    @Transactional
     void findAllPostsTest(){
         // given
         Pageable pageable = PageRequest.of(0,10);
@@ -82,6 +84,7 @@ class PostRepositoryTest {
     }
 
     @Test
+    @Transactional
     void findAllPostsByMajorTest(){
         // given
         Pageable pageable = PageRequest.of(0,10);
@@ -99,6 +102,7 @@ class PostRepositoryTest {
     }
 
     @Test
+    @Transactional
     void findAllPostsByTitleTest(){
         // given
         Pageable pageable = PageRequest.of(0,10);
@@ -116,6 +120,7 @@ class PostRepositoryTest {
     }
 
     @Test
+    @Transactional
     void findAllPostsByMajorAndTitleTest(){
         // given
         Pageable pageable = PageRequest.of(0,10);
@@ -134,6 +139,7 @@ class PostRepositoryTest {
     }
 
     @Test
+    @Transactional
     void findAllPostsOrderByCreatedAtTest(){
         // given
         Pageable pageable = PageRequest.of(0,10, Sort.by(Sort.Direction.DESC, "createdAt"));
