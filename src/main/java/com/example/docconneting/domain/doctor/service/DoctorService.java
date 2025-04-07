@@ -25,14 +25,13 @@ public class DoctorService {
     public DoctorResponse findDoctor(Long id) {
         User user = userRepository.findByDoctorId(id).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
 
-        DoctorResponse response = DoctorResponse.builder()
-                .id(user.getId())
-                .name(user.getUsername())
-                .major(user.getMajor().name())
-                .imageUrl(user.getImage())
-                .startTime(user.getStartTime())
-                .endTime(user.getEndTime())
-                .build();
+        DoctorResponse response = DoctorResponse.of(
+                user.getId(),
+                user.getUsername(),
+                user.getMajor().name(),
+                user.getImage(),
+                user.getStartTime(),
+                user.getEndTime());
 
         return response;
     }
