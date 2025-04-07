@@ -7,7 +7,11 @@ public class PointResponse {
 
     private final Integer point;
 
-    public PointResponse(Integer point) {
+    private PointResponse(Integer point) {
         this.point = point;
+    }
+
+    public static PointResponse of(Integer point) {
+        return new PointResponse(point);
     }
 }

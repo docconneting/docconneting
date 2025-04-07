@@ -21,6 +21,6 @@ public class PointService {
        User user = userRepository.findById(userId).orElseThrow(() ->
                new ClientException(ErrorCode.USER_NOT_FOUND));
 
-       return new PointResponse(user.getPoint());
+        return PointResponse.of(user.getPoint());
     }
 }

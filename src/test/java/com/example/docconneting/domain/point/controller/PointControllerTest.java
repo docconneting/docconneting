@@ -10,11 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,10 +29,11 @@ class PointControllerTest {
     @DisplayName("포인트 조회 테스트")
     void findPointTest() throws Exception{
         // given
+        long userId = 1L;
         int point = 1000;
 
-        PointResponse response = new PointResponse(point);
-        given(pointService.findPoint(anyLong())).willReturn(response);
+        PointResponse response = PointResponse.of(point);
+        given(pointService.findPoint(userId)).willReturn(response);
 
         // when, then
         mockMvc.perform(get("/api/v1/points"))

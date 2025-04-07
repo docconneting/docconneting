@@ -41,7 +41,7 @@ class PointServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
         ReflectionTestUtils.setField(user, "point", point);
 
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         // when
         PointResponse response = pointService.findPoint(userId);
