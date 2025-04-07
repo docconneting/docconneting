@@ -7,6 +7,7 @@ import com.example.docconneting.domain.doctor.dto.DoctorResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class DoctorServiceTest {
@@ -36,6 +37,45 @@ class DoctorServiceTest {
     
     @InjectMocks
     private DoctorService doctorService;
+
+    private String image;
+    private String majorName;
+
+    private User user1;
+    private User user2;
+
+    @BeforeEach
+    void setUp() {
+        image = "https://example.com/image.jpg";
+        majorName = "INTERNAL_MEDICINE";
+        Major major = Major.of(majorName);
+
+        user1 = new User(
+                "test1@naver.com",
+                "password",
+                "kimdoctor",
+                major,
+                image,
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                false,
+                UserRole.DOCTOR
+        );
+        ReflectionTestUtils.setField(user1, "id", 1L);
+
+        user2 = new User(
+                "test2@naver.com",
+                "password",
+                "leedoctor",
+                major,
+                image,
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                false,
+                UserRole.DOCTOR
+        );
+        ReflectionTestUtils.setField(user2, "id", 2L);
+    }
 
     @Test
     public void 존재하지_않는_Doctor_조회시_ClientException을_던진다() {
@@ -51,30 +91,16 @@ class DoctorServiceTest {
     @Test
     public void 의사를_ID로_조회할_수_있다() {
         // given
-        long userId = 1L;
-        String email = "test@naver.com";
-        String password = "password";
-        String username = "kimdoctor";
-        String majorName = "INTERNAL_MEDICINE";
-        Major major = Major.of(majorName);
-        String image = "https://example.com/image.jpg";
-        LocalTime startTime = LocalTime.of(9, 0);
-        LocalTime endTime = LocalTime.of(18, 0);
-        boolean isDeleted = false;
-        UserRole userRole = UserRole.DOCTOR;
-        User user = new User(email, password, username, major, image, startTime, endTime, isDeleted, userRole);
-        ReflectionTestUtils.setField(user, "id", userId);
-
-        given(userRepository.findByDoctorId(userId)).willReturn(Optional.of(user));
+        given(userRepository.findByDoctorId(1L)).willReturn(Optional.of(user1));
 
         // when
-        DoctorResponse response = doctorService.findDoctor(userId);
+        DoctorResponse response = doctorService.findDoctor(1L);
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.getId()).isEqualTo(userId);
-        assertThat(response.getName()).isEqualTo(username);
-        assertThat(response.getMajor()).isEqualTo(majorName);
+        assertThat(response.getId()).isEqualTo(1L);
+        assertThat(response.getName()).isEqualTo("kimdoctor");
+        assertThat(response.getImageUrl()).isEqualTo(image);
     }
 
     @Test
@@ -83,18 +109,21 @@ class DoctorServiceTest {
         int page = 1;
         int size = 5;
         String category = "INTERNAL_MEDICINE";
-        String name = "kimdoctor";
+        String name = "doctor";
 
-        List<User> users = List.of(mock(User.class), mock(User.class), mock(User.class), mock(User.class), mock(User.class));
-        Page<User> pageResult = new PageImpl<>(users, PageRequest.of(page - 1, 5), 5);
+        List<User> users = new ArrayList<>();
+        users.add(user1);
+        users.add(user2);
+
+        Page<User> pageResult = new PageImpl<>(users, PageRequest.of(page - 1, 5), 2);
         Mockito.when(userRepository.findDoctors(PageRequest.of(page - 1, size), category, name)).thenReturn(pageResult);
 
         // when
-        PageResult<User> result = doctorService.findDoctors(page, size, category, name);
+        PageResult<DoctorResponse> result = doctorService.findDoctors(page, size, category, name);
 
         // then
-        assertEquals(5, result.getContent().size());
-        assertEquals(5, result.getPageInfo().getTotalElement());
+        assertEquals(2, result.getContent().size());
+        assertEquals(2, result.getPageInfo().getTotalElement());
         assertEquals(page, result.getPageInfo().getPageNum());
         assertEquals(size, result.getPageInfo().getPageSize());
     }
