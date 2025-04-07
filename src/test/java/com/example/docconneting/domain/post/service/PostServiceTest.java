@@ -5,6 +5,7 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
@@ -12,6 +13,7 @@ import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -158,23 +160,49 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("서비스에서 게시물 수정시 게시물이 없을 때")
-    void updatePostFailedTest(){
+    @DisplayName("서비스에서 게시물 수정시 유저가 PATIENT가 아닐 때")
+    void updatePostUserRoleFailedTest(){
         // given
         Long postId = 1L;
+        Long userId = 1L;
+        UserRole userRole = UserRole.ADMIN;
+
+        AuthUser authUser = AuthUser.of(userId, userRole);
 
         PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
         ReflectionTestUtils.setField(postUpdateRequest, "title", "tile");
         ReflectionTestUtils.setField(postUpdateRequest, "contents", "content");
 
-        given(postRepository.findById(postId)).willReturn(Optional.empty());
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(authUser, postId, postUpdateRequest));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.PATIENT_ONLY_ACCESS);
+
+        verify(postRepository, times(0)).findByIdWithUser(postId);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 수정시 게시물이 없을 때")
+    void updatePostFailedTest(){
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(postUpdateRequest, "title", "tile");
+        ReflectionTestUtils.setField(postUpdateRequest, "contents", "content");
+
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.empty());
 
         // when, then
-        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(postId, postUpdateRequest));
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(authUser, postId, postUpdateRequest));
 
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
@@ -182,6 +210,10 @@ class PostServiceTest {
     void updatePostAlreadyDeletedTest(){
         // given
         Long postId = 1L;
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+
+        AuthUser authUser = AuthUser.of(userId, userRole);
 
         Post post = new Post();
         ReflectionTestUtils.setField(post, "isDeleted", true);
@@ -190,14 +222,45 @@ class PostServiceTest {
         ReflectionTestUtils.setField(postUpdateRequest, "title", "tile");
         ReflectionTestUtils.setField(postUpdateRequest, "contents", "content");
 
-        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
 
         // when, then
-        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(postId, postUpdateRequest));
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(authUser, postId, postUpdateRequest));
 
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 수정시 유저가 작성한 게시물이 아닐 때")
+    void updatePostNotUsersPostTest(){
+        // given
+        Long postId = 1L;
+        Long userId = 2L;
+        UserRole userRole = UserRole.PATIENT;
+
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        Post post = new Post();
+        ReflectionTestUtils.setField(post, "isDeleted", false);
+        ReflectionTestUtils.setField(post, "patient", user);
+
+        PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(postUpdateRequest, "title", "tile");
+        ReflectionTestUtils.setField(postUpdateRequest, "contents", "content");
+
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
+
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.updatePost(authUser, postId, postUpdateRequest));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.ONLY_AUTHOR_CAN_UPDATE_OR_DELETED);
+
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
@@ -205,10 +268,18 @@ class PostServiceTest {
     void updatePostTest(){
         // given
         Long postId = 1L;
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", 1L);
 
         Post post = new Post();
         ReflectionTestUtils.setField(post, "isDeleted", false);
         ReflectionTestUtils.setField(post, "id", postId);
+        ReflectionTestUtils.setField(post, "patient", user);
         ReflectionTestUtils.setField(post, "title", "title");
         ReflectionTestUtils.setField(post, "contents", "content");
         ReflectionTestUtils.setField(post, "major", Major.ORTHOPEDICS);
@@ -219,12 +290,12 @@ class PostServiceTest {
         ReflectionTestUtils.setField(postUpdateRequest, "title", "updateTitle");
         ReflectionTestUtils.setField(postUpdateRequest, "contents", "updateContent");
 
-        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
 
         doNothing().when(entityManager).flush();
 
         // when
-        PostUpdateResponse postUpdateResponse = postService.updatePost(postId, postUpdateRequest);
+        PostUpdateResponse postUpdateResponse = postService.updatePost(authUser, postId, postUpdateRequest);
 
         // then
         assertThat(postUpdateResponse.getId()).isEqualTo(postId);
@@ -234,7 +305,7 @@ class PostServiceTest {
         assertThat(postUpdateResponse.getCreatedAt()).isEqualTo(post.getCreatedAt());
         assertThat(postUpdateResponse.getModifiedAt()).isEqualTo(post.getModifiedAt());
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
         verify(entityManager, times(1)).flush();
     }
 
