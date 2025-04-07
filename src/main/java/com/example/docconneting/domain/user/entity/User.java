@@ -7,11 +7,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        indexes = { @Index(name = "idx1", columnList = "isDeleted"),
+                    @Index(name = "idx2", columnList = "major, isDeleted") }
+)
 @Getter
 @NoArgsConstructor
 public class User extends BaseEntity {
@@ -41,7 +43,7 @@ public class User extends BaseEntity {
     private Boolean isDeleted;
 
     // 환자 생성자
-    public User(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
+    private User(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -50,8 +52,13 @@ public class User extends BaseEntity {
         this.userRole = userRole;
     }
 
+    // 환자 생성 메서드
+    public static User of(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole){
+        return new User(email, password, username, point, isDeleted, userRole);
+    }
+
     // 의사 생성자
-    public User(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
+    private User(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -61,5 +68,10 @@ public class User extends BaseEntity {
         this.endTime = endTime;
         this.isDeleted = isDeleted;
         this.userRole = userRole;
+    }
+
+    // 의사 생성 메서드
+    public static User of(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole){
+        return new User(email, password, username, major, image, startTime, endTime, isDeleted, userRole);
     }
 }

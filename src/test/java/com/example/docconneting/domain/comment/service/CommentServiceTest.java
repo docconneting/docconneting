@@ -49,7 +49,7 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        user = new User(
+        user = User.of(
                 "test@test.com",
                 "test!123",
                 "name",
@@ -177,7 +177,7 @@ class CommentServiceTest {
             Long currentUserId = 1L;
 
             // 댓글의 작성자(다른 사람)
-            User anotherUser = new User(
+            User anotherUser = User.of(
                     "another@test.com",
                     "test!123",
                     "name",

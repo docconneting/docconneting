@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -26,12 +28,11 @@ class CommentControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private CommentService commentService;
@@ -42,13 +43,13 @@ class CommentControllerTest {
         Long userId = 1L;
         Long postId = 100L;
         Long commentId = 500L;
-        String content = "comments";
+        String contents = "comments";
         LocalDateTime now = LocalDateTime.now();
 
-        CommentRequestDto request = new CommentRequestDto(content);
-        CommentResponseDto response = new CommentResponseDto(commentId, content, now, now);
+        CommentRequestDto request = new CommentRequestDto(contents);
+        CommentResponseDto response = CommentResponseDto.of(commentId, contents, now, now);
 
-        given(commentService.createComment(userId, postId, request))
+        given(commentService.createComment(eq(userId), eq(postId), any(CommentRequestDto.class)))
                 .willReturn(response);
 
         mockMvc.perform(post("/api/v1/posts/{postId}/comments",postId)
@@ -56,8 +57,8 @@ class CommentControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(commentId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(content));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(commentId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.contents").value(contents));
     }
 
     @Test
@@ -70,21 +71,17 @@ class CommentControllerTest {
         LocalDateTime now = LocalDateTime.now();
 
         CommentRequestDto request = new CommentRequestDto(updateContent);
-        CommentResponseDto response = new CommentResponseDto(commentId, updateContent, now, now);
+        CommentResponseDto response = CommentResponseDto.of(commentId, updateContent, now, now);
 
-        given(commentService.updateComment(userId, postId, request))
+        given(commentService.updateComment(eq(userId), eq(commentId), any(CommentRequestDto.class)))
         .willReturn(response);
 
-        mockMvc.perform(patch("/api/v1/posts/{postId}/comments/{commentId}", postId, commentId)
+        mockMvc.perform(patch("/api/v1/posts/{postId}/comments/{commentId}", userId, commentId)
                 .header("userId", String.valueOf(userId))
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(commentId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(updateContent));
-
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(commentId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.contents").value(updateContent));
     }
-
-
-
 }
