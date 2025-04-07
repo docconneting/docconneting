@@ -93,16 +93,18 @@ class PostControllerTest {
     @DisplayName("컨트롤러에서 게시물 삭제")
     void deletePostByIdTest() throws Exception {
         // given
+        String accessToken = jwtUtil.createToken(1L, UserRole.PATIENT);
+
         Long postId = 1L;
 
-        doNothing().when(postService).deletePostById(postId);
+        doNothing().when(postService).deletePostById(any(AuthUser.class), any(Long.class));
 
         // when, then
         mockMvc.perform(delete("/api/v1/posts/{postId}", postId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.message").value("게시물이 성공적으로 삭제되었습니다."));
 
-        verify(postService, times(1)).deletePostById(postId);
+        verify(postService, times(1)).deletePostById(any(AuthUser.class), any(Long.class));
     }
 
     @Test
