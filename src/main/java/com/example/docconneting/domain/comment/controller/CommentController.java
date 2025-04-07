@@ -1,8 +1,8 @@
 package com.example.docconneting.domain.comment.controller;
 
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.comment.dto.request.CommentRequestDto;
-import com.example.docconneting.domain.comment.dto.response.CommentResponseDto;
+import com.example.docconneting.domain.comment.dto.request.CommentRequest;
+import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +18,19 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<Response<CommentResponseDto>> createComment(
+    public ResponseEntity<Response<CommentResponse>> createComment(
             @RequestHeader Long userId,
             @PathVariable Long postId,
-            @Valid @RequestBody CommentRequestDto request
+            @Valid @RequestBody CommentRequest request
     ) {
         return new ResponseEntity<>(Response.of(commentService.createComment(userId, postId, request)), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<Response<CommentResponseDto>> updateComment(
+    public ResponseEntity<Response<CommentResponse>> updateComment(
         @RequestHeader Long userId,
         @PathVariable Long commentId,
-        @Valid @RequestBody CommentRequestDto request
+        @Valid @RequestBody CommentRequest request
     ) {
         return new ResponseEntity<>(Response.of(commentService.updateComment(userId, commentId, request)), HttpStatus.OK);
     }

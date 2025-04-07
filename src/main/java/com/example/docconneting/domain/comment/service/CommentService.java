@@ -2,8 +2,8 @@ package com.example.docconneting.domain.comment.service;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ServerException;
-import com.example.docconneting.domain.comment.dto.request.CommentRequestDto;
-import com.example.docconneting.domain.comment.dto.response.CommentResponseDto;
+import com.example.docconneting.domain.comment.dto.request.CommentRequest;
+import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.entity.Comment;
 import com.example.docconneting.domain.comment.repository.CommentRepository;
 import com.example.docconneting.domain.post.entity.Post;
@@ -25,7 +25,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CommentResponseDto createComment(Long userId, Long postId, CommentRequestDto request) {
+    public CommentResponse createComment(Long userId, Long postId, CommentRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServerException(ErrorCode.USER_NOT_FOUND));
 
@@ -40,7 +40,7 @@ public class CommentService {
 
         Comment saved = commentRepository.save(comment);
 
-        CommentResponseDto response = CommentResponseDto.of(
+        CommentResponse response = CommentResponse.of(
                 comment.getId(),
                 comment.getContents(),
                 comment.getCreatedAt(),
@@ -50,7 +50,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long userId, Long commentId, CommentRequestDto request) {
+    public CommentResponse updateComment(Long userId, Long commentId, CommentRequest request) {
 
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(()->new ServerException(ErrorCode.COMMENT_NOT_FOUND));
@@ -59,7 +59,7 @@ public class CommentService {
 
         findComment.updateContents(request.getContents());
 
-        CommentResponseDto response = CommentResponseDto.of(
+        CommentResponse response = CommentResponse.of(
                 findComment.getId(),
                 findComment.getContents(),
                 findComment.getCreatedAt(),

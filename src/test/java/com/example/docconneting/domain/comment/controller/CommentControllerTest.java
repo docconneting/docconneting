@@ -1,7 +1,7 @@
 package com.example.docconneting.domain.comment.controller;
 
-import com.example.docconneting.domain.comment.dto.request.CommentRequestDto;
-import com.example.docconneting.domain.comment.dto.response.CommentResponseDto;
+import com.example.docconneting.domain.comment.dto.request.CommentRequest;
+import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -46,10 +46,10 @@ class CommentControllerTest {
         String contents = "comments";
         LocalDateTime now = LocalDateTime.now();
 
-        CommentRequestDto request = new CommentRequestDto(contents);
-        CommentResponseDto response = CommentResponseDto.of(commentId, contents, now, now);
+        CommentRequest request = new CommentRequest(contents);
+        CommentResponse response = CommentResponse.of(commentId, contents, now, now);
 
-        given(commentService.createComment(eq(userId), eq(postId), any(CommentRequestDto.class)))
+        given(commentService.createComment(eq(userId), eq(postId), any(CommentRequest.class)))
                 .willReturn(response);
 
         mockMvc.perform(post("/api/v1/posts/{postId}/comments",postId)
@@ -70,10 +70,10 @@ class CommentControllerTest {
         String updateContent = "updateComments";
         LocalDateTime now = LocalDateTime.now();
 
-        CommentRequestDto request = new CommentRequestDto(updateContent);
-        CommentResponseDto response = CommentResponseDto.of(commentId, updateContent, now, now);
+        CommentRequest request = new CommentRequest(updateContent);
+        CommentResponse response = CommentResponse.of(commentId, updateContent, now, now);
 
-        given(commentService.updateComment(eq(userId), eq(commentId), any(CommentRequestDto.class)))
+        given(commentService.updateComment(eq(userId), eq(commentId), any(CommentRequest.class)))
         .willReturn(response);
 
         mockMvc.perform(patch("/api/v1/posts/{postId}/comments/{commentId}", userId, commentId)

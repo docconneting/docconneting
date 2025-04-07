@@ -3,8 +3,8 @@ package com.example.docconneting.domain.comment.service;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ServerException;
-import com.example.docconneting.domain.comment.dto.request.CommentRequestDto;
-import com.example.docconneting.domain.comment.dto.response.CommentResponseDto;
+import com.example.docconneting.domain.comment.dto.request.CommentRequest;
+import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.entity.Comment;
 import com.example.docconneting.domain.comment.repository.CommentRepository;
 import com.example.docconneting.domain.post.entity.Post;
@@ -78,7 +78,7 @@ class CommentServiceTest {
         void 사용자가_없으면_예외() {
             when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-            CommentRequestDto request = new CommentRequestDto("comments");
+            CommentRequest request = new CommentRequest("comments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.createComment(1L, 1L, request)
@@ -93,7 +93,7 @@ class CommentServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
-            CommentRequestDto request = new CommentRequestDto("comments");
+            CommentRequest request = new CommentRequest("comments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.createComment(1L, 1L, request)
@@ -105,7 +105,7 @@ class CommentServiceTest {
         @Test
         @Order(3)
         void 정상적으로_댓글_생성() {
-            CommentRequestDto request = new CommentRequestDto("comments");
+            CommentRequest request = new CommentRequest("comments");
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -117,7 +117,7 @@ class CommentServiceTest {
                 return c;
             });
 
-            CommentResponseDto response = commentService.createComment(1L, 1L, request);
+            CommentResponse response = commentService.createComment(1L, 1L, request);
 
             assertNotNull(response);
             assertEquals("comments", response.getContents());
@@ -131,7 +131,7 @@ class CommentServiceTest {
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-            CommentRequestDto request = new CommentRequestDto("comments");
+            CommentRequest request = new CommentRequest("comments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.createComment(1L, 1L, request)
@@ -161,7 +161,7 @@ class CommentServiceTest {
         void 댓글이_없으면_예외() {
             when(commentRepository.findById(100L)).thenReturn(Optional.empty());
 
-            CommentRequestDto request = new CommentRequestDto("updateComments");
+            CommentRequest request = new CommentRequest("updateComments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.updateComment(1L, 100L, request)
@@ -201,7 +201,7 @@ class CommentServiceTest {
 
             when(commentRepository.findById(100L)).thenReturn(Optional.of(anotherComment));
 
-            CommentRequestDto request = new CommentRequestDto("updateComments");
+            CommentRequest request = new CommentRequest("updateComments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.updateComment(1L, 100L, request)
@@ -217,9 +217,9 @@ class CommentServiceTest {
             when(commentRepository.findById(100L)).thenReturn(Optional.of(comment));
             when(commentRepository.save(any(Comment.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            CommentRequestDto request = new CommentRequestDto("updateComments");
+            CommentRequest request = new CommentRequest("updateComments");
 
-            CommentResponseDto response = commentService.updateComment(1L, 100L, request);
+            CommentResponse response = commentService.updateComment(1L, 100L, request);
 
             assertNotNull(response);
             assertEquals(100L, response.getId());
