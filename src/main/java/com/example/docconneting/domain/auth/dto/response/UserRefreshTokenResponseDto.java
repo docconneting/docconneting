@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.Auth.dto.response;
+package com.example.docconneting.domain.auth.dto.response;
 
 
 import lombok.Getter;
