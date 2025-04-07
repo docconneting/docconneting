@@ -3,10 +3,10 @@ package com.example.docconneting.domain.user.service;
 import com.example.docconneting.common.config.PasswordEncoder;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
-import com.example.docconneting.domain.Auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequestDto;
-import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequestDto;
-import com.example.docconneting.domain.user.dto.response.UserMyPageResponseDto;
+import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
+import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
+import com.example.docconneting.domain.user.dto.response.UserMyPageResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
@@ -26,15 +26,20 @@ public class UserService {
 
     //마이페이지 조회
     @Transactional(readOnly = true)
-    public UserMyPageResponseDto findMyPage(AuthUser authUser) {
-        User user = userRepository.findById(authUser.getId()).orElseThrow(()-> new ClientException(ErrorCode.USER_NOT_FOUND));
+    public UserMyPageResponse findMyPage(AuthUser authUser) {
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
-        return UserMyPageResponseDto.of(user.getUsername(), user.getPoint());
+        if (user.getUserRole().equals(UserRole.DOCTOR)) {
+            return UserMyPageResponse.of(user.getUsername());
+        }
+
+        return UserMyPageResponse.of(user.getUsername(), user.getPoint());
     }
 
     //비밀번호 수정
     @Transactional
-    public Map<String, String> updatePassword(AuthUser authUser, UpdatePasswordRequestDto dto) {
+    public Map<String, String> updatePassword(AuthUser authUser, UpdatePasswordRequest dto) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(()-> new ClientException(ErrorCode.USER_NOT_FOUND));
         if(!passwordEncoder.matches(dto.getOldPassword(),user.getPassword()))
         {
@@ -51,7 +56,7 @@ public class UserService {
 
     //의사 이미지 수정
     @Transactional
-    public Map<String, String> updateImage(AuthUser authUser, UpdateImageRequestDto dto) {
+    public Map<String, String> updateImage(AuthUser authUser, UpdateImageRequest dto) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(()-> new ClientException(ErrorCode.USER_NOT_FOUND));
         if(!user.getUserRole().equals(UserRole.DOCTOR))
         {

@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.Auth.service;
+package com.example.docconneting.domain.auth.service;
 
 import com.example.docconneting.common.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
