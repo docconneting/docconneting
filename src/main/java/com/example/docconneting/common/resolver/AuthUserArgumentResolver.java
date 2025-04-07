@@ -1,7 +1,7 @@
 package com.example.docconneting.common.resolver;
 
 import com.example.docconneting.domain.Auth.annotation.Auth;
-import com.example.docconneting.domain.Auth.dto.AuthUser;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +39,6 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
         // JwtFilter 에서 set 한 userId와 userRole 값을 가져옴
         Long userId = (Long) request.getAttribute("userId");
         UserRole userRole = (UserRole) request.getAttribute("userRole");
-        return new AuthUser(userId,userRole);
+        return AuthUser.of(userId,userRole);
     }
 }

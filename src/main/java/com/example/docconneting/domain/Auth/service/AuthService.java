@@ -6,7 +6,7 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.Auth.dto.AuthUser;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.Auth.dto.request.UserRefreshTokenRequestDto;
 import com.example.docconneting.domain.Auth.dto.request.UserSignUpRequestDto;
 import com.example.docconneting.domain.Auth.dto.request.UserSigninRequestDto;
@@ -38,40 +38,53 @@ public class AuthService {
         String password = passwordEncoder.encode(dto.getPassword());
         UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
 
-        User user;
+        User user = switch (role) {
+            case DOCTOR -> {
+                if (dto.getMajor() == null) {
+                    throw new ClientException(ErrorCode.MAJOR_NOT_FOUND);
+                }
+                if (dto.getImage() == null) {
+                    throw new ClientException(ErrorCode.IMAGE_NOT_FOUND);
+                }
+                if (dto.getStartTime() == null) {
+                    throw new ClientException(ErrorCode.STARTTIME_NOT_FOUND);
+                }
+                if (dto.getEndTime() == null) {
+                    throw new ClientException(ErrorCode.ENDTIME_NOT_FOUND);
+                }
 
-        if (role == UserRole.DOCTOR) {
-            if (dto.getMajor() == null) {
-                throw new ClientException(ErrorCode.MAJOR_NOT_FOUND);
-            }
-            if (dto.getImage() == null) {
-                throw new ClientException(ErrorCode.IMAGE_NOT_FOUND);
-            }
-            if (dto.getStartTime() == null) {
-                throw new ClientException(ErrorCode.STARTTIME_NOT_FOUND);
-            }
-            if (dto.getEndTime() == null) {
-                throw new ClientException(ErrorCode.ENDTIME_NOT_FOUND);
+                Major major = Major.of(dto.getMajor().toUpperCase());
+                yield User.of(
+                        dto.getEmail(),
+                        password,
+                        dto.getUsername(),
+                        major,
+                        dto.getImage(),
+                        dto.getStartTime(),
+                        dto.getEndTime(),
+                        false,
+                        role
+                );
             }
 
-            user = new User(
+            case ADMIN -> User.of(
                     dto.getEmail(),
                     password,
                     dto.getUsername(),
-                    Major.of(dto.getMajor().toUpperCase()),
-                    dto.getImage(),
-                    dto.getStartTime(),
-                    dto.getEndTime(),
+                    0,
                     false,
                     role
             );
 
-        } else if (role == UserRole.ADMIN) {
-            user = new User(dto.getEmail(), password, dto.getUsername(), 0, false, role);
-
-        } else {
-            user = new User(dto.getEmail(), password, dto.getUsername(), 0, false, UserRole.PATIENT);
-        }
+            case PATIENT -> User.of(
+                    dto.getEmail(),
+                    password,
+                    dto.getUsername(),
+                    0,
+                    false,
+                    UserRole.PATIENT
+            );
+        };
 
         userRepository.save(user);
 
@@ -94,10 +107,8 @@ public class AuthService {
         String refreshToken = jwtUtil.createRefreshToken(user.getId());
         // refreshToken을 Redis에 저장
         refreshTokenService.saveRefreshToken(user.getId(), refreshToken);
-        return UserSignInResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+
+        return UserSignInResponseDto.of(accessToken, refreshToken);
     }
 
     //토큰 재발급
@@ -105,19 +116,16 @@ public class AuthService {
     public UserRefreshTokenResponseDto refreshToken(AuthUser authuser, UserRefreshTokenRequestDto dto) {
         User user = userRepository.findById(authuser.getId())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
-        String token = jwtUtil.substringToken(dto.getRefreshToken());
-        Claims claims = jwtUtil.extractClaims(token);
+        String refreshToken = jwtUtil.substringToken(dto.getRefreshToken());
+        Claims claims = jwtUtil.extractClaims(refreshToken);
 
         String savedToken = refreshTokenService.getRefreshToken(user.getId());
-        if (!token.equals(savedToken)) {
+        if (!refreshToken.equals(savedToken)) {
             throw new ClientException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         String newAccessToken = jwtUtil.createToken(user.getId(), user.getUserRole());
 
-        return UserRefreshTokenResponseDto.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(savedToken)
-                .build();
+        return UserRefreshTokenResponseDto.of(newAccessToken, refreshToken);
     }
 }

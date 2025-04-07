@@ -3,7 +3,7 @@ package com.example.docconneting.domain.user.service;
 import com.example.docconneting.common.config.PasswordEncoder;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
-import com.example.docconneting.domain.Auth.dto.AuthUser;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.user.dto.request.UpdateImageRequestDto;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequestDto;
 import com.example.docconneting.domain.user.dto.response.UserMyPageResponseDto;
@@ -27,10 +27,7 @@ public class UserService {
     public UserMyPageResponseDto findMyPage(AuthUser authUser) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(()-> new ClientException(ErrorCode.USER_NOT_FOUND));
 
-        return UserMyPageResponseDto.builder()
-                .username(user.getUsername())
-                .point(user.getPoint())
-                .build();
+        return UserMyPageResponseDto.of(user.getUsername(), user.getPoint());
     }
 
     //비밀번호 수정
