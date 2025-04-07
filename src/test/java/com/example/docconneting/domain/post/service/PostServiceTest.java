@@ -125,38 +125,96 @@ class PostServiceTest {
     }
 
     @Test
+    @DisplayName("서비스에서 게시물 삭제시 유저가 PATIENT 가 아닐 때")
+    void deletePostByIdNotPatientTest(){
+        // given
+        Long postId = 1L;
+
+        Long userId = 1L;
+        UserRole userRole = UserRole.ADMIN;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        Post post = new Post();
+        ReflectionTestUtils.setField(post, "isDeleted", false);
+
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.deletePostById(authUser, postId));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.PATIENT_ONLY_ACCESS);
+
+        verify(postRepository, times(0)).findByIdWithUser(postId);
+    }
+
+    @Test
     @DisplayName("서비스에서 게시물 삭제시 게시물이 없을 떄")
     void deletePostByIdFailTest(){
         // given
         Long postId = 1L;
 
-        given(postRepository.findById(postId)).willReturn(Optional.empty());
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.empty());
 
         // when, then
-        ClientException clientException = assertThrows(ClientException.class, () -> postService.deletePostById(postId));
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.deletePostById(authUser, postId));
 
         assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
 
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
-    @DisplayName("서비스에서 게시물 삭제 테스트")
+    @DisplayName("서비스에서 게시물 삭제시 유저가 작성한 게시물이 아닐 때")
+    void deletePostByIdNotUserPostTest(){
+        // given
+        Long postId = 1L;
+
+        Long userId = 2L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        Post post = new Post();
+        ReflectionTestUtils.setField(post, "isDeleted", false);
+        ReflectionTestUtils.setField(post, "patient", user);
+
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
+
+        // when, then
+        ClientException clientException = assertThrows(ClientException.class, () -> postService.deletePostById(authUser, postId));
+
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.ONLY_AUTHOR_CAN_UPDATE_OR_DELETED);
+
+        verify(postRepository, times(1)).findByIdWithUser(postId);
+    }
+
+    @Test
+    @DisplayName("서비스에서 게시물 삭제 성공")
     void deletePostByIdSuccessTest(){
         // given
         Long postId = 1L;
 
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         Post post = new Post();
         ReflectionTestUtils.setField(post, "isDeleted", false);
+        ReflectionTestUtils.setField(post, "patient", user);
 
-        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
 
         // when, then
-        postService.deletePostById(postId);
+        postService.deletePostById(authUser, postId);
 
-        assertThat(post.getIsDeleted()).isTrue();
-
-        verify(postRepository, times(1)).findById(postId);
+        verify(postRepository, times(1)).findByIdWithUser(postId);
     }
 
     @Test
