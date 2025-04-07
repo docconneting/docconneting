@@ -9,6 +9,7 @@ import com.example.docconneting.domain.comment.repository.CommentRepository;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,10 @@ public class CommentService {
     public CommentResponseDto createComment(Long userId, Long postId, CommentRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServerException(ErrorCode.USER_NOT_FOUND));
+
+        if (!UserRole.DOCTOR.equals(user.getUserRole())) {
+            throw new ServerException(ErrorCode.NOT_ALLOWED_TO_COMMENT);
+        }
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ServerException(ErrorCode.POST_NOT_FOUND));

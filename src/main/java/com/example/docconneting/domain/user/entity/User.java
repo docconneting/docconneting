@@ -4,16 +4,16 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,20 +31,30 @@ public class User extends BaseEntity {
 
     private String image;
 
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
     private Boolean isDeleted;
 
-    private User(String email, String password, String username, Integer point, Major major, String image, LocalDateTime startTime, LocalDateTime endTime, Boolean isDeleted, UserRole userRole) {
+    // 환자 생성자
+    public User(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.point = point;
+        this.isDeleted = isDeleted;
+        this.userRole = userRole;
+    }
+
+    // 의사 생성자
+    public User(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
         this.major = major;
         this.image = image;
         this.startTime = startTime;
@@ -52,19 +62,4 @@ public class User extends BaseEntity {
         this.isDeleted = isDeleted;
         this.userRole = userRole;
     }
-
-    // 테스트용 생성자
-    public User(String email, String password, String username) {
-        this.email = email;
-        this.password = password;
-        this.username = username;
-        this.point = 0;
-        this.major = Major.INTERNAL_MEDICINE; // 기본값 필요
-        this.image = null;
-        this.startTime = null;
-        this.endTime = null;
-        this.isDeleted = false;
-        this.userRole = UserRole.DOCTOR; // 기본값 필요
-    }
-
 }
