@@ -25,7 +25,7 @@ public class DoctorService {
     public DoctorResponse findDoctor(Long id) {
         User user = userRepository.findByDoctorId(id).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
 
-        DoctorResponse response = DoctorResponse.Of(
+        DoctorResponse response = DoctorResponse.of(
                 user.getId(),
                 user.getUsername(),
                 user.getMajor().name(),

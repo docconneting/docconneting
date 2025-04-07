@@ -26,7 +26,7 @@ public class DoctorResponse {
         this.endTime = endTime;
     }
 
-    public static DoctorResponse Of(Long id, String name, String major, String imageUrl, LocalTime startTime, LocalTime endTime) {
+    public static DoctorResponse of(Long id, String name, String major, String imageUrl, LocalTime startTime, LocalTime endTime) {
         return new DoctorResponse(id, name, major, imageUrl, startTime, endTime);
     }
 
