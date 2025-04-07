@@ -36,7 +36,8 @@ public class PostService {
             throw new ClientException(ErrorCode.NOT_FOUND_POST);
         }
 
-        return PostSingleResponse.of(findPost.getId(),
+        return PostSingleResponse.of(
+                findPost.getId(),
                 findPost.getPatient().getUsername(),
                 findPost.getTitle(),
                 findPost.getContents(),
@@ -77,7 +78,8 @@ public class PostService {
         // flush() 시점에 @LastModifiedDate 이 작동한다
         entityManager.flush();
 
-        return PostUpdateResponse.of(findPost.getId(),
+        return PostUpdateResponse.of(
+                findPost.getId(),
                 findPost.getTitle(),
                 findPost.getContents(),
                 findPost.getMajor().name(),

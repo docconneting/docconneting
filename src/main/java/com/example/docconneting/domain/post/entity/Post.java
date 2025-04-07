@@ -55,6 +55,10 @@ public class Post extends BaseEntity {
         this.deadline = deadline;
     }
 
+    public static Post of(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline){
+        return new Post(patient, title, contents, major, isPaid, isDeleted, isReplied, deadline);
+    }
+
     public void updateTitle(String title){
         this.title = title;
     }
