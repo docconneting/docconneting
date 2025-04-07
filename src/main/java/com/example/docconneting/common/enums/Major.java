@@ -5,7 +5,10 @@ import com.example.docconneting.common.exception.object.ClientException;
 
 public enum Major {
     INTERNAL_MEDICINE,
-    ORTHOPEDICS;
+    ORTHOPEDICS,
+    SURGERY,
+    PEDIATRICS,
+    DERMATOLOGY;
 
     public static Major of(String category) {
         for (Major major : values()) {

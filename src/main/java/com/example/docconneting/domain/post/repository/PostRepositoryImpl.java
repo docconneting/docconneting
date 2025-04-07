@@ -27,7 +27,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     public Page<Post> findPosts(Pageable pageable, String title ,String major) {
         List<Post> posts = jpaQueryFactory.selectFrom(post)
                 .leftJoin(post.patient, user).fetchJoin()
-                .where(searchByTitle(title), searchByMajor(major), post.isDeleted.isFalse())
+                .where(searchByMajor(major), searchByTitle(title), post.isDeleted.isFalse())
                 .orderBy(orderBy(pageable))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -35,7 +35,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         long total = jpaQueryFactory.select(post.count())
                 .from(post)
-                .where(searchByMajor(major))
+                .where(searchByTitle(title), searchByMajor(major), post.isDeleted.isFalse())
                 .fetchOne();
 
         return new PageImpl<>(posts, pageable, total);

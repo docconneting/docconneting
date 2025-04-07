@@ -12,7 +12,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "posts", indexes = {
+        @Index(name = "idx1", columnList = "isDeleted, createdAt"),
+        @Index(name = "idx2", columnList = "major, isDeleted, createdAt"),
+//        @Index(name = "idx3", columnList = "isDeleted, title, createdAt"),
+//        @Index(name = "idx4", columnList = "major, title, isDeleted, createdAt")
+})
 @Getter
 @NoArgsConstructor
 public class Post extends BaseEntity {
