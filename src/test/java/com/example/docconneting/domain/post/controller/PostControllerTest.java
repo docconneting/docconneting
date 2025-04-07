@@ -47,17 +47,7 @@ class PostControllerTest {
         // given
         Long postId = 1L;
 
-        PostSingleResponse postSingleResponse = PostSingleResponse.builder()
-                .id(postId)
-                .patientName("patient")
-                .title("title")
-                .contents("contents")
-                .major("major")
-                .isReplied(false)
-                .deadline(LocalDateTime.now())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build();
+        PostSingleResponse postSingleResponse = PostSingleResponse.of(postId, "patient", "title", "contents", "major", false, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
 
         given(postService.findPostById(postId)).willReturn(postSingleResponse);
 
@@ -105,14 +95,7 @@ class PostControllerTest {
 
         String postUpdateRequestJson = objectMapper.writeValueAsString(postUpdateRequest);
 
-        PostUpdateResponse postUpdateResponse = PostUpdateResponse.builder()
-                .id(postId)
-                .title("updateTitle")
-                .contents("updateContent")
-                .major(Major.ORTHOPEDICS.name())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build();
+        PostUpdateResponse postUpdateResponse = PostUpdateResponse.of(postId, "updateTitle", "updateContent", Major.ORTHOPEDICS.name(), LocalDateTime.now(), LocalDateTime.now());
 
         given(postService.updatePost(any(Long.class), any(PostUpdateRequest.class))).willReturn(postUpdateResponse);
 
