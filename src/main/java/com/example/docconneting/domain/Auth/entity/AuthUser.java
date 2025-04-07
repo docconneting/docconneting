@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.auth.entity;
+package com.example.docconneting.domain.Auth.entity;
 
 import com.example.docconneting.domain.user.enums.UserRole;
 import lombok.Getter;

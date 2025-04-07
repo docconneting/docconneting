@@ -1,11 +1,11 @@
 package com.example.docconneting.domain.user.controller;
 
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.auth.annotation.Auth;
-import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
-import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
-import com.example.docconneting.domain.user.dto.response.UserMyPageResponse;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
+import com.example.docconneting.domain.user.dto.request.UpdateImageRequestDto;
+import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequestDto;
+import com.example.docconneting.domain.user.dto.response.UserMyPageResponseDto;
 import com.example.docconneting.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +22,10 @@ public class UserController {
 
     //마이페이지 조회
     @GetMapping
-    public ResponseEntity<Response<UserMyPageResponse>> findMyPage(
+    public ResponseEntity<Response<UserMyPageResponseDto>> findMyPage(
             @Auth AuthUser authUser
     ) {
-        UserMyPageResponse response = userService.findMyPage(authUser);
+        UserMyPageResponseDto response = userService.findMyPage(authUser);
         return ResponseEntity.ok(Response.of(response));
     }
 
@@ -33,7 +33,7 @@ public class UserController {
     @PatchMapping("/password")
     public ResponseEntity<Response<Map<String, String>>> updatePassword(
             @Auth AuthUser authUser,
-            @Valid @RequestBody UpdatePasswordRequest dto
+            @Valid @RequestBody UpdatePasswordRequestDto dto
     ) {
         Map<String, String> response = userService.updatePassword(authUser, dto);
         return ResponseEntity.ok(Response.of(response));
@@ -43,7 +43,7 @@ public class UserController {
     @PatchMapping("/profile")
     public ResponseEntity<Response<Map<String, String>>> updateImage(
             @Auth AuthUser authUser,
-            @Valid @RequestBody UpdateImageRequest dto
+            @Valid @RequestBody UpdateImageRequestDto dto
     ) {
         Map<String, String> response = userService.updateImage(authUser, dto);
         return ResponseEntity.ok(Response.of(response));

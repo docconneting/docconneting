@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.auth.dto.request;
+package com.example.docconneting.domain.Auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalTime;
 
 @Getter
-public class UserSignUpRequest {
+public class UserSignUpRequestDto {
     @Email
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     private String email;
