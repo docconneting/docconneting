@@ -7,12 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
-public class CommentRequestDto {
+public class CommentRequest {
 
     @NotBlank(message = "내용은 필수입니다.")
     private String contents;
 
-    public CommentRequestDto(String contents) {
+    public CommentRequest(String contents) {
         this.contents = contents;
     }
 }
