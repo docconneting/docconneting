@@ -1,7 +1,9 @@
 package com.example.docconneting.domain.point.controller;
 
+import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.domain.point.dto.response.PointResponse;
 import com.example.docconneting.domain.point.service.PointService;
+import com.example.docconneting.domain.user.enums.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +24,28 @@ class PointControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    JwtUtil jwtUtil;
+
     @MockitoBean
     private PointService pointService;
 
     @Test
     @DisplayName("포인트 조회 테스트")
-    void findPointTest() throws Exception{
+    void findPointTest() throws Exception {
         // given
         long userId = 1L;
         int point = 1000;
+
+        String accessToken = jwtUtil.createToken(userId, UserRole.PATIENT);
 
         PointResponse response = PointResponse.of(point);
         given(pointService.findPoint(userId)).willReturn(response);
 
         // when, then
-        mockMvc.perform(get("/api/v1/points"))
+        mockMvc.perform(get("/api/v1/points")
+                .header("Authorization", accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.point").value(response.getPoint()));
+                .andExpect(jsonPath("$.data.point").value(response.getPoint()));
     }
-
 }

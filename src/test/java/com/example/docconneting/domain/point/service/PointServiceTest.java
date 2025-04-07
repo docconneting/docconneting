@@ -41,7 +41,7 @@ class PointServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
         ReflectionTestUtils.setField(user, "point", point);
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
 
         // when
         PointResponse response = pointService.findPoint(userId);
@@ -61,6 +61,6 @@ class PointServiceTest {
         // when, then
         ClientException thrown = assertThrows(ClientException.class, () -> pointService.findPoint(userId));
         assertThat(HttpStatus.NOT_FOUND).isEqualTo(thrown.getErrorCode().getStatus());
-        assertThat(ErrorCode.USER_NOT_FOUND.getMessage()).isEqualTo(thrown.getMessage());
+        assertThat(ErrorCode.USER_NOT_FOUND.getMessage()).isEqualTo(thrown.getErrorCode().getMessage());
     }
 }
