@@ -28,7 +28,6 @@ public class CommentController {
     @PatchMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(
         @RequestHeader Long userId,
-        @PathVariable Long postId,
         @PathVariable Long commentId,
         @Valid @RequestBody CommentRequestDto request
     ) {
