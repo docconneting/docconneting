@@ -17,7 +17,8 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 public class User extends BaseEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
@@ -53,7 +54,7 @@ public class User extends BaseEntity {
     }
 
     // 환자 생성 메서드
-    public static User of(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole){
+    public static User of(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
         return new User(email, password, username, point, isDeleted, userRole);
     }
 
@@ -71,7 +72,18 @@ public class User extends BaseEntity {
     }
 
     // 의사 생성 메서드
-    public static User of(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole){
+    public static User of(String email, String password, String username, Major major, String image, LocalTime startTime, LocalTime endTime, Boolean isDeleted, UserRole userRole) {
         return new User(email, password, username, major, image, startTime, endTime, isDeleted, userRole);
     }
+
+    //비밀번호 setter
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+    //의사 이미지 setter
+    public void updateImage(String newImage) {
+        this.image = newImage;
+    }
+
 }

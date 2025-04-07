@@ -40,6 +40,19 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+<<<<<<< HEAD
+=======
+    //login
+    implementation 'at.favre.lib:bcrypt:0.10.2'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+>>>>>>> ebeeef91582b870fc7b2c12c60ef5bd7aecffa4c
 }
 
 tasks.named('test') {
