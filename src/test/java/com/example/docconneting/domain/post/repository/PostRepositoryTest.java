@@ -31,21 +31,6 @@ class PostRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
-//    @Test
-//    void createPosts(){
-//        User user = new User();
-//        User savedUser = userRepository.save(user);
-//        Random random = new Random(System.currentTimeMillis());
-//        List<Post> posts = new ArrayList<>();
-//        for(int i=0;i<10000;i++){
-//            int randomNumber = random.nextInt(5);
-//            Major[] majors = Major.values();
-//            Post post = Post.of(savedUser, "title"+(i+1), "contents"+(i+1), majors[randomNumber], false, false, false, LocalDateTime.now());
-//            posts.add(post);
-//        }
-//        postRepository.saveAll(posts);
-//    }
-
     @BeforeEach
     @Transactional
     void setData(){
@@ -56,10 +41,10 @@ class PostRepositoryTest {
 
         Random random = new Random(System.currentTimeMillis());
         List<Post> posts = new ArrayList<>();
-        for(int i=0;i<50;i++){
+        for(int i = 0; i < 50; i++){
             Major major = Major.values()[i % 5];
             String title = "title" + (i % 5);
-            Post post = Post.of(findUser, title, "contents"+(i+1), major, false, false, false, LocalDateTime.now());
+            Post post = Post.of(findUser, title, "contents"+(i + 1), major, false, false, false, LocalDateTime.now());
             posts.add(post);
         }
         postRepository.saveAll(posts);
@@ -157,9 +142,9 @@ class PostRepositoryTest {
         assertThat(posts.getPageable().getPageNumber()).isEqualTo(0);
         assertThat(posts.getPageable().getPageSize()).isEqualTo(10);
 
-        for(int i=0;i<content.size()-1;i++){
+        for(int i = 0; i < content.size() - 1; i++){
             LocalDateTime current = content.get(i).getCreatedAt();
-            LocalDateTime next = content.get(i+1).getCreatedAt();
+            LocalDateTime next = content.get(i + 1).getCreatedAt();
             assertThat(current).isAfterOrEqualTo(next);
         }
     }

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,11 +23,12 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
+    @Transactional(readOnly = true)
     public PageResult<CommentListResponse> findAllComments(Long postId, Pageable pageable){
 
         Post findPost = postRepository.findById(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
-        if(findPost.getIsDeleted()){
+        if (findPost.getIsDeleted()){
             throw new ClientException(ErrorCode.NOT_FOUND_POST);
         }
 
@@ -37,7 +39,12 @@ public class CommentService {
 
         List<CommentListResponse> commentListResponses = CommentListResponse.toCommentListResponses(content);
 
-        PageInfo pageInfo = new PageInfo(commentsPageable.getPageNumber(), commentsPageable.getPageSize(), posts.getTotalElements(), posts.getTotalPages());
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(commentsPageable.getPageNumber())
+                .pageSize(commentsPageable.getPageSize())
+                .totalElement(posts.getTotalElements())
+                .totalPage(posts.getTotalPages())
+                .build();
 
         return new PageResult<>(commentListResponses, pageInfo);
     }

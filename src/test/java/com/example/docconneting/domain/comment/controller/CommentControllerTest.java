@@ -48,14 +48,19 @@ class CommentControllerTest {
         Pageable pageable = PageRequest.of(0,10);
 
         List<Comment> comments = new ArrayList<>();
-        for(int i=0;i<50;i++){
+        for(int i = 0; i < 50; i++){
             Comment comment = new Comment();
             comments.add(comment);
         }
 
         List<CommentListResponse> content = CommentListResponse.toCommentListResponses(comments);
 
-        PageInfo pageInfo = new PageInfo(pageable.getPageNumber(), pageable.getPageSize(), content.size(), content.size()/pageable.getPageSize());
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalElement(content.size())
+                .totalPage(content.size()/pageable.getPageSize())
+                .build();
 
         PageResult<CommentListResponse> pageResult = new PageResult<>(content, pageInfo);
 

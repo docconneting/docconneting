@@ -42,7 +42,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     }
 
     private BooleanExpression searchByMajor(String major){
-        if(major == null) {
+        if (major == null) {
             return null;
         }
 
@@ -50,7 +50,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     }
 
     private BooleanExpression searchByTitle(String title){
-        if(title == null) {
+        if (title == null) {
             return null;
         }
 
@@ -60,11 +60,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     private OrderSpecifier orderBy(Pageable pageable){
         Sort sort = pageable.getSort();
 
-        if(sort.isSorted()){
+        if (sort.isSorted()){
             Sort.Order order = sort.iterator().next();
             String fieldName = order.getProperty();
 
-            if(fieldName.equals("createdAt")){
+            if (fieldName.equals("createdAt")){
                 return new OrderSpecifier(
                         order.isAscending() ? Order.ASC : Order.DESC,
                         post.createdAt
