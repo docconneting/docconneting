@@ -51,12 +51,12 @@ public enum ErrorCode {
 
     // 게시글 에러코드
 
-    // 401
+    // 404
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 
     // 답글 에러코드
 
-    // 401
+    // 404
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "답글을 찾을 수 없습니다."),
 
     // 403

@@ -16,6 +16,7 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     @Transactional
     public CommentResponse createComment(Long userId, Long postId, CommentRequest request) {
@@ -44,7 +46,7 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ServerException(ErrorCode.POST_NOT_FOUND));
 
-        Comment comment = new Comment(user, post, request.getContents());
+        Comment comment = Comment.of(user, post, request.getContents());
 
         Comment saved = commentRepository.save(comment);
 
@@ -98,6 +100,8 @@ public class CommentService {
                 .totalElement(posts.getTotalElements())
                 .totalPage(posts.getTotalPages())
                 .build();
+
+        entityManager.flush();
 
         return new PageResult<>(commentListResponses, pageInfo);
     }

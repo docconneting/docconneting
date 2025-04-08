@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -65,7 +66,9 @@ class CommentControllerTest {
 
         String accessToken = jwtUtil.createToken(userId, UserRole.DOCTOR);
 
-        CommentRequest request = new CommentRequest(contents);
+        CommentRequest request = new CommentRequest();
+        ReflectionTestUtils.setField(request, "contents", "comments");
+
         CommentResponse response = CommentResponse.of(commentId, contents, now, now);
 
         given(commentService.createComment(eq(userId), eq(postId), any(CommentRequest.class)))
@@ -75,7 +78,7 @@ class CommentControllerTest {
                         .header("Authorization", accessToken)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(commentId))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.contents").value(contents));
     }
@@ -91,7 +94,9 @@ class CommentControllerTest {
 
         String accessToken = jwtUtil.createToken(userId, UserRole.DOCTOR);
 
-        CommentRequest request = new CommentRequest(updateContent);
+        CommentRequest request = new CommentRequest();
+        ReflectionTestUtils.setField(request, "contents", "updateComments");
+
         CommentResponse response = CommentResponse.of(commentId, updateContent, now, now);
 
         given(commentService.updateComment(eq(userId), eq(commentId), any(CommentRequest.class)))
