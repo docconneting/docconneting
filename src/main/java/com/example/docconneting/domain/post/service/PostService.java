@@ -34,7 +34,7 @@ public class PostService {
     public PostSingleResponse findPostById(Long postId){
         Post findPost = postRepository.findByIdWithUser(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
-        if(findPost.getIsDeleted()){
+        if (findPost.getIsDeleted()){
             throw new ClientException(ErrorCode.NOT_FOUND_POST);
         }
 
@@ -60,7 +60,12 @@ public class PostService {
 
         List<PostListResponse> postsListResponses = PostListResponse.toPostListResponses(content);
 
-        PageInfo pageInfo = new PageInfo(postsPageable.getPageNumber(), postsPageable.getPageSize(), posts.getTotalElements(), posts.getTotalPages());
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(postsPageable.getPageNumber())
+                .pageSize(postsPageable.getPageSize())
+                .totalElement(posts.getTotalElements())
+                .totalPage( posts.getTotalPages())
+                .build();
 
         return new PageResult<>(postsListResponses, pageInfo);
     }
@@ -69,17 +74,17 @@ public class PostService {
     @Transactional
     public PostUpdateResponse updatePost(AuthUser authUser, Long postId, PostUpdateRequest postUpdateRequest){
 
-        if(authUser.getUserRole() != UserRole.PATIENT){
+        if (authUser.getUserRole() != UserRole.PATIENT){
             throw new ClientException(ErrorCode.PATIENT_ONLY_ACCESS);
         }
 
         Post findPost = postRepository.findByIdWithUser(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
-        if(findPost.getIsDeleted()){
+        if (findPost.getIsDeleted()){
             throw new ClientException(ErrorCode.NOT_FOUND_POST);
         }
 
-        if(authUser.getId() != findPost.getPatient().getId()){
+        if (authUser.getId() != findPost.getPatient().getId()){
             throw new ClientException(ErrorCode.ONLY_AUTHOR_CAN_UPDATE_OR_DELETED);
         }
 
@@ -102,13 +107,13 @@ public class PostService {
     @Transactional
     public void deletePostById(AuthUser authUser, Long postId){
 
-        if(authUser.getUserRole() != UserRole.PATIENT){
+        if (authUser.getUserRole() != UserRole.PATIENT){
             throw new ClientException(ErrorCode.PATIENT_ONLY_ACCESS);
         }
 
         Post findPost = postRepository.findByIdWithUser(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
 
-        if(authUser.getId() != findPost.getPatient().getId()){
+        if (authUser.getId() != findPost.getPatient().getId()){
             throw new ClientException(ErrorCode.ONLY_AUTHOR_CAN_UPDATE_OR_DELETED);
         }
 

@@ -153,14 +153,19 @@ class PostControllerTest {
         String major = Major.values()[0].name();
 
         List<Post> posts = new ArrayList<>();
-        for(int i=0;i<pageable.getPageSize();i++){
+        for(int i = 0; i < pageable.getPageSize(); i++){
             Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
             posts.add(post);
         }
 
         List<PostListResponse> postListResponses = PostListResponse.toPostListResponses(posts);
 
-        PageInfo pageInfo = new PageInfo(pageable.getPageNumber(), pageable.getPageSize(), postListResponses.size(), postListResponses.size()/pageable.getPageSize());
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalElement( postListResponses.size())
+                .totalPage(postListResponses.size()/pageable.getPageSize())
+                .build();
 
         PageResult<PostListResponse> pageResult = new PageResult<>(postListResponses, pageInfo);
 
