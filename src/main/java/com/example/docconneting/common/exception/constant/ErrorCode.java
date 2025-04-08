@@ -8,7 +8,19 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
+    // 회원 에러코드
+
+    // 게시물 에러 코드
+
+    // 403
+    PATIENT_ONLY_ACCESS(HttpStatus.FORBIDDEN, "게시물 수정, 삭제는 환자만 접근 가능 합니다."),
+    ONLY_AUTHOR_CAN_UPDATE_OR_DELETED(HttpStatus.FORBIDDEN, "게시물은 작성자만 수정 혹은 삭제 가능합니다."),
+
+    // 404 NOT_FOUND
+    NOT_FOUND_POST(HttpStatus.NOT_FOUND, "존재하지 않는 게시물 입니다."),
+
     //회원 에러코드
+
     //400
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),
     PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST,"기존 비밀번호와 동일한 비밀번호로 수정할 수 없습니다."),
@@ -20,6 +32,7 @@ public enum ErrorCode {
     AUTH_WITHOUT_AUTHUSER(HttpStatus.INTERNAL_SERVER_ERROR,"@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
 
     //로그인 에러 코드
+
     //400
     USERROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "권한 이름을 잘못 입력하셨습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
@@ -37,6 +50,7 @@ public enum ErrorCode {
 
 
     // 의사 조회 에러코드
+
     //404
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 의사입니다."),
     MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 전공입니다.");
