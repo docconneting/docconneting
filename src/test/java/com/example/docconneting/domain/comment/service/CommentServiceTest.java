@@ -22,9 +22,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.lang.reflect.Field;
 import java.util.Optional;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +83,7 @@ class CommentServiceTest {
                     commentService.createComment(1L, 1L, request)
             );
 
-            assertEquals(ErrorCode.USER_NOT_FOUND, ex.getErrorCode());
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
         }
 
         @Test
@@ -99,7 +98,7 @@ class CommentServiceTest {
                     commentService.createComment(1L, 1L, request)
             );
 
-            assertEquals(ErrorCode.POST_NOT_FOUND, ex.getErrorCode());
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.POST_NOT_FOUND);
         }
 
         @Test
@@ -119,9 +118,9 @@ class CommentServiceTest {
 
             CommentResponse response = commentService.createComment(1L, 1L, request);
 
-            assertNotNull(response);
-            assertEquals("comments", response.getContents());
-            assertEquals(10L, response.getId());
+            assertThat(response).isNotNull();
+            assertThat(response.getContents()).isEqualTo("comments");
+            assertThat(response.getId()).isEqualTo(10L);
         }
 
         @Test
@@ -137,7 +136,7 @@ class CommentServiceTest {
                     commentService.createComment(1L, 1L, request)
             );
 
-            assertEquals(ErrorCode.NOT_ALLOWED_TO_COMMENT, ex.getErrorCode());
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.NOT_ALLOWED_TO_COMMENT);
         }
     }
 
@@ -167,7 +166,8 @@ class CommentServiceTest {
                     commentService.updateComment(1L, 100L, request)
             );
 
-            assertEquals(ErrorCode.COMMENT_NOT_FOUND, ex.getErrorCode());
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.NOT_ALLOWED_TO_COMMENT);
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.COMMENT_NOT_FOUND);
         }
 
         @Test
@@ -207,7 +207,7 @@ class CommentServiceTest {
                     commentService.updateComment(1L, 100L, request)
             );
 
-            assertEquals(ErrorCode.NOT_COMMENT_OWNER, ex.getErrorCode());
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.NOT_COMMENT_OWNER);
 
         }
 
@@ -221,9 +221,9 @@ class CommentServiceTest {
 
             CommentResponse response = commentService.updateComment(1L, 100L, request);
 
-            assertNotNull(response);
-            assertEquals(100L, response.getId());
-            assertEquals("updateComments", response.getContents());
+            assertThat(response).isNotNull();
+            assertThat(response.getId()).isEqualTo(100L);
+            assertThat(response.getContents()).isEqualTo("updateComments");
         }
     }
 }
