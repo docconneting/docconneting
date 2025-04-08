@@ -1,8 +1,10 @@
 package com.example.docconneting.domain.comment.controller;
 
+import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.domain.comment.dto.request.CommentRequest;
 import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.service.CommentService;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,14 @@ class CommentControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    JpaMetamodelMappingContext jpaMetamodelMappingContext;
+    @Autowired
+    JwtUtil jwtUtil;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @MockitoBean
     private CommentService commentService;
@@ -46,6 +51,8 @@ class CommentControllerTest {
         String contents = "comments";
         LocalDateTime now = LocalDateTime.now();
 
+        String accessToken = jwtUtil.createToken(userId, UserRole.DOCTOR);
+
         CommentRequest request = new CommentRequest(contents);
         CommentResponse response = CommentResponse.of(commentId, contents, now, now);
 
@@ -53,7 +60,7 @@ class CommentControllerTest {
                 .willReturn(response);
 
         mockMvc.perform(post("/api/v1/posts/{postId}/comments",postId)
-                .header("userId", String.valueOf(userId))
+                .header("Authorization", accessToken)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -70,6 +77,8 @@ class CommentControllerTest {
         String updateContent = "updateComments";
         LocalDateTime now = LocalDateTime.now();
 
+        String accessToken = jwtUtil.createToken(userId, UserRole.DOCTOR);
+
         CommentRequest request = new CommentRequest(updateContent);
         CommentResponse response = CommentResponse.of(commentId, updateContent, now, now);
 
@@ -77,7 +86,7 @@ class CommentControllerTest {
         .willReturn(response);
 
         mockMvc.perform(patch("/api/v1/posts/{postId}/comments/{commentId}", userId, commentId)
-                .header("userId", String.valueOf(userId))
+                .header("Authorization", accessToken)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

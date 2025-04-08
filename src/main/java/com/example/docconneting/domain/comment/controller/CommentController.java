@@ -1,6 +1,8 @@
 package com.example.docconneting.domain.comment.controller;
 
 import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.Auth.annotation.Auth;
+import com.example.docconneting.domain.Auth.entity.AuthUser;
 import com.example.docconneting.domain.comment.dto.request.CommentRequest;
 import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.service.CommentService;
@@ -19,19 +21,21 @@ public class CommentController {
 
     @PostMapping("/{postId}/comments")
     public ResponseEntity<Response<CommentResponse>> createComment(
-            @RequestHeader Long userId,
+            @Auth AuthUser authUser,
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request
     ) {
+        Long userId = authUser.getId();
         return new ResponseEntity<>(Response.of(commentService.createComment(userId, postId, request)), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<Response<CommentResponse>> updateComment(
-        @RequestHeader Long userId,
+        @Auth AuthUser authUser,
         @PathVariable Long commentId,
         @Valid @RequestBody CommentRequest request
     ) {
+        Long userId = authUser.getId();
         return new ResponseEntity<>(Response.of(commentService.updateComment(userId, commentId, request)), HttpStatus.OK);
     }
 }
