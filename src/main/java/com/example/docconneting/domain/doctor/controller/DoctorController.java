@@ -5,6 +5,8 @@ import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.doctor.dto.DoctorResponse;
 import com.example.docconneting.domain.doctor.service.DoctorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +29,11 @@ public class DoctorController {
     // 의사 다건 조회
     @GetMapping()
     public ResponseEntity<Response<List<DoctorResponse>>> findDoctors(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @PageableDefault Pageable pageable,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String name)
     {
-        PageResult<DoctorResponse> pageResult = doctorService.findDoctors(page, size, category, name);
+        PageResult<DoctorResponse> pageResult = doctorService.findDoctors(pageable, category, name);
         return ResponseEntity.ok().body(Response.of(pageResult.getContent(), pageResult.getPageInfo()));
     }
 }
