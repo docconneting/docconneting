@@ -1,7 +1,6 @@
 package com.example.docconneting.domain.user.repository;
 
 import com.example.docconneting.domain.user.entity.User;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
