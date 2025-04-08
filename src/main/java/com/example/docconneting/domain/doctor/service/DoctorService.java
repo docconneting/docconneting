@@ -9,7 +9,6 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -37,14 +36,13 @@ public class DoctorService {
     }
 
     // 의사 다건 조회 검색
-    public PageResult<DoctorResponse> findDoctors(int page, int size, String category, String name) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+    public PageResult<DoctorResponse> findDoctors(Pageable pageable, String category, String name) {
         Page<User> result = userRepository.findDoctors(pageable, category, name);
         List<DoctorResponse> doctors = DoctorResponse.toDoctorResponse(result.getContent());
 
         PageInfo pageInfo = PageInfo.builder()
-                .pageNum(page)
-                .pageSize(size)
+                .pageNum(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
                 .totalElement(result.getTotalElements())
                 .totalPage(result.getTotalPages())
                 .build();

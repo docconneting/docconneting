@@ -4,15 +4,16 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "posts", indexes = {
+        @Index(name = "idx_is_deleted_created_at", columnList = "isDeleted, createdAt"),
+        @Index(name = "idx_major_is_deleted_created_at", columnList = "major, isDeleted, createdAt"),
+})
 @Getter
 @NoArgsConstructor
 public class Post extends BaseEntity {
@@ -39,7 +40,7 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deadline;
 
-    private Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
+    Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
         this.patient = patient;
         this.title = title;
         this.contents = contents;
@@ -48,5 +49,21 @@ public class Post extends BaseEntity {
         this.isDeleted = isDeleted;
         this.isReplied = isReplied;
         this.deadline = deadline;
+    }
+
+    public static Post of(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline){
+        return new Post(patient, title, contents, major, isPaid, isDeleted, isReplied, deadline);
+    }
+
+    public void updateTitle(String title){
+        this.title = title;
+    }
+
+    public void updateContents(String contents){
+        this.contents = contents;
+    }
+
+    public void delete(){
+        isDeleted = true;
     }
 }

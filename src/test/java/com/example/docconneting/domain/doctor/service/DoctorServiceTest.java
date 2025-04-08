@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalTime;
@@ -106,8 +107,9 @@ class DoctorServiceTest {
     @Test
     public void 의사_목록을_페이징을_적용하여_조회할_수_있다() {
         // given
-        int page = 1;
-        int size = 5;
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page,size);
         String category = "INTERNAL_MEDICINE";
         String name = "doctor";
 
@@ -115,11 +117,11 @@ class DoctorServiceTest {
         users.add(user1);
         users.add(user2);
 
-        Page<User> pageResult = new PageImpl<>(users, PageRequest.of(page - 1, 5), 2);
-        Mockito.when(userRepository.findDoctors(PageRequest.of(page - 1, size), category, name)).thenReturn(pageResult);
+        Page<User> pageResult = new PageImpl<>(users, pageable, 2);
+        Mockito.when(userRepository.findDoctors(pageable, category, name)).thenReturn(pageResult);
 
         // when
-        PageResult<DoctorResponse> result = doctorService.findDoctors(page, size, category, name);
+        PageResult<DoctorResponse> result = doctorService.findDoctors(pageable, category, name);
 
         // then
         assertEquals(2, result.getContent().size());

@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -95,10 +97,12 @@ class DoctorControllerTest {
     @Test
     public void 의사_다건_조회() throws Exception {
         // given
-        int page = 1;
-        int size = 5;
+        int page = 0;
+        int size = 10;
         int totalElement = 2;
         int totalPages = 1;
+
+        Pageable pageable = PageRequest.of(page,size);
 
         List<User> users = new ArrayList<>();
         users.add(user1);
@@ -114,7 +118,7 @@ class DoctorControllerTest {
 
         PageResult<DoctorResponse> pageResult = new PageResult<>(doctors, pageInfo);
 
-        given(doctorService.findDoctors(page, size, "", "")).willReturn(pageResult);
+        given(doctorService.findDoctors(pageable, "", "")).willReturn(pageResult);
 
         // when & then
         mockMvc.perform(get("/api/v1/doctors")
