@@ -1,8 +1,8 @@
 package com.example.docconneting.domain.point.controller;
 
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.Auth.annotation.Auth;
-import com.example.docconneting.domain.Auth.entity.AuthUser;
+import com.example.docconneting.domain.auth.annotation.Auth;
+import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.point.dto.response.PointResponse;
 import com.example.docconneting.domain.point.service.PointService;
 import lombok.RequiredArgsConstructor;
