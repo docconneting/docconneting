@@ -4,8 +4,6 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,7 +40,7 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deadline;
 
-    private Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
+    Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
         this.patient = patient;
         this.title = title;
         this.contents = contents;

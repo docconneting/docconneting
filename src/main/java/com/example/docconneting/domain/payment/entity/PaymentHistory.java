@@ -1,11 +1,10 @@
 package com.example.docconneting.domain.payment.entity;
 
-import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.order.entity.Order;
+import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
