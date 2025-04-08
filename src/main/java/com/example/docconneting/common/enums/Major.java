@@ -5,6 +5,7 @@ import com.example.docconneting.common.exception.object.ClientException;
 
 public enum Major {
     INTERNAL_MEDICINE,
+    ORTHOPEDICS,
     SURGERY,
     PEDIATRICS,
     DERMATOLOGY;
