@@ -4,6 +4,7 @@ import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
