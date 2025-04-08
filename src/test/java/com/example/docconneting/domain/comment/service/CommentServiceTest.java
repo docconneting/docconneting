@@ -16,6 +16,7 @@ import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -52,6 +53,9 @@ class CommentServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private CommentService commentService;
@@ -90,7 +94,8 @@ class CommentServiceTest {
         void 사용자가_없으면_예외() {
             when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-            CommentRequest request = new CommentRequest("comments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "comments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.createComment(1L, 1L, request)
@@ -105,7 +110,8 @@ class CommentServiceTest {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
-            CommentRequest request = new CommentRequest("comments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "comments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.createComment(1L, 1L, request)
@@ -117,7 +123,8 @@ class CommentServiceTest {
         @Test
         @Order(3)
         void 정상적으로_댓글_생성() {
-            CommentRequest request = new CommentRequest("comments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "comments");
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -143,7 +150,8 @@ class CommentServiceTest {
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-            CommentRequest request = new CommentRequest("comments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "comments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.createComment(1L, 1L, request)
@@ -162,7 +170,7 @@ class CommentServiceTest {
 
         @BeforeEach
         void setUp() throws Exception {
-            comment = new Comment(user, post, "comments");
+            comment = Comment.of(user, post, "comments");
             Field commentIdField = Comment.class.getDeclaredField("id");
             commentIdField.setAccessible(true);
             commentIdField.set(comment, 100L);
@@ -173,7 +181,8 @@ class CommentServiceTest {
         void 댓글이_없으면_예외() {
             when(commentRepository.findById(100L)).thenReturn(Optional.empty());
 
-            CommentRequest request = new CommentRequest("updateComments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "updateComments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.updateComment(1L, 100L, request)
@@ -206,14 +215,15 @@ class CommentServiceTest {
             anotherUserIdField.setAccessible(true);
             anotherUserIdField.set(user, 99L);
 
-            Comment anotherComment = new Comment(anotherUser, post, "anotherComments");
+            Comment anotherComment = Comment.of(anotherUser, post, "anotherComments");
             Field commentIdField = Comment.class.getDeclaredField("id");
             commentIdField.setAccessible(true);
             commentIdField.set(comment, 100L);
 
             when(commentRepository.findById(100L)).thenReturn(Optional.of(anotherComment));
 
-            CommentRequest request = new CommentRequest("updateComments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "updateComments");
 
             ServerException ex = assertThrows(ServerException.class, () ->
                     commentService.updateComment(1L, 100L, request)
@@ -228,7 +238,8 @@ class CommentServiceTest {
         void 정상적으로_댓글_수정() {
             when(commentRepository.findById(100L)).thenReturn(Optional.of(comment));
 
-            CommentRequest request = new CommentRequest("updateComments");
+            CommentRequest request = new CommentRequest();
+            ReflectionTestUtils.setField(request, "contents", "updateComments");
 
             CommentResponse response = commentService.updateComment(1L, 100L, request);
 

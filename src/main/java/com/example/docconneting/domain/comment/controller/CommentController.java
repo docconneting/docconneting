@@ -10,7 +10,6 @@ import com.example.docconneting.domain.comment.dto.response.CommentListResponse;
 import com.example.docconneting.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,7 @@ public class CommentController {
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request
     ) {
-        Long userId = authUser.getId();
-        return new ResponseEntity<>(Response.of(commentService.createComment(userId, postId, request)), HttpStatus.CREATED);
+        return ResponseEntity.ok(Response.of(commentService.createComment(authUser.getId(), postId, request)));
     }
 
     @PatchMapping("/{postId}/comments/{commentId}")
@@ -44,8 +42,7 @@ public class CommentController {
         @PathVariable Long commentId,
         @Valid @RequestBody CommentRequest request
     ) {
-        Long userId = authUser.getId();
-        return new ResponseEntity<>(Response.of(commentService.updateComment(userId, commentId, request)), HttpStatus.OK);
+        return ResponseEntity.ok(Response.of(commentService.updateComment(authUser.getId(), commentId, request)));
     }
 
     @GetMapping("/{postId}/comments")
