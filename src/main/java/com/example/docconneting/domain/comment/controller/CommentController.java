@@ -2,8 +2,8 @@ package com.example.docconneting.domain.comment.controller;
 
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.Auth.annotation.Auth;
-import com.example.docconneting.domain.Auth.entity.AuthUser;
+import com.example.docconneting.domain.auth.annotation.Auth;
+import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.comment.dto.request.CommentRequest;
 import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.domain.comment.dto.response.CommentListResponse;
