@@ -4,6 +4,10 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ServerException;
 import com.example.docconneting.domain.comment.dto.request.CommentRequest;
 import com.example.docconneting.domain.comment.dto.response.CommentResponse;
+import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.common.response.PageInfo;
+import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.comment.dto.response.CommentListResponse;
 import com.example.docconneting.domain.comment.entity.Comment;
 import com.example.docconneting.domain.comment.repository.CommentRepository;
 import com.example.docconneting.domain.post.entity.Post;
@@ -11,10 +15,14 @@ import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,6 +74,32 @@ public class CommentService {
                 findComment.getModifiedAt());
 
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<CommentListResponse> findAllComments(Long postId, Pageable pageable){
+
+        Post findPost = postRepository.findById(postId).orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_POST));
+
+        if (findPost.getIsDeleted()){
+            throw new ClientException(ErrorCode.NOT_FOUND_POST);
+        }
+
+        Page<Comment> posts = commentRepository.findPosts(postId, pageable);
+
+        List<Comment> content = posts.getContent();
+        Pageable commentsPageable = posts.getPageable();
+
+        List<CommentListResponse> commentListResponses = CommentListResponse.toCommentListResponses(content);
+
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(commentsPageable.getPageNumber())
+                .pageSize(commentsPageable.getPageSize())
+                .totalElement(posts.getTotalElements())
+                .totalPage(posts.getTotalPages())
+                .build();
+
+        return new PageResult<>(commentListResponses, pageInfo);
     }
 
     private void validateCommentPermission(Long userId, Comment findComment) {
