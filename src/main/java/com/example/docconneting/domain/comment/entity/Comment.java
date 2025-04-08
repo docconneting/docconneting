@@ -4,7 +4,6 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,9 +25,17 @@ public class Comment extends BaseEntity {
 
     private String contents;
 
-    private Comment(Post post, User user, String contents) {
-        this.post = post;
+    private Comment(User user, Post post, String contents) {
         this.user = user;
+        this.post = post;
+        this.contents = contents;
+    }
+
+    public static Comment of(User user, Post post, String contents) {
+        return new Comment(user, post, contents);
+    }
+
+    public void updateContents(String contents) {
         this.contents = contents;
     }
 }
