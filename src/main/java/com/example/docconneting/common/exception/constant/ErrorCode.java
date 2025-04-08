@@ -49,6 +49,21 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않습니다."),
 
 
+    // 게시글 에러코드
+
+    // 404
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+
+    // 답글 에러코드
+
+    // 404
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "답글을 찾을 수 없습니다."),
+
+    // 403
+    NOT_COMMENT_OWNER(HttpStatus.FORBIDDEN, "답글을 단 사용자가 아닙니다."),
+    NOT_ALLOWED_TO_COMMENT(HttpStatus.FORBIDDEN, "답글을 달 수 있는 권한이 없습니다."),
+
+
     // 의사 조회 에러코드
 
     //404
