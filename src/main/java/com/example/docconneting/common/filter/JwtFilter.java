@@ -92,7 +92,9 @@ public class JwtFilter implements Filter {
         if ("GET".equals(method)) {
             return requestURI.matches("^/api/v1/posts$") ||
                     requestURI.matches("^/api/v1/posts/\\d+$") ||
-                    requestURI.matches("^/api/v1/posts/\\d+/comments$");
+                    requestURI.matches("^/api/v1/posts/\\d+/comments$") ||
+                    requestURI.matches("^/api/v1/doctors/\\d+$") ||
+                    requestURI.matches("^/api/v1/doctors$");
         }
 
         return false;
