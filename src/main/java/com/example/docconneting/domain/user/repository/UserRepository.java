@@ -15,4 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
     Optional<User> findByDoctorId(Long id);
 
     Optional<User> findByEmail(String email);
+
+    @Query("SELECT u FROM User u" +
+            " WHERE u.id = :id " +
+            "AND u.userRole = 'PATIENT' " +
+            "AND u.isDeleted = FALSE")
+    Optional<User> findByPatientId(Long id);
 }
