@@ -31,10 +31,10 @@ public class ChattingRoomController {
 
     private final ChattingRoomService chattingRoomService;
 
-    @MessageMapping("/rooms/{roomId}")
-    @SendTo("/sub/rooms/{roomId}")
-    public String sendMessage(@DestinationVariable Long roomId) throws Exception {
-        return HtmlUtils.htmlEscape(String.valueOf(roomId)) + "번 채팅 방";
+    @MessageMapping("/chattingRooms/{chattingRoomId}")
+    @SendTo("/sub/chattingRooms/{chattingRoomId}")
+    public String sendMessage(@DestinationVariable Long chattingRoomId) throws Exception {
+        return HtmlUtils.htmlEscape(String.valueOf(chattingRoomId)) + "번 채팅 방";
     }
 
     @PostMapping("/api/v1/doctors/{doctorId}/chattingRooms")

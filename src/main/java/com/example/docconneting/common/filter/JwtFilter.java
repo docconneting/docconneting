@@ -35,8 +35,6 @@ public class JwtFilter implements Filter {
         String url = httpRequest.getRequestURI();
         String method = httpRequest.getMethod();
 
-        System.out.println(url);
-
         // 화이트리스트 검사
         if (isWhiteList(url, method)) {
             chain.doFilter(httpRequest, httpResponse);
