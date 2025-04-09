@@ -6,9 +6,12 @@ import com.example.docconneting.common.config.PasswordEncoder;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
+import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponse;
 import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
+import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
@@ -209,7 +212,7 @@ public class AuthServiceTest {
         given(userRepository.findByEmail("test@test.com")).willReturn(Optional.of(user));
         given(jwtUtil.createToken(1L, user.getUserRole())).willReturn(accessToken);
         given(jwtUtil.createRefreshToken(1L)).willReturn(refreshToken);
-        given(passwordEncoder.matches(any(),any())).willReturn(true);
+        given(passwordEncoder.matches(any(), any())).willReturn(true);
 
         //when
         UserSignInResponse response = authService.signIn(request);
@@ -248,7 +251,7 @@ public class AuthServiceTest {
         ReflectionTestUtils.setField(request, "password", "error");
 
         given(userRepository.findByEmail(request.getEmail())).willReturn(Optional.of(user));
-        given(passwordEncoder.matches(request.getPassword(),user.getPassword())).willReturn(false);
+        given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);
 
         //when & then
         ClientException exception = assertThrows(ClientException.class, () -> authService.signIn(request));
@@ -259,31 +262,97 @@ public class AuthServiceTest {
     @Test
     public void 토큰_재발급() {
         //given
+        User user = new User();
+        ReflectionTestUtils.setField(user, "email", "test@test.com");
+        ReflectionTestUtils.setField(user, "password", "test");
+        ReflectionTestUtils.setField(user, "username", "testpatient");
+        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        AuthUser authUser;
+        authUser = AuthUser.of(1L, UserRole.PATIENT);
+
+        UserRefreshTokenRequest request = new UserRefreshTokenRequest();
+        ReflectionTestUtils.setField(request, "refreshToken", "refresh");
+
+        String savedToken = "refresh";
+        Long ttl = 100000L;
+
+        String newAccessToken = "new";
+        String newRefreshToken = "new";
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(refreshTokenService.getRefreshToken(1L)).willReturn(savedToken);
+        given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
+        given(jwtUtil.createToken(1L, UserRole.PATIENT)).willReturn(newAccessToken);
+        given(jwtUtil.createRefreshToken(1L)).willReturn(newRefreshToken);
 
         //when
+        UserRefreshTokenResponse response = authService.refreshAccessToken(authUser, request);
 
         //then
-
+        assertEquals(newAccessToken, response.getAccessToken());
+        assertEquals(newRefreshToken, response.getRefreshToken());
     }
 
     @Test
     public void 재발급_리프레시_토큰_만료() {
         //given
+        User user = new User();
+        ReflectionTestUtils.setField(user, "email", "test@test.com");
+        ReflectionTestUtils.setField(user, "password", "test");
+        ReflectionTestUtils.setField(user, "username", "testpatient");
+        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
 
-        //when
+        AuthUser authUser;
+        authUser = AuthUser.of(1L, UserRole.PATIENT);
 
-        //then
+        UserRefreshTokenRequest request = new UserRefreshTokenRequest();
+        ReflectionTestUtils.setField(request, "refreshToken", "refresh");
+
+        String savedToken = "refresh";
+        Long ttl = 0L;
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(refreshTokenService.getRefreshToken(1L)).willReturn(savedToken);
+        given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
+
+        //when & then
+        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser,request));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.EXPIRED_REFRESH_TOKEN);
 
     }
 
     @Test
     public void 재발급_리프레시_토큰_불일치() {
         //given
+        User user = new User();
+        ReflectionTestUtils.setField(user, "email", "test@test.com");
+        ReflectionTestUtils.setField(user, "password", "test");
+        ReflectionTestUtils.setField(user, "username", "testpatient");
+        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
 
-        //when
+        AuthUser authUser;
+        authUser = AuthUser.of(1L, UserRole.PATIENT);
 
-        //then
+        UserRefreshTokenRequest request = new UserRefreshTokenRequest();
+        ReflectionTestUtils.setField(request, "refreshToken", "wrong");
 
+        String savedToken = "refresh";
+        Long ttl = 100000L;
+
+        String newAccessToken = "new";
+        String newRefreshToken = "new";
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(refreshTokenService.getRefreshToken(1L)).willReturn(savedToken);
+        given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
+
+        //when && then
+        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser,request));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
 }
