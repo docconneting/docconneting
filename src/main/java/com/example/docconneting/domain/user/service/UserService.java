@@ -12,6 +12,7 @@ import com.example.docconneting.domain.user.dto.response.UserMyPageResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
 
     //마이페이지 조회
@@ -53,6 +55,7 @@ public class UserService {
         user.updatePassword(passwordEncoder.encode(dto.getNewPassword()));
         Map<String, String> message = new HashMap<>();
         message.put("message","비밀 번호 수정이 성공적으로 됐습니다");
+        entityManager.flush();
         return message;
     }
 
@@ -67,6 +70,7 @@ public class UserService {
         user.updateImage(dto.getNewImage());
         Map<String, String> message = new HashMap<>();
         message.put("message","이미지 수정이 성공적으로 됐습니다");
+        entityManager.flush();
         return message;
     }
 }
