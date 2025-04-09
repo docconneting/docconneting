@@ -76,6 +76,7 @@ public enum ErrorCode {
 
     // 403
     ONLY_PATIENT_CAN_CREATE_CHATTING_ROOM(HttpStatus.FORBIDDEN, "환자만 채팅방을 만들 수 있습니다."),
+    FORBIDDEN_CHATTING_ROOM_ACCESS(HttpStatus.FORBIDDEN, "해당 채팅방에 대한 접근 권한이 없습니다."),
 
     // 404
     CHATTING_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
