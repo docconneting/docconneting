@@ -44,5 +44,5 @@ out/
 *-local.properties
 
 ### Firebase secret key ###
-.json
+*.json
 
