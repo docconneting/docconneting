@@ -102,8 +102,8 @@ public class AuthControllerTest {
         UserRefreshTokenRequest request = new UserRefreshTokenRequest();
         ReflectionTestUtils.setField(request, "refreshToken", "refresh");
 
-        String newAccessToken = "new";
-        String newRefreshToken = "new";
+        String newAccessToken = "newAccessToken";
+        String newRefreshToken = "newRefreshToken";
 
         given(authService.refreshAccessToken(any(),any())).willReturn(UserRefreshTokenResponse.of(newAccessToken,newRefreshToken));
 

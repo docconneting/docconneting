@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -66,7 +65,7 @@ public class AuthServiceTest {
         Map<String, String> response = authService.signUp(request);
 
         //then
-        assertEquals("회원 가입이 성공적으로 됐습니다", response.get("message"));
+        assertThat(response.get("message")).isEqualTo("회원 가입이 성공적으로 됐습니다");
 
     }
 
@@ -89,7 +88,7 @@ public class AuthServiceTest {
         Map<String, String> response = authService.signUp(request);
 
         //then
-        assertEquals("회원 가입이 성공적으로 됐습니다", response.get("message"));
+        assertThat(response.get("message")).isEqualTo("회원 가입이 성공적으로 됐습니다");
     }
 
     @Test
@@ -120,6 +119,7 @@ public class AuthServiceTest {
         ReflectionTestUtils.setField(request, "endTime", LocalTime.of(21, 0));
 
         given(passwordEncoder.encode("test")).willReturn("test");
+
         // when & then
         ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MAJOR_NOT_FOUND);
@@ -211,8 +211,8 @@ public class AuthServiceTest {
         UserSignInResponse response = authService.signIn(request);
 
         //then
-        assertEquals(accessToken, response.getAccessToken());
-        assertEquals(refreshToken, response.getRefreshToken());
+        assertThat(response.getAccessToken()).isEqualTo(accessToken);
+        assertThat(response.getRefreshToken()).isEqualTo(refreshToken);
     }
 
     @Test
@@ -271,8 +271,8 @@ public class AuthServiceTest {
         String savedToken = "refresh";
         Long ttl = 100000L;
 
-        String newAccessToken = "new";
-        String newRefreshToken = "new";
+        String newAccessToken = "newAccessToken";
+        String newRefreshToken = "newRefreshToken";
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(refreshTokenService.getRefreshToken(1L)).willReturn(savedToken);
@@ -284,8 +284,8 @@ public class AuthServiceTest {
         UserRefreshTokenResponse response = authService.refreshAccessToken(authUser, request);
 
         //then
-        assertEquals(newAccessToken, response.getAccessToken());
-        assertEquals(newRefreshToken, response.getRefreshToken());
+        assertThat(response.getAccessToken()).isEqualTo(newAccessToken);
+        assertThat(response.getRefreshToken()).isEqualTo(newRefreshToken);
     }
 
     @Test
@@ -336,8 +336,8 @@ public class AuthServiceTest {
         String savedToken = "refresh";
         Long ttl = 100000L;
 
-        String newAccessToken = "new";
-        String newRefreshToken = "new";
+        String newAccessToken = "newAccessToken";
+        String newRefreshToken = "newRefreshToken";
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(refreshTokenService.getRefreshToken(1L)).willReturn(savedToken);
