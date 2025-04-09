@@ -10,4 +10,7 @@ public class UserSigninRequest {
 
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private String password;
+
+    @NotBlank(message = "FCM 토큰은 필수 입력값입니다.")
+    private String fcmToken;
 }
