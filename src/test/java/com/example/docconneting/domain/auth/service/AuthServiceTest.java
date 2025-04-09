@@ -3,7 +3,6 @@ package com.example.docconneting.domain.auth.service;
 
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.config.PasswordEncoder;
-import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
@@ -15,7 +14,6 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,13 +25,11 @@ import java.time.LocalTime;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,9 +37,6 @@ public class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private EntityManager entityManager;
 
     @Mock
     private PasswordEncoder passwordEncoder;
