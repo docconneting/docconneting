@@ -12,7 +12,6 @@ import com.example.docconneting.domain.user.dto.response.PatientMyPageResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,11 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -40,9 +37,6 @@ public class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private EntityManager entityManager;
 
     @InjectMocks
     private UserService userService;
@@ -127,14 +121,12 @@ public class UserServiceTest {
         ReflectionTestUtils.setField(request, "oldPassword", "old");
         ReflectionTestUtils.setField(request, "newPassword", "new");
 
-        doNothing().when(entityManager).flush();
-
         //when
         Map<String, String> response = userService.updatePassword(authDoctor, request);
 
         //then
-        assertEquals(messageValue, response.get("message"));
-        assertEquals(encodedPassword, doctor.getPassword());
+        assertThat(response.get("message")).isEqualTo(messageValue);
+        assertThat(doctor.getPassword()).isEqualTo(encodedPassword);
     }
 
 
@@ -187,14 +179,13 @@ public class UserServiceTest {
         ReflectionTestUtils.setField(request,"newImage",newImageUrl);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(doctor));
-        doNothing().when(entityManager).flush();
 
         //when
         Map<String, String> response = userService.updateImage(authDoctor,request);
 
         //then
-        assertEquals(messageValue, response.get("message"));
-        assertEquals(newImageUrl, doctor.getImage());
+        assertThat(response.get("message")).isEqualTo(messageValue);
+        assertThat(doctor.getImage()).isEqualTo(newImageUrl);
 
     }
 
@@ -212,7 +203,5 @@ public class UserServiceTest {
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.UNAUTHORIZED_USER);
     }
-
-
 
 }
