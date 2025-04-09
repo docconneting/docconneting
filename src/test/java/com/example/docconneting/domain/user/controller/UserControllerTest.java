@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -44,13 +45,17 @@ public class UserControllerTest {
     private JwtUtil jwtUtil;
 
     @MockitoBean
-    JpaMetamodelMappingContext jpaMetamodelMappingContext;
-
-    @MockitoBean
     private UserService userService;
 
     @MockitoBean
     private AuthUserArgumentResolver authUserArgumentResolver;
+
+    //JPA, @EntityListeners(AuditingEntityListener.class) 무시용 mock 삽입
+    @MockitoBean
+    private AuditorAware<String> auditorAware;
+
+    @MockitoBean
+    private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
 
     private User doctor;
@@ -182,7 +187,7 @@ public class UserControllerTest {
         mockMvc.perform(patch("/api/v1/users/profile")
                 .header("Authorization", accessToken)
                 .contentType("application/json")
-                .content(objectMapper.writeValueAsString(request))) //json으로 직렬화)
+                .content(objectMapper.writeValueAsString(request))) //json으로 직렬화
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.message").value(messageValue));
 
