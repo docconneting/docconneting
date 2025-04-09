@@ -26,4 +26,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
             "AND u.isAlarmEnabled = TRUE")
     List<User> findByMajor(Major major);
 
+    @Query("SELECT u FROM User u" +
+            " WHERE u.id = :id " +
+            "AND u.userRole = 'PATIENT' " +
+            "AND u.isDeleted = FALSE")
+    Optional<User> findByPatientId(Long id);
+
 }

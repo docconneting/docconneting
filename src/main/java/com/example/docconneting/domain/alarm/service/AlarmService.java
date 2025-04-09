@@ -7,7 +7,7 @@ import com.example.docconneting.domain.alarm.entity.AlarmHistories;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesBulkRepository;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesRepository;
-import com.example.docconneting.domain.auth.dto.request.UserSigninRequest;
+import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -32,7 +32,7 @@ public class AlarmService {
      * 로그인을 진행할 때 프론트에서 넘겨준 FCM 토큰과 알람 수락 권한을 데이터베이스에 저장
      */
     @Transactional
-    public void saveFcmToken(UserSigninRequest requestDto) {
+    public void saveFcmToken(UserSignInRequest requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 

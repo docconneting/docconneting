@@ -8,7 +8,7 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSigninRequest;
+import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponse;
 import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.user.entity.User;
@@ -33,12 +33,15 @@ public class AuthService {
     // 회원가입
     @Transactional
     public Map<String, String> signUp(UserSignUpRequest dto) {
-        String password = passwordEncoder.encode(dto.getPassword());
-        UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
         if (userRepository.findByEmail(dto.getEmail()).isPresent())
         {
             throw new ClientException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
+
+
+        String password = passwordEncoder.encode(dto.getPassword());
+        UserRole role = UserRole.of(dto.getUserRole().toUpperCase());
+
 
         User user = switch (role) {
             case DOCTOR -> {
@@ -97,7 +100,7 @@ public class AuthService {
 
     // 로그인
     @Transactional(readOnly = true)
-    public UserSignInResponse signIn(UserSigninRequest requestDto) {
+    public UserSignInResponse signIn(UserSignInRequest requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 

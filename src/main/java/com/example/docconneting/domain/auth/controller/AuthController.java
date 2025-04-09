@@ -5,7 +5,7 @@ import com.example.docconneting.domain.alarm.service.AlarmService;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSigninRequest;
+import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponse;
 import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.auth.entity.AuthUser;
@@ -41,7 +41,7 @@ public class AuthController {
     //로그인
     @PostMapping("/signin")
     public ResponseEntity<Response<UserSignInResponse>> signIn(
-            @Valid @RequestBody UserSigninRequest requestDto
+            @Valid @RequestBody UserSignInRequest requestDto
     ) {
         UserSignInResponse response = authService.signIn(requestDto);
         alarmService.saveFcmToken(requestDto);
