@@ -1,8 +1,6 @@
 package com.example.docconneting.domain.auth.controller;
 
 
-import com.example.docconneting.common.config.JwtUtil;
-import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
@@ -12,7 +10,6 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.auth.service.AuthService;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +27,6 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
