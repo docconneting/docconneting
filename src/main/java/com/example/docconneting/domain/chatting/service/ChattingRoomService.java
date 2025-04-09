@@ -31,7 +31,7 @@ public class ChattingRoomService {
     @Transactional
     public ChattingRoomCreateResponse createdChattingRoom(AuthUser authUser, Long doctorId){
 
-        if (authUser.getUserRole() != UserRole.PATIENT){
+        if (!UserRole.PATIENT.equals(authUser.getUserRole())){
 
             throw new ClientException(ErrorCode.ONLY_PATIENT_CAN_CREATE_CHATTING_ROOM);
 
@@ -83,20 +83,20 @@ public class ChattingRoomService {
 
         ChattingRoom findChattingRoom = chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId).orElseThrow(() -> new ClientException(ErrorCode.CHATTING_ROOM_NOT_FOUND));
 
-        if (authUser.getUserRole() == UserRole.PATIENT){
+        if (UserRole.PATIENT.equals(authUser.getUserRole())){
 
             userRepository.findByPatientId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
-            if(authUser.getId() != findChattingRoom.getPatient().getId()){
+            if (authUser.getId() != findChattingRoom.getPatient().getId()){
                 throw new ClientException(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
             }
 
         }
-        else if (authUser.getUserRole() == UserRole.DOCTOR){
+        else if (UserRole.DOCTOR.equals(authUser.getUserRole())){
 
             userRepository.findByDoctorId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
 
-            if(authUser.getId() != findChattingRoom.getDoctor().getId()){
+            if (authUser.getId() != findChattingRoom.getDoctor().getId()){
                 throw new ClientException(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
             }
 
@@ -120,14 +120,14 @@ public class ChattingRoomService {
 
         Page<ChattingRoom> chattingRooms = null;
 
-        if (authUser.getUserRole() == UserRole.PATIENT){
+        if (UserRole.PATIENT.equals(authUser.getUserRole())){
 
             userRepository.findByPatientId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
             chattingRooms = chattingRoomRepository.findPatientsChattingRooms(authUser.getId(), pageable);
 
         }
-        else if (authUser.getUserRole() == UserRole.DOCTOR){
+        else if (UserRole.DOCTOR.equals(authUser.getUserRole())){
 
             userRepository.findByDoctorId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
 
@@ -140,12 +140,12 @@ public class ChattingRoomService {
 
         List<ChattingRoomListResponse> chattingRoomListResponses = null;
 
-        if (authUser.getUserRole() == UserRole.PATIENT){
+        if (UserRole.PATIENT.equals(authUser.getUserRole())){
 
             chattingRoomListResponses = ChattingRoomListResponse.toChattingRoomListResponsesForPatient(content);
 
         }
-        else if (authUser.getUserRole() == UserRole.DOCTOR){
+        else if (UserRole.DOCTOR.equals(authUser.getUserRole())){
 
             chattingRoomListResponses = ChattingRoomListResponse.toChattingRoomListResponsesForDoctor(content);
 
