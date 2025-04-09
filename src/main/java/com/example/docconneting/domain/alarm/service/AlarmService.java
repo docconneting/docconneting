@@ -100,7 +100,7 @@ public class AlarmService {
         Message message = Message.builder()
                 .setToken(doctor.getFcmToken())
                 .setNotification(Notification.builder()
-                        .setBody(patientName + "님이 채팅 진료를 요청했습니다")
+                        .setBody(patientName + "님이 채팅 진료를 요청 했습니다")
                         .build())
                 .build();
 
