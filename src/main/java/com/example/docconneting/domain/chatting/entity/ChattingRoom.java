@@ -32,11 +32,19 @@ public class ChattingRoom {
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     private ChattingRoom(User doctor, User patient, Boolean isActive) {
         this.doctor = doctor;
         this.patient = patient;
+        this.isActive = isActive;
+    }
+
+    public static ChattingRoom of(User doctor, User patient, Boolean isActive){
+        return new ChattingRoom(doctor, patient, isActive);
+    }
+
+    public void setIsActive(boolean isActive){
         this.isActive = isActive;
     }
 }
