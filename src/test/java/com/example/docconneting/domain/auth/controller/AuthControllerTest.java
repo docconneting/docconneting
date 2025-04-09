@@ -3,10 +3,14 @@ package com.example.docconneting.domain.auth.controller;
 
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
+import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponse;
 import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
+import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.auth.service.AuthService;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -96,8 +100,24 @@ public class AuthControllerTest {
     @Test
     public void accessToken_재발급() throws Exception {
         //given
+        AuthUser authUser;
+        authUser = AuthUser.of(1L, UserRole.PATIENT);
+
+        UserRefreshTokenRequest request = new UserRefreshTokenRequest();
+        ReflectionTestUtils.setField(request, "refreshToken", "refresh");
+
+        String newAccessToken = "new";
+        String newRefreshToken = "new";
+
+        given(authService.refreshAccessToken(any(),any())).willReturn(UserRefreshTokenResponse.of(newAccessToken,newRefreshToken));
 
         //when & then
+        mockMvc.perform(post("/api/v1/refresh")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.accessToken").value(newAccessToken))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.refreshToken").value(newRefreshToken));
 
     }
 }
