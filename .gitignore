@@ -43,3 +43,6 @@ out/
 *-local.yml
 *-local.properties
 
+### Firebase secret key ###
+.json
+
