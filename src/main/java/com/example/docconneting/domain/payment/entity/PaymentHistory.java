@@ -1,6 +1,7 @@
 package com.example.docconneting.domain.payment.entity;
 
 import com.example.docconneting.domain.order.entity.Order;
+import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -20,7 +21,8 @@ import java.time.LocalDateTime;
 public class PaymentHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "payment_history_id")
+    private Long id; // PK
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -33,6 +35,8 @@ public class PaymentHistory {
     private Integer price;
 
     @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
     private PaymentStatus paymentStatus;
 
     private String payment_key;
@@ -43,10 +47,11 @@ public class PaymentHistory {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    private PaymentHistory(User user, Order order, Integer price, PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
+    private PaymentHistory(User user, Order order, Integer price, PaymentMethod paymentMethod,PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
         this.user = user;
         this.order = order;
         this.price = price;
+        this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
         this.payment_key = payment_key;
         this.approvedAt = approvedAt;

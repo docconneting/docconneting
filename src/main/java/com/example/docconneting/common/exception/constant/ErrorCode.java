@@ -68,7 +68,18 @@ public enum ErrorCode {
 
     //404
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 의사입니다."),
-    MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 전공입니다.");
+    MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 전공입니다."),
+
+    // 주문 에러코드
+
+    // 400
+    INVALID_ORDER_PRICE(HttpStatus.BAD_REQUEST, "유효하지 않은 금액입니다."),
+
+    // 403
+    NOT_ALLOWED_TO_ORDER(HttpStatus.FORBIDDEN, "주문을 할 수 있는 권한이 없습니다."),
+
+    // 404
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다.");
 
     private final HttpStatus status;
     private final String message;
