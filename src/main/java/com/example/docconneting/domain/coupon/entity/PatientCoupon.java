@@ -42,4 +42,9 @@ public class PatientCoupon {
         this.availableCount = availableCount;
         this.endDate = endDate;
     }
+
+    public static PatientCoupon of(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
+        return new PatientCoupon(user, coupon, availableCount, endDate);
+    }
+
 }
