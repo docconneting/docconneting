@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-    // 회원 에러코드
-
     // 게시물 에러 코드
 
     // 403
@@ -70,6 +68,22 @@ public enum ErrorCode {
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 의사입니다."),
     MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 전공입니다."),
 
+
+    // 채팅
+
+    // 400
+    INACTIVE_CHATTING_ROOM(HttpStatus.BAD_REQUEST, "비활성화된 채팅방입니다."),
+
+    // 403
+    ONLY_PATIENT_CAN_CREATE_CHATTING_ROOM(HttpStatus.FORBIDDEN, "환자만 채팅방을 만들 수 있습니다."),
+    FORBIDDEN_CHATTING_ROOM_ACCESS(HttpStatus.FORBIDDEN, "해당 채팅방에 대한 접근 권한이 없습니다."),
+
+    // 404
+    CHATTING_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
+
+    // 409
+    CHATTING_ROOM_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 환자와 의사의 채팅방이 존재합니다."),
+
     // 주문 에러코드
 
     // 400
@@ -77,9 +91,11 @@ public enum ErrorCode {
 
     // 403
     NOT_ALLOWED_TO_ORDER(HttpStatus.FORBIDDEN, "주문을 할 수 있는 권한이 없습니다."),
+    FORBIDDEN_ORDER_ACCESS(HttpStatus.FORBIDDEN, "해당 주문에 접근할 수 없습니다."),
 
     // 404
-    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다.");
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다.");
 
     private final HttpStatus status;
     private final String message;

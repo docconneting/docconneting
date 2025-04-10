@@ -29,6 +29,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderType orderType; // 주문 방식
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus; // 주문 상태
 
     private Integer price; // 가격

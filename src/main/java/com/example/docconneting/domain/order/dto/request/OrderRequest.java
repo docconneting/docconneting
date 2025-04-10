@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class OrderRequest {
-    private OrderType OrderType;
+    private OrderType orderType;
     private OrderProduct orderProduct;
     private Integer price;
 }
