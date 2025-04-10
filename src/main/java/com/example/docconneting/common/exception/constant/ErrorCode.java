@@ -95,7 +95,15 @@ public enum ErrorCode {
 
     // 404
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
-    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다.");
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다."),
+
+    // 쿠폰
+
+    // 400
+    COUPON_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "쿠폰 수량이 모두 소진되었습니다."),
+
+    // 403
+    FORBIDDEN_ADMIN_ONLY(HttpStatus.FORBIDDEN, "관리자만 사용할 수 있는 기능입니다.");
 
     private final HttpStatus status;
     private final String message;

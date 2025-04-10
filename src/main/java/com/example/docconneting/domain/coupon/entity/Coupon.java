@@ -1,5 +1,7 @@
 package com.example.docconneting.domain.coupon.entity;
 
+import com.example.docconneting.common.exception.constant.ErrorCode;
+import com.example.docconneting.common.exception.object.ServerException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,8 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Coupon {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Integer availableCount;
@@ -35,5 +37,16 @@ public class Coupon {
         this.quantity = quantity;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public static Coupon of(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
+        return new Coupon(availableCount, quantity, startDate, endDate);
+    }
+
+    public void decreaseQuantity() {
+        if (quantity <= 0) {
+            throw new ServerException(ErrorCode.COUPON_OUT_OF_STOCK);
+        }
+        this.quantity--;
     }
 }
