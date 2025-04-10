@@ -82,7 +82,20 @@ public enum ErrorCode {
     CHATTING_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
 
     // 409
-    CHATTING_ROOM_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 환자와 의사의 채팅방이 존재합니다.");
+    CHATTING_ROOM_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 환자와 의사의 채팅방이 존재합니다."),
+
+    // 주문 에러코드
+
+    // 400
+    INVALID_ORDER_PRICE(HttpStatus.BAD_REQUEST, "유효하지 않은 금액입니다."),
+
+    // 403
+    NOT_ALLOWED_TO_ORDER(HttpStatus.FORBIDDEN, "주문을 할 수 있는 권한이 없습니다."),
+    FORBIDDEN_ORDER_ACCESS(HttpStatus.FORBIDDEN, "주문을 조회할 수 없습니다."),
+
+    // 404
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다.");
 
     private final HttpStatus status;
     private final String message;
