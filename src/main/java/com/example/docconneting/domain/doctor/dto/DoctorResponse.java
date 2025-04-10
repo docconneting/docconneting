@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class DoctorResponse {
@@ -38,9 +37,8 @@ public class DoctorResponse {
                         user.getMajor().name(),
                         user.getImage(),
                         user.getStartTime(),
-                        user.getEndTime()
-                ))
-                .collect(Collectors.toList());
+                        user.getEndTime()))
+                .toList();
         return doctorResponseList;
     }
 }

@@ -3,17 +3,23 @@ package com.example.docconneting.domain.alarm.service;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.common.response.PageInfo;
+import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.alarm.dto.AlarmResponse;
 import com.example.docconneting.domain.alarm.entity.AlarmHistories;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesBulkRepository;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesRepository;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
+import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,7 +87,7 @@ public class AlarmService {
         Message message = Message.builder()
                 .setToken(user.getFcmToken())
                 .setNotification(Notification.builder()
-                        .setBody("회원님의 게시물에 답변이 달렸습니다")
+                        .setBody("회원님의 게시물에 의사가 답변을 달았습니다")
                         .build())
                 .build();
 
@@ -107,5 +113,22 @@ public class AlarmService {
         AlarmHistories alarmHistories = AlarmHistories.of(patientName + "님이 채팅 진료를 요청했습니다", doctor.getId(), AlarmType.MEDICAL_REQUEST);
         FirebaseMessaging.getInstance().sendAsync(message);
         alarmHistoriesRepository.save(alarmHistories);
+    }
+
+    /*
+     * 알람 목록 조회
+     */
+    public PageResult<AlarmResponse> findAlarms(AuthUser authUser, Pageable pageable) {
+        Page<AlarmHistories> result = alarmHistoriesRepository.findAlarmHistories(authUser.getId(), pageable);
+        List<AlarmResponse> alarms = AlarmResponse.toAlarmResponse(result.getContent());
+
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalElement(result.getTotalElements())
+                .totalPage(result.getTotalPages())
+                .build();
+
+        return new PageResult<>(alarms, pageInfo);
     }
 }
