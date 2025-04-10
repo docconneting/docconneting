@@ -91,7 +91,7 @@ public enum ErrorCode {
 
     // 403
     NOT_ALLOWED_TO_ORDER(HttpStatus.FORBIDDEN, "주문을 할 수 있는 권한이 없습니다."),
-    FORBIDDEN_ORDER_ACCESS(HttpStatus.FORBIDDEN, "해당 주문에 접근할 수 없습니다."),
+    FORBIDDEN_ORDER_ACCESS(HttpStatus.FORBIDDEN, "주문을 조회할 수 없습니다."),
 
     // 404
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),

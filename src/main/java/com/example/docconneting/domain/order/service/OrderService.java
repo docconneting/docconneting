@@ -34,7 +34,7 @@ public class OrderService {
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         // 환자만 결제가 가능 (의사는 결제 기능 없음)
-        if (!UserRole.PATIENT.equals(authUser.getUserRole())) {
+        if (!UserRole.PATIENT.equals(authUser.getUserRole())) { // 고도화할떄 preauth, secured 어노테이션 ->사용자 롤 사전에 확인
             throw new ClientException(ErrorCode.NOT_ALLOWED_TO_ORDER);
         }
 
