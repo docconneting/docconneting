@@ -8,6 +8,18 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
+    // JWT 에러 코드
+
+    // 400
+    UNSUPPORTED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "지원되지 않는 JWT 토큰입니다."),
+
+    // 401
+    JWT_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "JWT 토큰이 필요합니다."),
+    INVALID_JWT_FORMAT(HttpStatus.UNAUTHORIZED, "잘못된 JWT 형식입니다."),
+    INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 서명입니다."),
+    EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
+    INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
+
     // 게시물 에러 코드
 
     // 403

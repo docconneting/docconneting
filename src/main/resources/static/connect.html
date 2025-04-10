@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket 연결 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        #result { margin-top: 1rem; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+<h2>🔌 WebSocket STOMP 연결 테스트</h2>
+<label>
+    JWT Token: <input type="text" id="token" style="width: 400px;" placeholder="Bearer xxx.xxx.xxx" />
+</label><br><br>
+
+<button onclick="connect()">연결 시도</button>
+
+<div id="result"></div>
+
+<script>
+    function connect() {
+        const token = document.getElementById("token").value;
+        const resultBox = document.getElementById("result");
+        resultBox.textContent = "⏳ 연결 시도 중...";
+
+        const socket = new WebSocket("ws://localhost:8080/websocket");
+        const stompClient = StompJs.Stomp.over(socket);
+
+        stompClient.connect(
+            { Authorization: token },
+            frame => {
+                resultBox.textContent = "✅ 연결 성공: " + frame.command;
+                stompClient.deactivate();
+            },
+            error => {
+                let message = "❌ STOMP 연결 실패\n";
+
+                // 헤더 출력 (요약 메시지)
+                message += `📍 headers['message']: ${error.headers?.message || "없음"}\n`;
+
+                // 바디 파싱 시도
+                try {
+                    const body = JSON.parse(error.body); // ErrorResponse 구조
+                    message += `📦 body:\n- name: ${body.name}\n- code: ${body.code}\n- message: ${body.message}`;
+                } catch (e) {
+                    message += `⚠️ body 파싱 실패:\n${error.body}`;
+                }
+
+                resultBox.textContent = message;
+            }
+        );
+    }
+</script>
+
+</body>
+</html>
