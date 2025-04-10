@@ -8,16 +8,20 @@ import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.alarm.dto.AlarmResponse;
 import com.example.docconneting.domain.alarm.entity.AlarmHistories;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
+import com.example.docconneting.domain.alarm.event.AlarmEvent;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesBulkRepository;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesRepository;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import com.google.api.core.ApiFuture;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,14 +29,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AlarmService {
 
     private final UserRepository userRepository;
     private final AlarmHistoriesRepository alarmHistoriesRepository;
     private final AlarmHistoriesBulkRepository alarmHistoriesBulkRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /*
      * 로그인을 진행할 때 프론트에서 넘겨준 FCM 토큰과 알람 수락 권한을 데이터베이스에 저장
@@ -60,23 +67,43 @@ public class AlarmService {
     /*
      * 사용자가 유료 게시물을 올렸을 떄 해당 전공에 해당되는 의사들에게 알람 전송
      */
-    @Transactional
     public void sendPostUploadCompletedMessage(Major major) {
         List<User> users = userRepository.findByMajor(major);
         List<AlarmHistories> alarmHistoriesList = new ArrayList<>();
         for (User user : users) {
-            Message message = Message.builder()
-                    .setToken(user.getFcmToken())
-                    .setNotification(Notification.builder()
-                            .setBody("새로운 유료 질문이 올라왔습니다!")
-                            .build())
-                    .build();
+            AlarmEvent event = AlarmEvent.of(
+                    "새로운 유료 질문이 올라왔습니다!"
+                    , user.getFcmToken()
+                    , user.getId());
 
-            AlarmHistories alarmHistories = AlarmHistories.of("새로운 유료 질문이 올라왔습니다!", user.getId(), AlarmType.POST_UPLOAD);
-            FirebaseMessaging.getInstance().sendAsync(message);
+            eventPublisher.publishEvent(event);
+            AlarmHistories alarmHistories = AlarmHistories.of(
+                    "새로운 유료 질문이 올라왔습니다!"
+                    , user.getId()
+                    , AlarmType.POST_UPLOAD);
             alarmHistoriesList.add(alarmHistories);
         }
         alarmHistoriesBulkRepository.batchUpdate(alarmHistoriesList);
+    }
+
+    public void sendMessage(Message message, String token){
+
+        ApiFuture<String> apiFuture = FirebaseMessaging.getInstance().sendAsync(message);
+
+        Runnable task = () -> {
+            try {
+                String response = apiFuture.get();
+                log.info("알림 전송 성공 : " + response);
+                log.info("현재 스레드 NAME: " + Thread.currentThread().getName());
+                log.info("📝 받은 사람 토큰 : " + token);
+
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("FCM 알림 스레드에서 문제가 발생했습니다.", e);
+                Thread.currentThread().interrupt();
+            }
+        };
+
+        new Thread(task).start();
     }
 
     /*
@@ -91,7 +118,10 @@ public class AlarmService {
                         .build())
                 .build();
 
-        AlarmHistories alarmHistories = AlarmHistories.of("회원님의 게시물에 의사가 답변을 달았습니다", user.getId(), AlarmType.COMMENT);
+        AlarmHistories alarmHistories = AlarmHistories.of(
+                "회원님의 게시물에 의사가 답변을 달았습니다"
+                , user.getId()
+                , AlarmType.COMMENT);
         FirebaseMessaging.getInstance().sendAsync(message);
         alarmHistoriesRepository.save(alarmHistories);
     }
@@ -110,7 +140,10 @@ public class AlarmService {
                         .build())
                 .build();
 
-        AlarmHistories alarmHistories = AlarmHistories.of(patientName + "님이 채팅 진료를 요청했습니다", doctor.getId(), AlarmType.MEDICAL_REQUEST);
+        AlarmHistories alarmHistories = AlarmHistories.of(
+                patientName + "님이 채팅 진료를 요청했습니다"
+                , doctor.getId()
+                , AlarmType.MEDICAL_REQUEST);
         FirebaseMessaging.getInstance().sendAsync(message);
         alarmHistoriesRepository.save(alarmHistories);
     }
@@ -118,6 +151,7 @@ public class AlarmService {
     /*
      * 알람 목록 조회
      */
+    @Transactional(readOnly = true)
     public PageResult<AlarmResponse> findAlarms(AuthUser authUser, Pageable pageable) {
         Page<AlarmHistories> result = alarmHistoriesRepository.findAlarmHistories(authUser.getId(), pageable);
         List<AlarmResponse> alarms = AlarmResponse.toAlarmResponse(result.getContent());
