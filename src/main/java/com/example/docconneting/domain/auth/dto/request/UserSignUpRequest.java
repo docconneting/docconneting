@@ -3,6 +3,7 @@ package com.example.docconneting.domain.auth.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalTime;
 
@@ -23,8 +24,6 @@ public class UserSignUpRequest {
 
     // 의사 전용 필드
     private String major;
-
-    private String image;
 
     private LocalTime startTime;
 

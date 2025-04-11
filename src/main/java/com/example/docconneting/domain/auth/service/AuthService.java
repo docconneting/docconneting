@@ -14,10 +14,13 @@ import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import com.example.docconneting.domain.user.service.S3Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,10 +32,11 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final S3Service s3Service;
 
     // 회원가입
     @Transactional
-    public Map<String, String> signUp(UserSignUpRequest dto) {
+    public Map<String, String> signUp(UserSignUpRequest dto, MultipartFile multipartFile) throws IOException {
         if (userRepository.findByEmail(dto.getEmail()).isPresent())
         {
             throw new ClientException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -48,7 +52,7 @@ public class AuthService {
                 if (dto.getMajor() == null) {
                     throw new ClientException(ErrorCode.MAJOR_NOT_FOUND);
                 }
-                if (dto.getImage() == null) {
+                if (multipartFile == null) {
                     throw new ClientException(ErrorCode.IMAGE_NOT_FOUND);
                 }
                 if (dto.getStartTime() == null) {
@@ -57,14 +61,14 @@ public class AuthService {
                 if (dto.getEndTime() == null) {
                     throw new ClientException(ErrorCode.ENDTIME_NOT_FOUND);
                 }
-
+                String image = s3Service.uploadImage(multipartFile);
                 Major major = Major.of(dto.getMajor().toUpperCase());
                 yield User.of(
                         dto.getEmail(),
                         password,
                         dto.getUsername(),
                         major,
-                        dto.getImage(),
+                        image,
                         dto.getStartTime(),
                         dto.getEndTime(),
                         false,

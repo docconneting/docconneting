@@ -4,7 +4,6 @@ import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.docconneting.domain.user.dto.response.DoctorMyPageResponse;
 import com.example.docconneting.domain.user.dto.response.PatientMyPageResponse;
@@ -174,7 +173,7 @@ public class UserControllerTest {
         String messageValue = "이미지 수정이 성공적으로 됐습니다";
         Map<String, String> message = new HashMap<>();
         message.put("message", messageValue);
-        UpdateImageRequest request = new UpdateImageRequest();
+
         ReflectionTestUtils.setField(request, "newImage", "https://example.com/newimage.jpg");
 
         given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);

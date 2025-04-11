@@ -5,7 +5,6 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.docconneting.domain.user.dto.response.DoctorMyPageResponse;
 import com.example.docconneting.domain.user.dto.response.PatientMyPageResponse;
@@ -20,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.Optional;
@@ -169,14 +169,13 @@ public class UserServiceTest {
     }
 
     @Test
-    public void 의사_이미지_변경_정상() {
+    public void 의사_이미지_변경_정상() throws IOException {
         //given
         long userId = 1L;
         String messageValue = "이미지 수정이 성공적으로 됐습니다";
         String newImageUrl = "https://example.com/newimage.jpg";
         given(userRepository.findById(userId)).willReturn(Optional.of(doctor));
-        UpdateImageRequest request = new UpdateImageRequest();
-        ReflectionTestUtils.setField(request,"newImage",newImageUrl);
+
 
         given(userRepository.findById(userId)).willReturn(Optional.of(doctor));
 
@@ -193,7 +192,6 @@ public class UserServiceTest {
     public void 이미지_변경_환자가_접근(){
         //given
         long userId = 2L;
-        UpdateImageRequest request = new UpdateImageRequest();
         ReflectionTestUtils.setField(request,"newImage","https://example.com/newimage.jpg");
         given(userRepository.findById(userId)).willReturn(Optional.of(patient));
 

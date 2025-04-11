@@ -4,7 +4,6 @@ import com.example.docconneting.common.config.PasswordEncoder;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.docconneting.domain.user.dto.response.DoctorMyPageResponse;
 import com.example.docconneting.domain.user.dto.response.PatientMyPageResponse;
@@ -16,7 +15,9 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
+    private final S3Service s3Service;
 
 
     //마이페이지 조회
@@ -61,13 +63,14 @@ public class UserService {
 
     //의사 이미지 수정
     @Transactional
-    public Map<String, String> updateImage(AuthUser authUser, UpdateImageRequest dto) {
+    public Map<String, String> updateImage(AuthUser authUser, MultipartFile multipartFile) throws IOException {
         User user = userRepository.findById(authUser.getId()).orElseThrow(()-> new ClientException(ErrorCode.USER_NOT_FOUND));
         if(!user.getUserRole().equals(UserRole.DOCTOR))
         {
             throw new ClientException(ErrorCode.UNAUTHORIZED_USER);
         }
-        user.updateImage(dto.getNewImage());
+        String newImage = s3Service.uploadImage(multipartFile);
+        user.updateImage(newImage);
         Map<String, String> message = new HashMap<>();
         message.put("message","이미지 수정이 성공적으로 됐습니다");
         entityManager.flush();
