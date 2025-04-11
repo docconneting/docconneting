@@ -57,23 +57,21 @@ public class UserService {
         user.updatePassword(passwordEncoder.encode(dto.getNewPassword()));
         Map<String, String> message = new HashMap<>();
         message.put("message","비밀 번호 수정이 성공적으로 됐습니다");
-        entityManager.flush();
         return message;
     }
 
     //의사 이미지 수정
     @Transactional
-    public Map<String, String> updateImage(AuthUser authUser, MultipartFile multipartFile) throws IOException {
+    public Map<String, String> updateImage(AuthUser authUser, MultipartFile multipartFile) throws Exception {
         User user = userRepository.findById(authUser.getId()).orElseThrow(()-> new ClientException(ErrorCode.USER_NOT_FOUND));
         if(!user.getUserRole().equals(UserRole.DOCTOR))
         {
             throw new ClientException(ErrorCode.UNAUTHORIZED_USER);
         }
-        String newImage = s3Service.uploadImage(multipartFile);
+        String newImage = s3Service.updateImage(user.getId(), user.getImage(), multipartFile);
         user.updateImage(newImage);
         Map<String, String> message = new HashMap<>();
         message.put("message","이미지 수정이 성공적으로 됐습니다");
-        entityManager.flush();
         return message;
     }
 }
