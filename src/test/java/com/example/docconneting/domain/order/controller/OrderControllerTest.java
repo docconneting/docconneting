@@ -3,6 +3,7 @@ package com.example.docconneting.domain.order.controller;
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.order.dto.request.OrderRequest;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.order.enums.OrderProduct;
@@ -74,7 +75,7 @@ class OrderControllerTest {
                 LocalDateTime.now()
         );
 
-        given(orderService.createOrder(any(), refEq(request)))
+        given(orderService.createOrder(any(AuthUser.class), refEq(request)))
                 .willReturn(response);
 
         mockMvc.perform(post("/api/v1/orders")
@@ -137,7 +138,7 @@ class OrderControllerTest {
 
         PageResult<OrderResponse> pageResult = new PageResult<>(content, pageInfo);
         Pageable expectedPageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-        given(orderService.findOrders(any(), refEq(expectedPageable))).willReturn(pageResult);
+        given(orderService.findOrders(any(AuthUser.class), refEq(expectedPageable))).willReturn(pageResult);
 
         mockMvc.perform(get("/api/v1/orders")
                         .header("Authorization", accessToken)
