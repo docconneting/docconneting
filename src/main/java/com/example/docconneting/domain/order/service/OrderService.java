@@ -9,6 +9,7 @@ import com.example.docconneting.domain.order.dto.request.OrderRequest;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.order.enums.OrderProduct;
+import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.order.repository.OrderRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -20,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.example.docconneting.domain.order.enums.OrderType.CHAT;
+import static com.example.docconneting.domain.order.enums.OrderType.POINT;
 
 @Service
 @RequiredArgsConstructor
@@ -38,22 +42,30 @@ public class OrderService {
             throw new ClientException(ErrorCode.NOT_ALLOWED_TO_ORDER);
         }
 
-        Order order = switch (orderRequest.getOrderType()) {
+        OrderProduct orderProduct = orderRequest.getOrderProduct();
+        OrderType orderType = orderRequest.getOrderType();
+
+        if (!orderProduct.getPrice().equals(orderRequest.getPrice())) {
+            throw new ClientException(ErrorCode.INVALID_ORDER_PRICE);
+        }
+
+        Order order = switch (orderType) {
             case POINT -> {
-                OrderProduct orderProduct = orderRequest.getOrderProduct();
-                // 포인트 충전 상품 종류 고르지 않았을 때
-                if (orderProduct == null) {
-                    throw new ClientException(ErrorCode.ORDER_PRODUCT_NOT_FOUND);
-                }
-                // 포인트 충전 상품 가격과 실제 결제한 가격 검증
-                if (!orderProduct.getPrice().equals(orderRequest.getPrice())) {
-                    throw new ClientException(ErrorCode.INVALID_ORDER_PRICE);
+                // 포인트 타입 상품을 고르지 않았을 때
+                if (orderProduct.getOrderType() != POINT) {
+                    throw new ClientException(ErrorCode.INVALID_ORDER_PRODUCT);
                 }
 
                 yield Order.ofPointOrder(user, orderProduct);
             }
             // 채팅 결제는 3000원으로 고정
-            case CHAT -> Order.ofChatOrder(user, OrderProduct.CHAT_3000);
+            case CHAT -> {
+                if (orderProduct.getOrderType() != CHAT) {
+                    throw new ClientException(ErrorCode.INVALID_ORDER_PRODUCT);
+                }
+
+                yield Order.ofChatOrder(user, OrderProduct.CHAT_3000);
+            }
             default -> throw new ClientException(ErrorCode.NOT_ALLOWED_TO_ORDER);
         };
 
