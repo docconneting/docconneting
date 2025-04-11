@@ -4,19 +4,25 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 
 public enum OrderProduct {
-    POINT_1000(1000),
-    POINT_5000(5000),
-    POINT_10000(10000),
-    CHAT_3000(3000); // 채팅용 상품
+    POINT_1000(1000, OrderType.POINT),
+    POINT_5000(5000, OrderType.POINT),
+    POINT_10000(10000, OrderType.POINT),
+    CHAT_3000(3000, OrderType.CHAT); // 채팅용 상품
 
     private final Integer price;
+    private final OrderType orderType;
 
-    OrderProduct(Integer price) {
+    OrderProduct(Integer price, OrderType orderType) {
         this.price = price;
+        this.orderType = orderType;
     }
 
     public Integer getPrice() {
         return price;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
     }
 
     public static OrderProduct of(Integer price) {
