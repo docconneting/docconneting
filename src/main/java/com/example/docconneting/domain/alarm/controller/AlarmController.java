@@ -1,14 +1,11 @@
 package com.example.docconneting.domain.alarm.controller;
 
-import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.alarm.dto.AlarmResponse;
 import com.example.docconneting.domain.alarm.service.AlarmService;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.repository.UserRepository;
-import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -33,14 +30,13 @@ public class AlarmController {
         return ResponseEntity.ok().body(Response.of(pageResult.getContent(), pageResult.getPageInfo()));
     }
 
-    private final UserRepository userRepository;
 
     @PostMapping("/test")
-    public void sendPostUploadAlarm() throws FirebaseMessagingException {
-        alarmService.sendPostUploadCompletedMessage(Major.SURGERY);
-//        User user1 = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("없네요"));
+    public void sendPostUploadAlarm() {
+//        alarmService.sendPostUploadCompletedMessage(Major.SURGERY);
+//        User user1 = userRepository.findById(4L).orElseThrow(() -> new RuntimeException("없네요"));
 //        User user2 = userRepository.findById(2L).orElseThrow(() -> new RuntimeException("없네요"));
-//        alarmService.sendCommentCompletedMessage(user);
+//        alarmService.sendCommentCompletedMessage(user1);
 //        alarmService.sendMedicalRequestMessage(user1, user2);
     }
 
