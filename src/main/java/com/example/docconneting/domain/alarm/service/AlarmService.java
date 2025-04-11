@@ -8,14 +8,12 @@ import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.alarm.dto.AlarmResponse;
 import com.example.docconneting.domain.alarm.entity.AlarmHistories;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
+import com.example.docconneting.domain.alarm.repository.AlarmHistoriesBulkRepository;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesRepository;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,8 +30,9 @@ import java.util.List;
 public class AlarmService {
 
     private final UserRepository userRepository;
+    private final AlarmSenderService alarmSenderService;
     private final AlarmHistoriesRepository alarmHistoriesRepository;
-    private final AsyncAlarmSender asyncAlarmSender;
+    private final AlarmHistoriesBulkRepository alarmHistoriesBulkRepository;
 
     /*
      * 로그인을 진행할 때 프론트에서 넘겨준 FCM 토큰과 알람 수락 권한을 데이터베이스에 저장
@@ -63,9 +63,17 @@ public class AlarmService {
     @Transactional
     public void sendPostUploadCompletedMessage(Major major) {
         List<User> users = userRepository.findByMajor(major);
-        for (User user : users) {
-            asyncAlarmSender.handleAlarm(user.getId(), user.getFcmToken());
+        List<String> fcmTokenList = users.stream().map(user -> user.getFcmToken()).toList();
+        List<List<String>> fcmTokenBatches = new ArrayList<>();
+
+        for (int i = 0; i < fcmTokenList.size(); i += 500) {
+            fcmTokenBatches.add(fcmTokenList.subList(i, Math.min(fcmTokenList.size(), i + 500)));
         }
+
+        for (List<String> fcmTokenBatche : fcmTokenBatches) {
+            alarmSenderService.sendMulticastAlarm(fcmTokenBatche, "새로운 유료 질문이 올라왔습니다!");
+        }
+        alarmHistoriesBulkRepository.batchUpdate(users, AlarmType.POST_UPLOAD, "새로운 유료 질문이 올라왔습니다!");
     }
 
     /*
@@ -73,19 +81,8 @@ public class AlarmService {
      */
     @Transactional
     public void sendCommentCompletedMessage(User user) {
-        Message message = Message.builder()
-                .setToken(user.getFcmToken())
-                .setNotification(Notification.builder()
-                        .setBody("회원님의 게시물에 의사가 답변을 달았습니다")
-                        .build())
-                .build();
-
-        AlarmHistories alarmHistories = AlarmHistories.of(
-                "회원님의 게시물에 의사가 답변을 달았습니다"
-                , user.getId()
-                , AlarmType.COMMENT);
-        FirebaseMessaging.getInstance().sendAsync(message);
-        alarmHistoriesRepository.save(alarmHistories);
+        alarmSenderService.sendAlarm(user.getFcmToken(), "회원님의 게시물에 의사가 답변을 달았습니다");
+        saveAlarmHistories("회원님의 게시물에 의사가 답변을 달았습니다", user.getId(), AlarmType.COMMENT);
     }
 
     /*
@@ -94,19 +91,16 @@ public class AlarmService {
     @Transactional
     public void sendMedicalRequestMessage(User patient, User doctor) {
         String patientName = patient.getUsername();
+        alarmSenderService.sendAlarm(doctor.getFcmToken(), patientName + "님이 채팅 진료를 요청 했습니다");
+        saveAlarmHistories(patientName + "님이 채팅 진료를 요청 했습니다", doctor.getId(), AlarmType.MEDICAL_REQUEST);
+    }
 
-        Message message = Message.builder()
-                .setToken(doctor.getFcmToken())
-                .setNotification(Notification.builder()
-                        .setBody(patientName + "님이 채팅 진료를 요청 했습니다")
-                        .build())
-                .build();
 
-        AlarmHistories alarmHistories = AlarmHistories.of(
-                patientName + "님이 채팅 진료를 요청했습니다"
-                , doctor.getId()
-                , AlarmType.MEDICAL_REQUEST);
-        FirebaseMessaging.getInstance().sendAsync(message);
+    /*
+     * 단건 알람 히스토리 저장
+     */
+    private void saveAlarmHistories(String content, Long id, AlarmType alarmType) {
+        AlarmHistories alarmHistories = AlarmHistories.of(content, id, alarmType);
         alarmHistoriesRepository.save(alarmHistories);
     }
 
