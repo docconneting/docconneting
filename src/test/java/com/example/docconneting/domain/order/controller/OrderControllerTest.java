@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,9 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -72,16 +74,18 @@ class OrderControllerTest {
                 LocalDateTime.now()
         );
 
-        given(orderService.createOrder(any(), any())).willReturn(response);
+        given(orderService.createOrder(any(), refEq(request)))
+                .willReturn(response);
 
         mockMvc.perform(post("/api/v1/orders")
-                        .header("Authorization",accessToken)
+                        .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.orderType").value("POINT"))
                 .andExpect(jsonPath("$.data.orderProduct").value("POINT_5000"))
                 .andExpect(jsonPath("$.data.price").value(5000));
+
     }
 
     @Test
@@ -101,7 +105,9 @@ class OrderControllerTest {
                 LocalDateTime.now()
         );
 
-        when(orderService.findOrderById(any(), any())).thenReturn(response);
+        given(orderService.findOrderById(any(), eq(orderId)))
+                .willReturn(response);
+
 
         mockMvc.perform(get("/api/v1/orders/{orderId}", orderId)
                         .header("Authorization",accessToken))
@@ -130,10 +136,11 @@ class OrderControllerTest {
                 .build();
 
         PageResult<OrderResponse> pageResult = new PageResult<>(content, pageInfo);
-        when(orderService.findOrders(any(), any())).thenReturn(pageResult);
+        Pageable expectedPageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        given(orderService.findOrders(any(), refEq(expectedPageable))).willReturn(pageResult);
 
         mockMvc.perform(get("/api/v1/orders")
-                        .header("Authorization",accessToken)
+                        .header("Authorization", accessToken)
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
