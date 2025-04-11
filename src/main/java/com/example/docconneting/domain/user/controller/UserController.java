@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<Response<Map<String, String>>> updateImage(
             @Auth AuthUser authUser,
             @RequestPart(required = true) MultipartFile multipartFile
-    ) throws IOException {
+    ) throws Exception {
         Map<String, String> response = userService.updateImage(authUser, multipartFile);
         return ResponseEntity.ok(Response.of(response));
     }
