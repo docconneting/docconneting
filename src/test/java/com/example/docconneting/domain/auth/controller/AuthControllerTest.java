@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,7 +82,7 @@ public class AuthControllerTest {
         Map<String, String> message = new HashMap<>();
         message.put("message", "회원 가입이 성공적으로 됐습니다");
 
-        given(authService.signUp(any(UserSignUpRequest.class), any(MultipartFile.class))).willReturn(message);
+        given(authService.signUp(refEq(request), refEq(imagePart))).willReturn(message);
 
         //when & then
         mockMvc.perform(multipart("/api/v1/signup")
@@ -102,7 +103,7 @@ public class AuthControllerTest {
         String accessToken = "access";
         String refreshToken = "refresh";
 
-        given(authService.signIn(any(UserSignInRequest.class))).willReturn(UserSignInResponse.of(accessToken,refreshToken));
+        given(authService.signIn(refEq(request))).willReturn(UserSignInResponse.of(accessToken, refreshToken));
 
         //when & then
         mockMvc.perform(post("/api/v1/signin")
@@ -114,10 +115,9 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void accessToken_재발급() throws Exception {
+    public void accessToken_재발급() throws Exception { //token 관련 test에서 refEq를 어디에 넣어야하는지 모르겠음 ^^....
         //given
-        AuthUser authUser;
-        authUser = AuthUser.of(1L, UserRole.PATIENT);
+        AuthUser authUser = AuthUser.of(1L, UserRole.PATIENT);
 
         UserRefreshTokenRequest request = new UserRefreshTokenRequest();
         ReflectionTestUtils.setField(request, "refreshToken", "refresh");
@@ -125,8 +125,8 @@ public class AuthControllerTest {
         String newAccessToken = "newAccessToken";
         String newRefreshToken = "newRefreshToken";
 
-        given(authService.refreshAccessToken(any(AuthUser.class),any(UserRefreshTokenRequest.class)))
-                .willReturn(UserRefreshTokenResponse.of(newAccessToken,newRefreshToken));
+        given(authService.refreshAccessToken(any(AuthUser.class), any(UserRefreshTokenRequest.class)))
+                .willReturn(UserRefreshTokenResponse.of(newAccessToken, newRefreshToken));
 
         //when & then
         mockMvc.perform(post("/api/v1/refresh")

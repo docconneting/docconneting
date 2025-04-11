@@ -23,13 +23,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -103,31 +102,33 @@ public class UserControllerTest {
     }
 
     @Test
-    void 의사_마이페이지_조회() throws Exception {
+    void 의사_마이페이지_조회() throws Exception { // request 없이 accesstoken으로만 넘겨서 refEq()를 어디에 써야할지 모르겠음...
         //given
         long userId = 1L;
         String username = "doctor";
         String accessToken = "token";
-
-        given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.findMyPage(any(AuthUser.class))).willReturn(DoctorMyPageResponse.of(username));
+        DoctorMyPageResponse response = DoctorMyPageResponse.of(username);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
+        given(jwtUtil.createToken(authDoctor.getId(), authDoctor.getUserRole())).willReturn(accessToken);
+
+        given(userService.findMyPage(any())).willReturn(response);
 
         //when & then
-        mockMvc.perform(get("/api/v1/users").header("Authorization", accessToken))
+        mockMvc.perform(get("/api/v1/users")
+                        .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.username").value(username));
     }
 
     @Test
-    void 환자_마이페이지_조회() throws Exception {
+    void 환자_마이페이지_조회() throws Exception { // request 없이 accesstoken으로만 넘겨서 refEq()를 어디에 써야할지 모르겠음...
         //given
         long userId = 2L;
         String username = "patient";
         int point = 0;
         String accessToken = "token";
-        given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
+        given(jwtUtil.createToken(userId, UserRole.PATIENT)).willReturn(accessToken);
         given(userService.findMyPage(any(AuthUser.class))).willReturn(PatientMyPageResponse.of(username, point));
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authPatient);
@@ -154,7 +155,7 @@ public class UserControllerTest {
 
 
         given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.updatePassword(any(AuthUser.class), any(UpdatePasswordRequest.class))).willReturn(message);
+        given(userService.updatePassword(any(), refEq(request))).willReturn(message);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
 
@@ -191,8 +192,8 @@ public class UserControllerTest {
         String newImageUrl = "https://example.com/newimage.jpg";
 
         given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(s3Service.updateImage(any(Long.class),any(String.class), any(MultipartFile.class))).willReturn(newImageUrl);
-        given(userService.updateImage(any(AuthUser.class), any(MultipartFile.class))).willReturn(message);
+        given(s3Service.updateImage(any(Long.class),any(String.class), refEq(newImage))).willReturn(newImageUrl);
+        given(userService.updateImage(any(), refEq(newImage))).willReturn(message);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
 
