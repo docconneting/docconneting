@@ -100,6 +100,8 @@ public enum ErrorCode {
 
     // 400
     INVALID_ORDER_PRICE(HttpStatus.BAD_REQUEST, "유효하지 않은 금액입니다."),
+    INVALID_ORDER_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 주문 타입입니다."),
+    INVALID_ORDER_PRODUCT(HttpStatus.BAD_REQUEST, "유효하지 않은 상품입니다."),
 
     // 403
     NOT_ALLOWED_TO_ORDER(HttpStatus.FORBIDDEN, "주문을 할 수 있는 권한이 없습니다."),
