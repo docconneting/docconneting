@@ -4,22 +4,16 @@ import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.chatting.dto.ChattingRoomCreateResponse;
-import com.example.docconneting.domain.chatting.dto.ChattingRoomListResponse;
-import com.example.docconneting.domain.chatting.dto.ChattingRoomSingleResponse;
+import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateResponse;
+import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
+import com.example.docconneting.domain.chatting.dto.response.ChattingRoomSingleResponse;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
-import io.lettuce.core.GeoArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 

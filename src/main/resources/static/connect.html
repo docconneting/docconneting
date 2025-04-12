@@ -32,14 +32,14 @@
         stompClient.connect(
             { Authorization: token },
             frame => {
-                resultBox.textContent = "✅ 연결 성공: " + frame.command;
+                resultBox.textContent = "연결 성공: " + frame.command;
                 stompClient.deactivate();
             },
             error => {
-                let message = "❌ STOMP 연결 실패\n";
+                let message = "STOMP 연결 실패\n";
 
                 // 헤더 출력 (요약 메시지)
-                message += `📍 headers['message']: ${error.headers?.message || "없음"}\n`;
+                message += `headers['message']: ${error.headers?.message || "없음"}\n`;
 
                 // 바디 파싱 시도
                 try {
