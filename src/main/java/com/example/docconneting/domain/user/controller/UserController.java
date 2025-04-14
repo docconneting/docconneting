@@ -3,7 +3,6 @@ package com.example.docconneting.domain.user.controller;
 import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.docconneting.domain.user.dto.response.UserMyPageResponse;
 import com.example.docconneting.domain.user.service.UserService;
@@ -11,7 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -43,9 +44,9 @@ public class UserController {
     @PatchMapping("/profile")
     public ResponseEntity<Response<Map<String, String>>> updateImage(
             @Auth AuthUser authUser,
-            @Valid @RequestBody UpdateImageRequest dto
-    ) {
-        Map<String, String> response = userService.updateImage(authUser, dto);
+            @RequestPart(required = true) MultipartFile multipartFile
+    ) throws Exception {
+        Map<String, String> response = userService.updateImage(authUser, multipartFile);
         return ResponseEntity.ok(Response.of(response));
     }
 
