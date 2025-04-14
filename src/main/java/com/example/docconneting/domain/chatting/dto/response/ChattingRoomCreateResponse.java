@@ -1,4 +1,4 @@
-package com.example.docconneting.domain.chatting.dto;
+package com.example.docconneting.domain.chatting.dto.response;
 
 import lombok.Getter;
 
