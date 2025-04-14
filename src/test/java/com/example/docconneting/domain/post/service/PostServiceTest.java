@@ -380,7 +380,7 @@ class PostServiceTest {
 
         List<Post> content = new ArrayList<>();
         for(int i = 0; i < 50; i++){
-            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
+            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false);
             content.add(post);
         }
 

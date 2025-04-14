@@ -7,14 +7,15 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
+import com.example.docconneting.domain.post.dto.request.PostCreateRequest;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
+import com.example.docconneting.domain.post.dto.reponse.PostCreateResponse;
 import com.example.docconneting.domain.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,7 +26,19 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 public class PostController {
+
     private final PostService postService;
+
+    @PostMapping
+    public ResponseEntity<Response<PostCreateResponse>> createPost(
+            @Auth AuthUser authUser,
+            @RequestParam(required = false) Long couponId,
+            @Valid @RequestBody PostCreateRequest request
+    ) {
+        Long userId = authUser.getId();
+        PostCreateResponse response = postService.createPost(userId, couponId, request);
+        return ResponseEntity.ok(Response.of(response));
+    }
 
     @GetMapping("/{postId}")
     public ResponseEntity<Response<PostSingleResponse>> findPostById(@PathVariable Long postId){
@@ -40,7 +53,6 @@ public class PostController {
                                                                          @RequestParam(required = false) String major){
 
         PageResult<PostListResponse> posts = postService.findAllPosts(pageable, title, major);
-
         return ResponseEntity
                 .ok()
                 .body(Response.of(posts.getContent(), posts.getPageInfo()));

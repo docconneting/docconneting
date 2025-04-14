@@ -2,13 +2,12 @@ package com.example.docconneting.domain.post.repository;
 
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.post.entity.Post;
+import com.example.docconneting.domain.post.enums.PayType;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,8 +42,9 @@ class PostRepositoryTest {
         List<Post> posts = new ArrayList<>();
         for(int i = 0; i < 50; i++){
             Major major = Major.values()[i % 5];
+            PayType payType = PayType.values()[i % 3];
             String title = "title" + (i % 5);
-            Post post = Post.of(findUser, title, "contents"+(i + 1), major, false, false, false, LocalDateTime.now());
+            Post post = Post.of(findUser, title, "contents"+(i + 1), major, payType, false, false, LocalDateTime.now());
             posts.add(post);
         }
         postRepository.saveAll(posts);
