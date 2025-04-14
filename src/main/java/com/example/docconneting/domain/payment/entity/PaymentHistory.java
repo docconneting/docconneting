@@ -38,7 +38,7 @@ public class PaymentHistory {
 
     private PaymentStatus paymentStatus;
 
-    private String paymentKey;
+    private String paymentKey; // 포트원 imp_uid
 
     private LocalDateTime approvedAt;
 

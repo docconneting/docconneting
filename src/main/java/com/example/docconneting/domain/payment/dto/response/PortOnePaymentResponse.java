@@ -1,8 +1,6 @@
 package com.example.docconneting.domain.payment.dto.response;
 
-import com.example.docconneting.domain.order.enums.OrderProduct;
 import com.example.docconneting.domain.order.enums.OrderStatus;
-import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import lombok.Getter;

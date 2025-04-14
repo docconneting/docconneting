@@ -13,6 +13,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -55,30 +56,39 @@ public class Order {
 
     private String impUid;
 
+    @Column(unique = true, nullable = false)
     private String merchantUid;
 
     private LocalDateTime approvedAt;
 
+    private Long doctorId;
+
+    private String generateMerchantUid() {
+        return "order_" + UUID.randomUUID();
+    }
+
     private Order(User user, OrderType orderType, OrderStatus orderStatus,
-                  Integer price, Long chattingRoomId, OrderProduct orderProduct) {
+                  Integer price, Long chattingRoomId, OrderProduct orderProduct, Long doctorId) {
         this.user = user;
         this.orderType = orderType;
         this.orderStatus = orderStatus;
         this.price = price;
         this.chattingRoomId = chattingRoomId;
         this.orderProduct = orderProduct;
+        this.doctorId = doctorId;
+        this.merchantUid = generateMerchantUid();
     }
 
     // 포인트 충전 주문 생성
     public static Order ofPointOrder(User user, OrderProduct orderProduct) {
         return new Order(user, OrderType.POINT, OrderStatus.REQUESTED,
-                orderProduct.getPrice(), null, orderProduct);
+                orderProduct.getPrice(), null, orderProduct, null);
     }
 
     // 채팅 주문 생성
-    public static Order ofChatOrder(User user, OrderProduct orderProduct) {
+    public static Order ofChatOrder(User user, OrderProduct orderProduct, Long doctorId) {
         return new Order(user, OrderType.CHAT, OrderStatus.REQUESTED,
-                orderProduct.getPrice(), null, orderProduct);
+                orderProduct.getPrice(), null, orderProduct, doctorId);
     }
 
     // 상태 업데이트 메서드들

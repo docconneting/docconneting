@@ -9,6 +9,7 @@ import com.example.docconneting.domain.order.dto.request.OrderRequest;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.order.enums.OrderProduct;
+import com.example.docconneting.domain.order.enums.OrderStatus;
 import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.order.repository.OrderRepository;
 import com.example.docconneting.domain.user.entity.User;
@@ -64,7 +65,8 @@ public class OrderService {
                     throw new ClientException(ErrorCode.INVALID_ORDER_PRODUCT);
                 }
 
-                yield Order.ofChatOrder(user, OrderProduct.CHAT_3000);
+                Long doctorId = orderRequest.getDoctorId();
+                yield Order.ofChatOrder(user, OrderProduct.CHAT_3000, doctorId);
             }
             default -> throw new ClientException(ErrorCode.NOT_ALLOWED_TO_ORDER);
         };
@@ -133,5 +135,17 @@ public class OrderService {
                 .build();
 
         return new PageResult<>(orderResponses, pageInfo);
+    }
+
+    @Transactional
+    public void assignChattingRoomId(AuthUser authUser, Long chattingRoomId) {
+
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+
+        Order order = orderRepository.findLatestCompletedChatOrder(user, OrderType.CHAT, OrderStatus.COMPLETED)
+                .orElseThrow(()-> new ClientException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.assignChattingRoomId(chattingRoomId);
     }
 }
