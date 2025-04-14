@@ -4,12 +4,12 @@ import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.user.dto.request.UpdateImageRequest;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
 import com.example.docconneting.domain.user.dto.response.DoctorMyPageResponse;
 import com.example.docconneting.domain.user.dto.response.PatientMyPageResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
+import com.example.docconneting.domain.user.service.S3Service;
 import com.example.docconneting.domain.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,7 +28,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +49,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private AuthUserArgumentResolver authUserArgumentResolver;
+    
+    @MockitoBean
+    private S3Service s3Service;
 
     //JPA, @EntityListeners(AuditingEntityListener.class) 무시용 mock 삽입
     @MockitoBean
@@ -103,14 +107,16 @@ public class UserControllerTest {
         long userId = 1L;
         String username = "doctor";
         String accessToken = "token";
-
-        given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.findMyPage(any())).willReturn(DoctorMyPageResponse.of(username));
+        DoctorMyPageResponse response = DoctorMyPageResponse.of(username);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
+        given(jwtUtil.createToken(authDoctor.getId(), authDoctor.getUserRole())).willReturn(accessToken);
+
+        given(userService.findMyPage(any())).willReturn(response);
 
         //when & then
-        mockMvc.perform(get("/api/v1/users").header("Authorization", accessToken))
+        mockMvc.perform(get("/api/v1/users")
+                        .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.username").value(username));
     }
@@ -122,8 +128,8 @@ public class UserControllerTest {
         String username = "patient";
         int point = 0;
         String accessToken = "token";
-        given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.findMyPage(any())).willReturn(PatientMyPageResponse.of(username, point));
+        given(jwtUtil.createToken(userId, UserRole.PATIENT)).willReturn(accessToken);
+        given(userService.findMyPage(any(AuthUser.class))).willReturn(PatientMyPageResponse.of(username, point));
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authPatient);
 
@@ -149,7 +155,7 @@ public class UserControllerTest {
 
 
         given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.updatePassword(any(), any())).willReturn(message);
+        given(userService.updatePassword(any(), refEq(request))).willReturn(message);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
 
@@ -168,27 +174,40 @@ public class UserControllerTest {
 
     @Test
     void 의사_이미지_수정() throws Exception {
-        //given
+        // given
         long userId = 1L;
         String accessToken = "token";
         String messageValue = "이미지 수정이 성공적으로 됐습니다";
+
+        MockMultipartFile newImage = new MockMultipartFile(
+                "multipartFile",
+                "img.jpg",
+                "image/jpeg",
+                "fake image content".getBytes()
+        );
+
         Map<String, String> message = new HashMap<>();
         message.put("message", messageValue);
-        UpdateImageRequest request = new UpdateImageRequest();
-        ReflectionTestUtils.setField(request, "newImage", "https://example.com/newimage.jpg");
+
+        String newImageUrl = "https://example.com/newimage.jpg";
 
         given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.updateImage(any(), any())).willReturn(message);
+        given(s3Service.updateImage(any(Long.class),any(String.class), refEq(newImage))).willReturn(newImageUrl);
+        given(userService.updateImage(any(), refEq(newImage))).willReturn(message);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
 
-        //when & then
-        mockMvc.perform(patch("/api/v1/users/profile")
-                .header("Authorization", accessToken)
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(request))) //json으로 직렬화
+        // when & then
+        mockMvc.perform(multipart("/api/v1/users/profile")
+                        .file(newImage)
+                        .with(request -> {
+                            request.setMethod("PATCH");
+                            return request;
+                        })
+                        .contentType("multipart/form-data")
+                        .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.message").value(messageValue));
-
     }
+
 }
