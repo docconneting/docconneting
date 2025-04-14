@@ -14,10 +14,13 @@ import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import com.example.docconneting.domain.user.service.S3Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,10 +32,11 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final S3Service s3Service;
 
     // 회원가입
     @Transactional
-    public Map<String, String> signUp(UserSignUpRequest dto) {
+    public Map<String, String> signUp(UserSignUpRequest dto, MultipartFile multipartFile) throws IOException {
         if (userRepository.findByEmail(dto.getEmail()).isPresent())
         {
             throw new ClientException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -48,7 +52,7 @@ public class AuthService {
                 if (dto.getMajor() == null) {
                     throw new ClientException(ErrorCode.MAJOR_NOT_FOUND);
                 }
-                if (dto.getImage() == null) {
+                if (multipartFile == null) {
                     throw new ClientException(ErrorCode.IMAGE_NOT_FOUND);
                 }
                 if (dto.getStartTime() == null) {
@@ -57,14 +61,13 @@ public class AuthService {
                 if (dto.getEndTime() == null) {
                     throw new ClientException(ErrorCode.ENDTIME_NOT_FOUND);
                 }
-
                 Major major = Major.of(dto.getMajor().toUpperCase());
                 yield User.of(
                         dto.getEmail(),
                         password,
                         dto.getUsername(),
                         major,
-                        dto.getImage(),
+                        null,
                         dto.getStartTime(),
                         dto.getEndTime(),
                         false,
@@ -91,7 +94,14 @@ public class AuthService {
             );
         };
 
+        //유저 저장 -> ID 생성
         userRepository.save(user);
+
+        //의사인 경우 이미지 url 삽입하기
+        if (role == UserRole.DOCTOR) {
+            String imageUrl = s3Service.uploadImage(user.getId(),multipartFile);
+            user.updateImage(imageUrl); // 엔티티에 imageUrl을 세팅
+        }
 
         Map<String, String> message = new HashMap<>();
         message.put("message", "회원 가입이 성공적으로 됐습니다");

@@ -39,4 +39,8 @@ public class Message {
         this.chattingRoom = chattingRoom;
         this.contents = contents;
     }
+
+    public static Message of(User user, ChattingRoom chattingRoom, String contents){
+        return new Message(user, chattingRoom, contents);
+    }
 }
