@@ -2,8 +2,12 @@ package com.example.docconneting.domain.payment.service;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateResponse;
+import com.example.docconneting.domain.chatting.service.ChattingRoomService;
 import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.order.enums.OrderStatus;
+import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.order.repository.OrderRepository;
 import com.example.docconneting.domain.payment.dto.request.PaymentWebhookRequest;
 import com.example.docconneting.domain.payment.dto.response.PortOnePaymentResponse;
@@ -24,6 +28,7 @@ public class PaymentService {
 
     private final OrderRepository orderRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final ChattingRoomService chattingRoomService;
 
     @Transactional
     public PortOnePaymentResponse handleWebhook (PaymentWebhookRequest request) {
@@ -31,7 +36,7 @@ public class PaymentService {
         PaymentStatus paymentStatus = PaymentStatus.of(request.getPaymentStatus());
 
         // 주문 조회
-        Order order = orderRepository.findByMerchantUid(request.getMerchantUId())
+        Order order = orderRepository.findByMerchantUid(request.getMerchantUid())
                 .orElseThrow(() -> new ClientException(ErrorCode.ORDER_NOT_FOUND));
 
         // 결제 완료인 경우 이력 저장 & 주문 정보 업데이트
@@ -42,10 +47,17 @@ public class PaymentService {
                     order,
                     order.getUser(),
                     request.getImpUid(),
-                    request.getMerchantUId(),
+                    request.getMerchantUid(),
                     paymentMethod,
                     LocalDateTime.now()
             );
+
+            if (order.getOrderType() == OrderType.CHAT) {
+                User user = order.getUser();
+                AuthUser authUser = AuthUser.of(user.getId(), user.getUserRole());
+                ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
+                order.assignChattingRoomId(response.getId());
+            }
         }
         // 결제 실패 처리
         else if (paymentStatus == PaymentStatus.FAILED) {
