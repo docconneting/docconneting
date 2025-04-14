@@ -58,18 +58,34 @@ public class AlarmService {
     }
 
     /*
+     * 알람 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public PageResult<AlarmResponse> findAlarms(AuthUser authUser, Pageable pageable) {
+        Page<AlarmHistories> result = alarmHistoriesRepository.findAlarmHistories(authUser.getId(), pageable);
+        List<AlarmResponse> alarms = AlarmResponse.toAlarmResponse(result.getContent());
+
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalElement(result.getTotalElements())
+                .totalPage(result.getTotalPages())
+                .build();
+
+        return new PageResult<>(alarms, pageInfo);
+    }
+
+    /*
      * 사용자가 유료 게시물을 올렸을 떄 해당 전공에 해당되는 의사들에게 알람 전송
      */
     @Transactional
     public void sendPostUploadCompletedMessage(Major major) {
         List<User> users = userRepository.findByMajor(major);
-        List<String> fcmTokenList = users.stream().map(user -> user.getFcmToken()).toList();
+        List<String> fcmTokenList = users.stream().map(User::getFcmToken).toList();
         List<List<String>> fcmTokenBatches = new ArrayList<>();
-
-        for (int i = 0; i < fcmTokenList.size(); i += 500) {
-            fcmTokenBatches.add(fcmTokenList.subList(i, Math.min(fcmTokenList.size(), i + 500)));
+        for (int i = 0; i < fcmTokenList.size(); i += 100) {
+            fcmTokenBatches.add(fcmTokenList.subList(i, Math.min(fcmTokenList.size(), i + 100)));
         }
-
         for (List<String> fcmTokenBatche : fcmTokenBatches) {
             alarmSenderService.sendMulticastAlarm(fcmTokenBatche, "새로운 유료 질문이 올라왔습니다!");
         }
@@ -95,30 +111,11 @@ public class AlarmService {
         saveAlarmHistories(patientName + "님이 채팅 진료를 요청 했습니다", doctor.getId(), AlarmType.MEDICAL_REQUEST);
     }
 
-
     /*
      * 단건 알람 히스토리 저장
      */
     private void saveAlarmHistories(String content, Long id, AlarmType alarmType) {
         AlarmHistories alarmHistories = AlarmHistories.of(content, id, alarmType);
         alarmHistoriesRepository.save(alarmHistories);
-    }
-
-    /*
-     * 알람 목록 조회
-     */
-    @Transactional(readOnly = true)
-    public PageResult<AlarmResponse> findAlarms(AuthUser authUser, Pageable pageable) {
-        Page<AlarmHistories> result = alarmHistoriesRepository.findAlarmHistories(authUser.getId(), pageable);
-        List<AlarmResponse> alarms = AlarmResponse.toAlarmResponse(result.getContent());
-
-        PageInfo pageInfo = PageInfo.builder()
-                .pageNum(pageable.getPageNumber())
-                .pageSize(pageable.getPageSize())
-                .totalElement(result.getTotalElements())
-                .totalPage(result.getTotalPages())
-                .build();
-
-        return new PageResult<>(alarms, pageInfo);
     }
 }

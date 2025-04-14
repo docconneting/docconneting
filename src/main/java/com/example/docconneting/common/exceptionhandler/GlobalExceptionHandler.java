@@ -1,4 +1,4 @@
-package com.example.docconneting.common.controller;
+package com.example.docconneting.common.exceptionhandler;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
