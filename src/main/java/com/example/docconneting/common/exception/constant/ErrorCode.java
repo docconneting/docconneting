@@ -21,30 +21,30 @@ public enum ErrorCode {
 
     //400
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),
-    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST,"기존 비밀번호와 동일한 비밀번호로 수정할 수 없습니다."),
+    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "기존 비밀번호와 동일한 비밀번호로 수정할 수 없습니다."),
 
     //404
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
 
     //500
-    AUTH_WITHOUT_AUTHUSER(HttpStatus.INTERNAL_SERVER_ERROR,"@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
+    AUTH_WITHOUT_AUTHUSER(HttpStatus.INTERNAL_SERVER_ERROR, "@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
 
     //로그인 에러 코드
 
     //400
     USERROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "권한 이름을 잘못 입력하셨습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST,"리프레시 토큰이 일치하지 않습니다." ),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 일치하지 않습니다."),
     IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "이미지는 필수 입력 값입니다."),
     STARTTIME_NOT_FOUND(HttpStatus.BAD_REQUEST, "근무 시작 시간은 필수 입력 값입니다."),
     ENDTIME_NOT_FOUND(HttpStatus.BAD_REQUEST, "근무 종료 시간은 필수 입력 값입니다."),
 
     //401
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "의사만 접근 가능한 기능입니다."),
-    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"만료된 리프레시 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
 
     //404
-    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않습니다."),
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "토큰이 존재하지 않습니다."),
 
 
     // 게시글 에러코드
@@ -100,10 +100,26 @@ public enum ErrorCode {
     // 쿠폰
 
     // 400
+    COUPON_ALREADY_ISSUED(HttpStatus.BAD_REQUEST, "이미 발급된 쿠폰입니다."),
     COUPON_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "쿠폰 수량이 모두 소진되었습니다."),
+    COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "사용 완료된 쿠폰입니다."),
+    NO_AVAILABLE_USAGE(HttpStatus.BAD_REQUEST, "사용 가능한 횟수가 없습니다."),
+    INVALID_COUPON_PERIOD(HttpStatus.BAD_REQUEST, "쿠폰 사용 기간이 아닙니다."),
+
 
     // 403
-    FORBIDDEN_ADMIN_ONLY(HttpStatus.FORBIDDEN, "관리자만 사용할 수 있는 기능입니다.");
+    SELF_COUPON_ONLY(HttpStatus.FORBIDDEN, "자기 쿠폰만 사용할 수 있습니다."),
+    FORBIDDEN_PATIENT_ONLY(HttpStatus.FORBIDDEN, "환자만 쿠폰 발급을 할 수 있습니다."),
+    FORBIDDEN_ADMIN_ONLY(HttpStatus.FORBIDDEN, "관리자만 사용할 수 있는 기능입니다."),
+
+    // 404
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),
+
+    // 409
+    LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "다른 요청이 락을 먼저 획득했습니다."),
+
+    // 500
+    LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득 중 인터럽트가 발생했습니다.");
 
     private final HttpStatus status;
     private final String message;
