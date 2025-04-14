@@ -2,6 +2,8 @@ package com.example.docconneting.domain.post.controller;
 
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
+import com.example.docconneting.common.filter.JwtFilter;
+import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
@@ -44,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = {
         "jwt.secret.key=5Gk6hibHDtKLFVk4NdBX039rvehSLNjfKsdXpm/pHsU="
 })
-@Import(JwtUtil.class)
+@Import({JwtUtil.class, AuthUserArgumentResolver.class, JwtFilter.class})
 class PostControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -91,25 +93,34 @@ class PostControllerTest {
     @DisplayName("컨트롤러에서 게시물 삭제")
     void deletePostByIdTest() throws Exception {
         // given
-        String accessToken = jwtUtil.createToken(1L, UserRole.PATIENT);
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        String accessToken = jwtUtil.createToken(userId, userRole);
 
         Long postId = 1L;
 
-        doNothing().when(postService).deletePostById(any(AuthUser.class), any(Long.class));
+        doNothing().when(postService).deletePostById(refEq(authUser), eq(postId));
 
         // when, then
-        mockMvc.perform(delete("/api/v1/posts/{postId}", postId))
+        mockMvc.perform(delete("/api/v1/posts/{postId}", postId)
+                        .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.message").value("게시물이 성공적으로 삭제되었습니다."));
 
-        verify(postService, times(1)).deletePostById(any(AuthUser.class), any(Long.class));
+        verify(postService, times(1)).deletePostById(refEq(authUser), eq(postId));
     }
 
     @Test
     @DisplayName("컨트롤러에서 게시물 수정")
     void updatePostTest() throws Exception{
         // given
-        String accessToken = jwtUtil.createToken(1L, UserRole.PATIENT);
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        String accessToken = jwtUtil.createToken(userId, userRole);
 
         Long postId = 1L;
 
@@ -121,7 +132,7 @@ class PostControllerTest {
 
         PostUpdateResponse postUpdateResponse = PostUpdateResponse.of(postId, "updateTitle", "updateContent", Major.ORTHOPEDICS.name(), LocalDateTime.now(), LocalDateTime.now());
 
-        given(postService.updatePost(any(AuthUser.class), any(Long.class), any(PostUpdateRequest.class))).willReturn(postUpdateResponse);
+        given(postService.updatePost(refEq(authUser), eq(postId), refEq(postUpdateRequest))).willReturn(postUpdateResponse);
 
         // when, then
         mockMvc.perform(patch("/api/v1/posts/{postId}", postId)
@@ -136,7 +147,7 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(postUpdateResponse.getCreatedAt().toString().substring(0,19))))
                 .andExpect(jsonPath("$.data.modifiedAt", Matchers.startsWith(postUpdateResponse.getModifiedAt().toString().substring(0,19))));
 
-        verify(postService, times(1)).updatePost(any(AuthUser.class), any(Long.class), any(PostUpdateRequest.class));
+        verify(postService, times(1)).updatePost(refEq(authUser), eq(postId), refEq(postUpdateRequest));
     }
 
     @Test
@@ -167,7 +178,9 @@ class PostControllerTest {
 
         PageResult<PostListResponse> pageResult = new PageResult<>(postListResponses, pageInfo);
 
-        given(postService.findAllPosts(any(Pageable.class), any(String.class), any(String.class))).willReturn(pageResult);
+        given(postService.findAllPosts(argThat(
+                p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize()
+        ), eq(title), eq(major))).willReturn(pageResult);
 
         // when, then
         mockMvc.perform(get("/api/v1/posts").param("title", title).param("major", major))
@@ -177,5 +190,9 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.page.totalElement").value(pageInfo.getTotalElement()))
                 .andExpect(jsonPath("$.page.totalPage").value(pageInfo.getTotalPage()))
                 .andExpect(jsonPath("$.data.size()").value(postListResponses.size()));
+
+        verify(postService, times(1)).findAllPosts(argThat(
+                p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize()
+        ), eq(title), eq(major));
     }
 }
