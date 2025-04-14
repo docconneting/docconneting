@@ -115,7 +115,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void accessToken_재발급() throws Exception { //token 관련 test에서 refEq를 어디에 넣어야하는지 모르겠음 ^^....
+    public void accessToken_재발급() throws Exception {
         //given
         AuthUser authUser = AuthUser.of(1L, UserRole.PATIENT);
 
