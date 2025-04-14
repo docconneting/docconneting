@@ -4,6 +4,7 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.request.CreateCouponRequest;
+import com.example.docconneting.domain.coupon.dto.response.CreateCouponResponse;
 import com.example.docconneting.domain.coupon.entity.Coupon;
 import com.example.docconneting.domain.coupon.repository.CouponRepository;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -24,7 +25,7 @@ public class CouponService {
 
 
     // 쿠폰 생성
-    public void createCoupon(AuthUser authUser, CreateCouponRequest request) {
+    public CreateCouponResponse createCoupon(AuthUser authUser, CreateCouponRequest request) {
 
         //운영자인지 확인
         if (authUser.getUserRole() != UserRole.ADMIN) {
@@ -41,5 +42,13 @@ public class CouponService {
                 expiredAt
         );
         couponRepository.save(coupon);
+
+        return CreateCouponResponse.of(
+                coupon.getId(),
+                coupon.getAvailableCount(),
+                coupon.getQuantity(),
+                coupon.getStartDate(),
+                coupon.getEndDate()
+        );
     }
 }

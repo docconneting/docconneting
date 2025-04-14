@@ -1,8 +1,10 @@
 package com.example.docconneting.domain.coupon.controller;
 
+import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.request.CreateCouponRequest;
+import com.example.docconneting.domain.coupon.dto.response.CreateCouponResponse;
 import com.example.docconneting.domain.coupon.service.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,11 @@ public class AdminCouponController {
 
     // 운영자가 쿠폰 생성
     @PostMapping
-    public ResponseEntity<Void> createCoupon(
+    public ResponseEntity<Response<CreateCouponResponse>> createCoupon(
             @Auth AuthUser authUser,
             @Valid @RequestBody CreateCouponRequest request) {
-        couponService.createCoupon(authUser, request);
-        return ResponseEntity.ok().build();
+        CreateCouponResponse createCouponResponse = couponService.createCoupon(authUser, request);
+        return ResponseEntity.ok(Response.of(createCouponResponse));
     }
 
 
