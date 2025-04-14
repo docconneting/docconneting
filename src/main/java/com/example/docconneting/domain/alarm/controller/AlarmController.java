@@ -22,22 +22,11 @@ import java.util.List;
 public class AlarmController {
 
     private final AlarmService alarmService;
-//    private final UserRepository userRepository;
 
     @GetMapping("")
     public ResponseEntity<Response<List<AlarmResponse>>> findAlarmHistories(@Auth AuthUser authUser, @PageableDefault Pageable pageable) {
         PageResult<AlarmResponse> pageResult = alarmService.findAlarms(authUser, pageable);
         return ResponseEntity.ok().body(Response.of(pageResult.getContent(), pageResult.getPageInfo()));
     }
-
-
-//    @PostMapping("/test")
-//    public void sendPostUploadAlarm() {
-//        alarmService.sendPostUploadCompletedMessage(Major.SURGERY);
-//        User user1 = userRepository.findById(4L).orElseThrow(() -> new RuntimeException("없네요"));
-//        User user2 = userRepository.findById(2L).orElseThrow(() -> new RuntimeException("없네요"));
-//        alarmService.sendCommentCompletedMessage(user1);
-//        alarmService.sendMedicalRequestMessage(user1, user2);
-//    }
 
 }
