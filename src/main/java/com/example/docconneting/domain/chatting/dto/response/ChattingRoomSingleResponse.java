@@ -1,6 +1,5 @@
-package com.example.docconneting.domain.chatting.dto;
+package com.example.docconneting.domain.chatting.dto.response;
 
-import com.example.docconneting.domain.chatting.entity.ChattingRoom;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

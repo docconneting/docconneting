@@ -16,15 +16,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,17 +62,35 @@ public class AuthControllerTest {
         ReflectionTestUtils.setField(request, "password", "test");
         ReflectionTestUtils.setField(request, "username", "testpatient");
         ReflectionTestUtils.setField(request, "userRole", "PATIENT");
+
+        // JSON 요청 파트
+        MockMultipartFile requestDtoPart = new MockMultipartFile(
+                "requestDto",
+                "requestDto.json",
+                "application/json",
+                objectMapper.writeValueAsBytes(request)
+        );
+
+        // 이미지 파일, null임
+        MockMultipartFile imagePart = new MockMultipartFile(
+                "multipartFile",
+                "",
+                "application/octet-stream",
+                new byte[0]
+        );
+
         Map<String, String> message = new HashMap<>();
         message.put("message", "회원 가입이 성공적으로 됐습니다");
-        given(authService.signUp(any())).willReturn(message);
+
+        given(authService.signUp(refEq(request), refEq(imagePart))).willReturn(message);
 
         //when & then
-        mockMvc.perform(post("/api/v1/signup")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(multipart("/api/v1/signup")
+                        .file(requestDtoPart)
+                        .file(imagePart)
+                        .contentType("multipart/form-data"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.message").value(message.get("message")));
-
     }
 
     @Test
@@ -82,7 +103,7 @@ public class AuthControllerTest {
         String accessToken = "access";
         String refreshToken = "refresh";
 
-        given(authService.signIn(any())).willReturn(UserSignInResponse.of(accessToken,refreshToken));
+        given(authService.signIn(refEq(request))).willReturn(UserSignInResponse.of(accessToken, refreshToken));
 
         //when & then
         mockMvc.perform(post("/api/v1/signin")
@@ -96,8 +117,7 @@ public class AuthControllerTest {
     @Test
     public void accessToken_재발급() throws Exception {
         //given
-        AuthUser authUser;
-        authUser = AuthUser.of(1L, UserRole.PATIENT);
+        AuthUser authUser = AuthUser.of(1L, UserRole.PATIENT);
 
         UserRefreshTokenRequest request = new UserRefreshTokenRequest();
         ReflectionTestUtils.setField(request, "refreshToken", "refresh");
@@ -105,7 +125,8 @@ public class AuthControllerTest {
         String newAccessToken = "newAccessToken";
         String newRefreshToken = "newRefreshToken";
 
-        given(authService.refreshAccessToken(any(),any())).willReturn(UserRefreshTokenResponse.of(newAccessToken,newRefreshToken));
+        given(authService.refreshAccessToken(any(AuthUser.class), any(UserRefreshTokenRequest.class)))
+                .willReturn(UserRefreshTokenResponse.of(newAccessToken, newRefreshToken));
 
         //when & then
         mockMvc.perform(post("/api/v1/refresh")
