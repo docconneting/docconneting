@@ -102,7 +102,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void 의사_마이페이지_조회() throws Exception { // request 없이 accesstoken으로만 넘겨서 refEq()를 어디에 써야할지 모르겠음...
+    void 의사_마이페이지_조회() throws Exception {
         //given
         long userId = 1L;
         String username = "doctor";
@@ -122,7 +122,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void 환자_마이페이지_조회() throws Exception { // request 없이 accesstoken으로만 넘겨서 refEq()를 어디에 써야할지 모르겠음...
+    void 환자_마이페이지_조회() throws Exception {
         //given
         long userId = 2L;
         String username = "patient";
