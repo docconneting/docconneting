@@ -97,7 +97,13 @@ public enum ErrorCode {
 
     // 404
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
-    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다.");
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다."),
+
+    // 결제 에러코드
+
+    // 400
+    INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 결제 상태입니다."),
+    INVALID_PAYMENT_METHOD(HttpStatus.BAD_REQUEST, "지원하지 않는 결제 방식입니다.");
 
     private final HttpStatus status;
     private final String message;
