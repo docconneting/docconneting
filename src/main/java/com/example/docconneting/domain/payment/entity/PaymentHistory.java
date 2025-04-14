@@ -5,7 +5,6 @@ import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -39,7 +38,7 @@ public class PaymentHistory {
 
     private PaymentStatus paymentStatus;
 
-    private String payment_key;
+    private String paymentKey;
 
     private LocalDateTime approvedAt;
 
@@ -47,13 +46,20 @@ public class PaymentHistory {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    private PaymentHistory(User user, Order order, Integer price, PaymentMethod paymentMethod,PaymentStatus paymentStatus, String payment_key, LocalDateTime approvedAt) {
+    private PaymentHistory(User user, Order order, Integer price, PaymentMethod paymentMethod,PaymentStatus paymentStatus, String paymentKey, LocalDateTime approvedAt) {
         this.user = user;
         this.order = order;
         this.price = price;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
-        this.payment_key = payment_key;
+        this.paymentKey = paymentKey;
         this.approvedAt = approvedAt;
     }
+
+    public static PaymentHistory of(User user, Order order, Integer price,
+                                    PaymentMethod paymentMethod, PaymentStatus paymentStatus,
+                                    String paymentKey, LocalDateTime approvedAt) {
+        return new PaymentHistory(user, order, price, paymentMethod, paymentStatus, paymentKey, approvedAt);
+    }
+
 }
