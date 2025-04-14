@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.alarm.controller;
 
+import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.alarm.dto.AlarmResponse;
@@ -23,6 +24,7 @@ import java.util.List;
 public class AlarmController {
 
     private final AlarmService alarmService;
+//    private final UserRepository userRepository;
 
     @GetMapping("")
     public ResponseEntity<Response<List<AlarmResponse>>> findAlarmHistories(@Auth AuthUser authUser, @PageableDefault Pageable pageable) {
@@ -33,7 +35,7 @@ public class AlarmController {
 
     @PostMapping("/test")
     public void sendPostUploadAlarm() {
-//        alarmService.sendPostUploadCompletedMessage(Major.SURGERY);
+        alarmService.sendPostUploadCompletedMessage(Major.SURGERY);
 //        User user1 = userRepository.findById(4L).orElseThrow(() -> new RuntimeException("없네요"));
 //        User user2 = userRepository.findById(2L).orElseThrow(() -> new RuntimeException("없네요"));
 //        alarmService.sendCommentCompletedMessage(user1);
