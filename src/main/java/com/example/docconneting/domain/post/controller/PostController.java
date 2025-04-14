@@ -35,8 +35,7 @@ public class PostController {
             @RequestParam(required = false) Long couponId,
             @Valid @RequestBody PostCreateRequest request
     ) {
-        Long userId = authUser.getId();
-        PostCreateResponse response = postService.createPost(userId, couponId, request);
+        PostCreateResponse response = postService.createPost(authUser, couponId, request);
         return ResponseEntity.ok(Response.of(response));
     }
 
