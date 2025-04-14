@@ -14,13 +14,16 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import com.example.docconneting.domain.user.service.S3Service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.Optional;
@@ -46,12 +49,15 @@ public class AuthServiceTest {
     @Mock
     private RefreshTokenService refreshTokenService;
 
+    @Mock
+    private S3Service s3Service;
+
     @InjectMocks
     private AuthService authService;
 
 
     @Test
-    public void 환자_회원가입() {
+    public void 환자_회원가입() throws IOException {
         //given
         UserSignUpRequest request = new UserSignUpRequest();
         ReflectionTestUtils.setField(request, "email", "test@test.com");
@@ -62,7 +68,7 @@ public class AuthServiceTest {
         given(passwordEncoder.encode("test")).willReturn("test");
 
         //when
-        Map<String, String> response = authService.signUp(request);
+        Map<String, String> response = authService.signUp(request, null);
 
         //then
         assertThat(response.get("message")).isEqualTo("회원 가입이 성공적으로 됐습니다");
@@ -70,22 +76,55 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void 의사_회원가입() {
+    public void 관리자_회원가입() throws IOException {
         //given
+        UserSignUpRequest request = new UserSignUpRequest();
+        ReflectionTestUtils.setField(request, "email", "test@test.com");
+        ReflectionTestUtils.setField(request, "password", "test");
+        ReflectionTestUtils.setField(request, "username", "testadmin");
+        ReflectionTestUtils.setField(request, "userRole", "ADMIN");
+
+        given(passwordEncoder.encode("test")).willReturn("test");
+
+        //when
+        Map<String, String> response = authService.signUp(request, null);
+
+        //then
+        assertThat(response.get("message")).isEqualTo("회원 가입이 성공적으로 됐습니다");
+
+    }
+
+    @Test
+    public void 의사_회원가입() throws IOException {
+        //given
+        Long userId = 1L;
+        String stringImage = "www.doctor.image";
         UserSignUpRequest request = new UserSignUpRequest();
         ReflectionTestUtils.setField(request, "email", "test@test.com");
         ReflectionTestUtils.setField(request, "password", "test");
         ReflectionTestUtils.setField(request, "username", "testdoctor");
         ReflectionTestUtils.setField(request, "userRole", "DOCTOR");
         ReflectionTestUtils.setField(request, "major", "INTERNAL_MEDICINE");
-        ReflectionTestUtils.setField(request, "image", "https://example.com/image.jpg");
         ReflectionTestUtils.setField(request, "startTime", LocalTime.of(9, 0));
         ReflectionTestUtils.setField(request, "endTime", LocalTime.of(21, 0));
-
+        // 테스트용 이미지 파일 생성
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "img.jpg",
+                "image/jpeg",
+                "fake image content".getBytes()
+        );
+        // userRepository.save() 시 ID를 수동으로 설정
+        given(userRepository.save(any(User.class))).willAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            ReflectionTestUtils.setField(user, "id", userId);
+            return user;
+        });
         given(passwordEncoder.encode("test")).willReturn("test");
+        given(s3Service.uploadImage(1L, image)).willReturn(stringImage);
 
         //when
-        Map<String, String> response = authService.signUp(request);
+        Map<String, String> response = authService.signUp(request, image);
 
         //then
         assertThat(response.get("message")).isEqualTo("회원 가입이 성공적으로 됐습니다");
@@ -102,7 +141,7 @@ public class AuthServiceTest {
         given(userRepository.findByEmail("test@test.com")).willReturn(Optional.of(mock(User.class)));
 
         // when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request, null));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.EMAIL_ALREADY_EXISTS);
     }
 
@@ -114,14 +153,19 @@ public class AuthServiceTest {
         ReflectionTestUtils.setField(request, "password", "test");
         ReflectionTestUtils.setField(request, "username", "testdoctor");
         ReflectionTestUtils.setField(request, "userRole", "doctor");
-        ReflectionTestUtils.setField(request, "image", "https://example.com/image.jpg");
         ReflectionTestUtils.setField(request, "startTime", LocalTime.of(9, 0));
         ReflectionTestUtils.setField(request, "endTime", LocalTime.of(21, 0));
-
+        // 테스트용 이미지 파일 생성
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "img.jpg",
+                "image/jpeg",
+                "fake image content".getBytes()
+        );
         given(passwordEncoder.encode("test")).willReturn("test");
 
         // when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request, image));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MAJOR_NOT_FOUND);
 
     }
@@ -141,7 +185,7 @@ public class AuthServiceTest {
         given(passwordEncoder.encode("test")).willReturn("test");
 
         // when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request, null));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.IMAGE_NOT_FOUND);
 
     }
@@ -155,13 +199,18 @@ public class AuthServiceTest {
         ReflectionTestUtils.setField(request, "username", "testdoctor");
         ReflectionTestUtils.setField(request, "userRole", "doctor");
         ReflectionTestUtils.setField(request, "major", "INTERNAL_MEDICINE");
-        ReflectionTestUtils.setField(request, "image", "https://example.com/image.jpg");
         ReflectionTestUtils.setField(request, "endTime", LocalTime.of(21, 0));
-
+        // 테스트용 이미지 파일 생성
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "img.jpg",
+                "image/jpeg",
+                "fake image content".getBytes()
+        );
         given(passwordEncoder.encode("test")).willReturn("test");
 
         // when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request, image));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.STARTTIME_NOT_FOUND);
 
     }
@@ -175,13 +224,19 @@ public class AuthServiceTest {
         ReflectionTestUtils.setField(request, "username", "testdoctor");
         ReflectionTestUtils.setField(request, "userRole", "doctor");
         ReflectionTestUtils.setField(request, "major", "INTERNAL_MEDICINE");
-        ReflectionTestUtils.setField(request, "image", "https://example.com/image.jpg");
         ReflectionTestUtils.setField(request, "startTime", LocalTime.of(9, 0));
 
+        // 테스트용 이미지 파일 생성
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "img.jpg",
+                "image/jpeg",
+                "fake image content".getBytes()
+        );
         given(passwordEncoder.encode("test")).willReturn("test");
 
         // when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.signUp(request, image));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ENDTIME_NOT_FOUND);
 
     }

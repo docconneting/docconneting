@@ -24,8 +24,6 @@ public class UserSignUpRequest {
     // 의사 전용 필드
     private String major;
 
-    private String image;
-
     private LocalTime startTime;
 
     private LocalTime endTime;
