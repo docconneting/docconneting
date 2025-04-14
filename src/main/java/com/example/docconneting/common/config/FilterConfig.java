@@ -1,6 +1,9 @@
 package com.example.docconneting.common.config;
 
+import com.example.docconneting.common.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -9,12 +12,12 @@ public class FilterConfig {
 
     private final JwtUtil jwtUtil;
 
-//    @Bean
-//    public FilterRegistrationBean<JwtFilter> jwtFilter() {
-//        FilterRegistrationBean<JwtFilter> registrationBean = new FilterRegistrationBean<>();
-//        registrationBean.setFilter(new JwtFilter(jwtUtil));
-//        registrationBean.addUrlPatterns("/*");
-//
-//        return registrationBean;
-//    }
+    @Bean
+    public FilterRegistrationBean<JwtFilter> jwtFilter() {
+        FilterRegistrationBean<JwtFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new JwtFilter(jwtUtil));
+        registrationBean.addUrlPatterns("/*");
+
+        return registrationBean;
+    }
 }
