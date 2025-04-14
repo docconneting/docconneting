@@ -42,4 +42,9 @@ public class PatientCoupon {
         this.availableCount = availableCount;
         this.endDate = endDate;
     }
+
+    // 쿠폰 사용 횟수 차감
+    public void decreaseAvailableCount() {
+        this.availableCount--;
+    }
 }

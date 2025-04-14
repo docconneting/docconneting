@@ -4,7 +4,6 @@ import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
-import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
@@ -15,7 +14,6 @@ import com.example.docconneting.domain.post.service.PostService;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.bytebuddy.asm.Advice;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -154,7 +152,7 @@ class PostControllerTest {
 
         List<Post> posts = new ArrayList<>();
         for(int i = 0; i < pageable.getPageSize(); i++){
-            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
+            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false);
             posts.add(post);
         }
 

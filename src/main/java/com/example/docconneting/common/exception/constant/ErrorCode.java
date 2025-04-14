@@ -20,18 +20,9 @@ public enum ErrorCode {
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
 
-    // 게시물 에러 코드
+    // 회원 에러코드
 
-    // 403
-    PATIENT_ONLY_ACCESS(HttpStatus.FORBIDDEN, "게시물 수정, 삭제는 환자만 접근 가능 합니다."),
-    ONLY_AUTHOR_CAN_UPDATE_OR_DELETED(HttpStatus.FORBIDDEN, "게시물은 작성자만 수정 혹은 삭제 가능합니다."),
-
-    // 404 NOT_FOUND
-    NOT_FOUND_POST(HttpStatus.NOT_FOUND, "존재하지 않는 게시물 입니다."),
-
-    //회원 에러코드
-
-    //400
+    // 400
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다."),
     PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST,"기존 비밀번호와 동일한 비밀번호로 수정할 수 없습니다."),
 
@@ -40,6 +31,12 @@ public enum ErrorCode {
 
     //500
     AUTH_WITHOUT_AUTHUSER(HttpStatus.INTERNAL_SERVER_ERROR,"@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
+
+    // 의사 조회 에러코드
+
+    //404
+    DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 의사입니다."),
+    MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 전공입니다."),
 
     //로그인 에러 코드
 
@@ -58,10 +55,18 @@ public enum ErrorCode {
     //404
     TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않습니다."),
 
+    // 게시글 에러 코드
 
-    // 게시글 에러코드
+    // 400
+    INVALID_PAY_TYPE(HttpStatus.BAD_REQUEST, "잘못된 결제 타입입니다."),
+    INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
+
+    // 403
+    PATIENT_ONLY_ACCESS(HttpStatus.FORBIDDEN, "게시물 수정, 삭제는 환자만 접근 가능 합니다."),
+    ONLY_AUTHOR_CAN_UPDATE_OR_DELETED(HttpStatus.FORBIDDEN, "게시물은 작성자만 수정 혹은 삭제 가능합니다."),
 
     // 404
+    NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 
     // 답글 에러코드
@@ -73,13 +78,14 @@ public enum ErrorCode {
     NOT_COMMENT_OWNER(HttpStatus.FORBIDDEN, "답글을 단 사용자가 아닙니다."),
     NOT_ALLOWED_TO_COMMENT(HttpStatus.FORBIDDEN, "답글을 달 수 있는 권한이 없습니다."),
 
+    // 쿠폰 에러코드
 
-    // 의사 조회 에러코드
+    // 400
+    EXHAUSTED_COUPON(HttpStatus.BAD_REQUEST, "쿠폰 사용 횟수를 초과했습니다."),
+    EXPIRED_COUPON(HttpStatus.BAD_REQUEST, "만료된 쿠폰입니다."),
 
-    //404
-    DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 의사입니다."),
-    MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 전공입니다."),
-
+    // 404
+    NOT_FOUND_COUPON(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),
 
     // 채팅
 

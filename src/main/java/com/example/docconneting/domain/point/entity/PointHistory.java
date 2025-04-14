@@ -44,4 +44,8 @@ public class PointHistory {
         this.pointType = pointType;
         this.point = point;
     }
+
+    public static PointHistory of(User user, Long postId, Boolean isRefunded, PointType pointType, Integer point) {
+        return new PointHistory(user, postId, isRefunded, pointType, point);
+    }
 }
