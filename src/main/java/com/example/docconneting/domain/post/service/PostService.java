@@ -50,9 +50,9 @@ public class PostService {
 
     // 게시글 등록
     @Transactional
-    public PostCreateResponse createPost(Long userId, Long couponId, PostCreateRequest request) {
+    public PostCreateResponse createPost(AuthUser authUser, Long couponId, PostCreateRequest request) {
 
-        User user = userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)
+        User user = userRepository.findUserByIdAndUserRoleWithPessimisticLock(authUser.getId(), UserRole.PATIENT)
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         PayType payType = PayType.of(request.getPayType());
@@ -68,7 +68,7 @@ public class PostService {
 
         switch (payType) {
             case COUPON -> {
-                PatientCoupon patientCoupon = patientCouponRepository.findPatientCouponByIdAndUserId(userId, couponId)
+                PatientCoupon patientCoupon = patientCouponRepository.findPatientCouponByIdAndUserId(user.getId(), couponId)
                         .orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_COUPON));
 
                 validateCouponAvailableCount(patientCoupon);
