@@ -40,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -92,6 +94,8 @@ class ChattingRoomControllerTest {
                 .andExpect(jsonPath("$.data.doctorId").value(doctorId))
                 .andExpect(jsonPath("$.data.isRecovered").value(isRecovered))
                 .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(createdAt.toString().substring(0,19))));
+
+        verify(chattingRoomService, times(1)).createdChattingRoom(refEq(authUser), eq(doctorId));
     }
 
     @Test
@@ -119,6 +123,8 @@ class ChattingRoomControllerTest {
                 .andExpect(jsonPath("$.data.patientId").value(userId))
                 .andExpect(jsonPath("$.data.doctorId").value(doctorId))
                 .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(createdAt.toString().substring(0,19))));
+
+        verify(chattingRoomService, times(1)).findChattingRoomById(refEq(authUser), eq(chattingRoomId));
     }
 
     @Test
@@ -169,5 +175,9 @@ class ChattingRoomControllerTest {
                 .andExpect(jsonPath("$.page.pageSize").value(pageInfo.getPageSize()))
                 .andExpect(jsonPath("$.page.totalElement").value(pageInfo.getTotalElement()))
                 .andExpect(jsonPath("$.page.totalPage").value(pageInfo.getTotalPage()));
+
+        verify(chattingRoomService, times(1)).findAllChattingRooms(refEq(authUser), argThat(
+                p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize()
+        ));
     }
 }
