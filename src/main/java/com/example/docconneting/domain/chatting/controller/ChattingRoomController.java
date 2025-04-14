@@ -51,7 +51,7 @@ public class ChattingRoomController {
                 .body(Response.of(chattingRooms.getContent(), chattingRooms.getPageInfo()));
     }
 
-    @PostMapping("/chattingRooms/{chattingRoomId}")
+    @DeleteMapping("/chattingRooms/{chattingRoomId}")
     public ResponseEntity<Response<Map<String, String>>> deletedChattingRoomById(@Auth AuthUser authUser, @PathVariable Long chattingRoomId){
 
         Map<String, String> message = new HashMap<>();
