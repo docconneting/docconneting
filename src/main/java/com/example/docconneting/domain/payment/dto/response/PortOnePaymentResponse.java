@@ -31,5 +31,4 @@ public class PortOnePaymentResponse {
     public static PortOnePaymentResponse of(String impUid, String merchantUId, Integer price, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, LocalDateTime createdAt) {
         return new PortOnePaymentResponse(impUid, merchantUId, price, orderStatus, paymentStatus, paymentMethod, createdAt);
     }
-
 }

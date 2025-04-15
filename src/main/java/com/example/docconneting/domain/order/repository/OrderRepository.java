@@ -16,6 +16,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findAllByUser(User user, Pageable pageable);
     Optional<Order> findByMerchantUid(String merchantUid);
 
+    // 채팅 주문 상태가 COMPLETED이고, chattingRoomId가 아직 비어있는 주문들 중 가장 최근 주문 하나 조회
     @Query("""
     SELECT o FROM Order o
     WHERE o.user = :user
