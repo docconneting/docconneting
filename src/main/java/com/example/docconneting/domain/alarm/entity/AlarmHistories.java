@@ -2,6 +2,7 @@ package com.example.docconneting.domain.alarm.entity;
 
 import com.example.docconneting.domain.alarm.enums.AlarmType;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
