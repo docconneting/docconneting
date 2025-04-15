@@ -44,9 +44,10 @@ public class Coupon {
     }
 
     public void decreaseQuantity() {
-        if (quantity <= 0) {
-            throw new ServerException(ErrorCode.COUPON_OUT_OF_STOCK);
-        }
-        this.quantity--;
+            this.quantity--;
+    }
+
+    public boolean isAvailable(LocalDateTime now) {
+        return endDate.isAfter(now);
     }
 }

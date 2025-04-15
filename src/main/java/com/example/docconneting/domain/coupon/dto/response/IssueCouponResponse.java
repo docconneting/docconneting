@@ -11,20 +11,18 @@ public class IssueCouponResponse {
     private final Long userId;
     private final Long couponId;
     private final Integer availableCount;
-    private final Integer quantity;
     private final LocalDateTime startDate;
     private final LocalDateTime endDate;
 
-    private IssueCouponResponse(Long userId, Long couponId, Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
+    private IssueCouponResponse(Long userId, Long couponId, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate) {
         this.userId = userId;
         this.couponId = couponId;
         this.availableCount = availableCount;
-        this.quantity = quantity;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public static IssueCouponResponse of(Long userId, Long couponId, Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
-        return new IssueCouponResponse(userId, couponId, availableCount, quantity, startDate, endDate);
+    public static IssueCouponResponse of(Long userId, Long couponId, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate) {
+        return new IssueCouponResponse(userId, couponId, availableCount, startDate, endDate);
     }
 }
