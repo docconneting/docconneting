@@ -19,7 +19,7 @@ import java.util.UUID;
 @Table(name = "orders")
 @Getter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener.class) // 생성일 자동 저장 리스너
 public class Order {
 
     @Id
@@ -54,15 +54,16 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    private String impUid;
+    private String impUid; // 포트원에서 발급한 고유 결제 식별자
 
     @Column(unique = true, nullable = false)
-    private String merchantUid;
+    private String merchantUid; // 주문 고유 번호 (PG 연동 시 사용)
 
     private LocalDateTime approvedAt;
 
     private Long doctorId;
 
+    // PG 연동용 merchantUid 자동 생성
     private String generateMerchantUid() {
         return "order_" + UUID.randomUUID();
     }
@@ -108,6 +109,7 @@ public class Order {
         this.approvedAt = approvedAt;
     }
 
+    // 채팅 주문일 경우 채팅방 id 부여
     public void assignChattingRoomId(Long chattingRoomId) {
         this.chattingRoomId = chattingRoomId;
     }

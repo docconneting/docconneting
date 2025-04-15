@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
     private final PaymentService paymentService;
-
+    // 포트원 PG 사의 웹훅 콜백 처리
     @PostMapping("/webhook")
     public ResponseEntity<PortOnePaymentResponse> handleWebhook(
             @RequestBody PaymentWebhookRequest paymentWebhookRequest

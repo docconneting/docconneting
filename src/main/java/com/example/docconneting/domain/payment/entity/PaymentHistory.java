@@ -61,5 +61,4 @@ public class PaymentHistory {
                                     String paymentKey, LocalDateTime approvedAt) {
         return new PaymentHistory(user, order, price, paymentMethod, paymentStatus, paymentKey, approvedAt);
     }
-
 }

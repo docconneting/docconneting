@@ -32,10 +32,10 @@ public class PaymentService {
 
     @Transactional
     public PortOnePaymentResponse handleWebhook (PaymentWebhookRequest request) {
-        // 상태 파싱
+        // 포트원 결제 상태
         PaymentStatus paymentStatus = PaymentStatus.of(request.getPaymentStatus());
 
-        // 주문 조회
+        // merchantUid 기준으로 주문 조회(주문 없을 경우 예외)
         Order order = orderRepository.findByMerchantUid(request.getMerchantUid())
                 .orElseThrow(() -> new ClientException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -52,19 +52,22 @@ public class PaymentService {
                     LocalDateTime.now()
             );
 
+            // 채팅 주문인 경우 채팅방 생성 및 주문에 연결
             if (order.getOrderType() == OrderType.CHAT) {
                 User user = order.getUser();
                 AuthUser authUser = AuthUser.of(user.getId(), user.getUserRole());
+
+                // 채팅방 생성 후 채팅방 id 부여
                 ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
                 order.assignChattingRoomId(response.getId());
             }
         }
-        // 결제 실패 처리
+        // 결제 실패 처리(주문/결제 상태를 실패로 변경)
         else if (paymentStatus == PaymentStatus.FAILED) {
             order.updatePaymentStatus(PaymentStatus.FAILED);
             order.updateOrderStatus(OrderStatus.EXPIRED);
         }
-        // 응답 반환
+        // 최종 결제 응답 반환
         return PortOnePaymentResponse.of(
                 order.getImpUid(),
                 order.getMerchantUid(),

@@ -19,5 +19,5 @@ public class OrderRequest {
     @NotNull(message = "결제 금액은 필수입니다.")
     private Integer price;
 
-    private Long doctorId; // 채팅 주문용
+    private Long doctorId; // 채팅 주문용 의사 id
 }

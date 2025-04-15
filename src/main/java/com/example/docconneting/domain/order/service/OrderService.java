@@ -43,9 +43,10 @@ public class OrderService {
             throw new ClientException(ErrorCode.NOT_ALLOWED_TO_ORDER);
         }
 
-        OrderProduct orderProduct = orderRequest.getOrderProduct();
         OrderType orderType = orderRequest.getOrderType();
+        OrderProduct orderProduct = orderRequest.getOrderProduct();
 
+        // 주문 상품과 금액이 다를 때 예외
         if (!orderProduct.getPrice().equals(orderRequest.getPrice())) {
             throw new ClientException(ErrorCode.INVALID_ORDER_PRICE);
         }
@@ -138,6 +139,7 @@ public class OrderService {
     }
 
     @Transactional
+    // 채팅 주문의 상태가 COMPLETED 되었을 때 채팅방 id 부여(로그인한 사용자의 가장 최신 완료된 채팅 주문)
     public void assignChattingRoomId(AuthUser authUser, Long chattingRoomId) {
 
         User user = userRepository.findById(authUser.getId())
