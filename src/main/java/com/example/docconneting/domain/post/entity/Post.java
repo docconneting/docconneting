@@ -4,6 +4,7 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_major_is_deleted_created_at", columnList = "major, isDeleted, createdAt"),
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
