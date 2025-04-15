@@ -1,7 +1,5 @@
 package com.example.docconneting.domain.coupon.entity;
 
-import com.example.docconneting.common.exception.constant.ErrorCode;
-import com.example.docconneting.common.exception.object.ServerException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

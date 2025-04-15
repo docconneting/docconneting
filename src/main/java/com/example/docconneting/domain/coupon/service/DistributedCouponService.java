@@ -26,7 +26,7 @@ public class DistributedCouponService {
         try {
             // responseHolder.set(patientCouponService.issue(authUser, couponId));가 실행할 로직
             distributedLockManager.executeWithLock(couponId, () -> {
-                responseHolder.set(patientCouponService.issue(authUser, couponId)); //같은 클래스 내에서 트렌잭션 없는 게 있는 걸 호출할 때 뜨는 에러.
+                responseHolder.set(patientCouponService.issue(authUser, couponId));
             });
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
