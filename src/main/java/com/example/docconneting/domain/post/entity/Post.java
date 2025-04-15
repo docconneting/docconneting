@@ -5,6 +5,7 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.post.enums.PayType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_deadline_payType", columnList = "deadline, payType")
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
