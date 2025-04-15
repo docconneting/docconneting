@@ -40,8 +40,9 @@ public class PaymentService {
                 .orElseThrow(() -> new ClientException(ErrorCode.ORDER_NOT_FOUND));
 
         // 결제 완료인 경우 이력 저장 & 주문 정보 업데이트
-        if (paymentStatus == PaymentStatus.COMPLETED) {
+        if (paymentStatus.COMPLETED.equals(paymentStatus)) {
             PaymentMethod paymentMethod = PaymentMethod.of(request.getPayMethod());
+            LocalDateTime approvedAt = LocalDateTime.now();
 
             savePaymentHistory(
                     order,
@@ -49,11 +50,11 @@ public class PaymentService {
                     request.getImpUid(),
                     request.getMerchantUid(),
                     paymentMethod,
-                    LocalDateTime.now()
+                    approvedAt
             );
 
             // 채팅 주문인 경우 채팅방 생성 및 주문에 연결
-            if (order.getOrderType() == OrderType.CHAT) {
+            if (OrderType.CHAT.equals(order.getOrderType())) {
                 User user = order.getUser();
                 AuthUser authUser = AuthUser.of(user.getId(), user.getUserRole());
 
@@ -63,7 +64,7 @@ public class PaymentService {
             }
         }
         // 결제 실패 처리(주문/결제 상태를 실패로 변경)
-        else if (paymentStatus == PaymentStatus.FAILED) {
+        else if (paymentStatus.FAILED.equals(paymentStatus)) {
             order.updatePaymentStatus(PaymentStatus.FAILED);
             order.updateOrderStatus(OrderStatus.EXPIRED);
         }
@@ -80,7 +81,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public void savePaymentHistory(Order order, User user, String impUid, String merchantUid, PaymentMethod paymentMethod, LocalDateTime createdAt) {
+    public void savePaymentHistory(Order order, User user, String impUid, String merchantUid, PaymentMethod paymentMethod, LocalDateTime approvedAt) {
 
         // 결제 이력 저장
         PaymentHistory history = PaymentHistory.of(
@@ -90,12 +91,12 @@ public class PaymentService {
                 paymentMethod,
                 PaymentStatus.COMPLETED,
                 impUid,
-                createdAt
+                approvedAt
         );
         paymentHistoryRepository.save(history);
 
         // 주문 요약 정보 업데이트
-        order.updatePaymentSummary(impUid, merchantUid, paymentMethod, createdAt);
+        order.updatePaymentSummary(impUid, merchantUid, paymentMethod, approvedAt);
         order.updatePaymentStatus(PaymentStatus.COMPLETED);
         order.updateOrderStatus(OrderStatus.COMPLETED);
     }

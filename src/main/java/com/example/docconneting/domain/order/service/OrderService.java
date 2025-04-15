@@ -145,7 +145,7 @@ public class OrderService {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
-        Order order = orderRepository.findLatestCompletedChatOrder(user, OrderType.CHAT, OrderStatus.COMPLETED)
+        Order order = orderRepository.findLatestCompletedChatOrder(user.getId(), OrderType.CHAT.name(), OrderStatus.COMPLETED.name())
                 .orElseThrow(()-> new ClientException(ErrorCode.ORDER_NOT_FOUND));
 
         order.assignChattingRoomId(chattingRoomId);
