@@ -582,4 +582,161 @@ class ChattingRoomServiceTest {
         verify(chattingRoomRepository, times(0)).findPatientsChattingRooms(userId, pageable);
         verify(chattingRoomRepository, times(1)).findDoctorsChattingRooms(userId, pageable);
     }
+
+    @Test
+    @DisplayName("채팅방 비활성화시 존재하지 않는 채팅방일 때")
+    void deleteChattingRoomByIdNotFoundChattingRoomTest(){
+        // given
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        Long chattingRoomId = 1L;
+
+        given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.empty());
+
+        // when
+        ClientException clientException = assertThrows(ClientException.class, () -> chattingRoomService.deleteChattingRoomById(authUser, chattingRoomId));
+
+        // then
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.CHATTING_ROOM_NOT_FOUND);
+
+        verify(chattingRoomRepository, times(1)).findChattingRoomWithPatientAndDoctor(chattingRoomId);
+        verify(userRepository, times(0)).findByPatientId(userId);
+        verify(userRepository, times(0)).findByDoctorId(userId);
+    }
+
+    @Test
+    @DisplayName("채팅방 비활성화시 권한이 없는 환자일 때")
+    void deleteChattingRoomByIdInvalidPatientTest(){
+        // given
+        Long userId = 1L;
+        Long findUserId = 2L;
+        Long chattingRoomId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User findUser = new User();
+
+        User patient = new User();
+        ReflectionTestUtils.setField(patient, "id", findUserId);
+
+        ChattingRoom findChattingRoom = new ChattingRoom();
+        ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
+
+        given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
+
+        given(userRepository.findByPatientId(userId)).willReturn(Optional.of(findUser));
+
+        // when
+        ClientException clientException = assertThrows(ClientException.class, () -> chattingRoomService.deleteChattingRoomById(authUser, chattingRoomId));
+
+        // then
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
+
+        verify(chattingRoomRepository, times(1)).findChattingRoomWithPatientAndDoctor(chattingRoomId);
+        verify(userRepository, times(1)).findByPatientId(userId);
+        verify(userRepository, times(0)).findByDoctorId(userId);
+    }
+
+    @Test
+    @DisplayName("채팅방 비활성화시 권한이 없는 의사일 때")
+    void deleteChattingRoomByIdInvalidDoctorTest(){
+        // given
+        Long userId = 1L;
+        Long findUserId = 2L;
+        Long chattingRoomId = 1L;
+        UserRole userRole = UserRole.DOCTOR;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User findUser = new User();
+
+        User doctor = new User();
+        ReflectionTestUtils.setField(doctor, "id", findUserId);
+
+        ChattingRoom findChattingRoom = new ChattingRoom();
+        ReflectionTestUtils.setField(findChattingRoom, "doctor", doctor);
+
+        given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
+
+        given(userRepository.findByDoctorId(userId)).willReturn(Optional.of(findUser));
+
+        // when
+        ClientException clientException = assertThrows(ClientException.class, () -> chattingRoomService.deleteChattingRoomById(authUser, chattingRoomId));
+
+        // then
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
+
+        verify(chattingRoomRepository, times(1)).findChattingRoomWithPatientAndDoctor(chattingRoomId);
+        verify(userRepository, times(0)).findByPatientId(userId);
+        verify(userRepository, times(1)).findByDoctorId(userId);
+    }
+
+    @Test
+    @DisplayName("채팅방 비활성화시 이미 비활성화 된 채팅방일 때 테스트")
+    void deleteChattingRoomByIdNotActiveTest(){
+        // given
+        Long userId = 1L;
+        Long findUserId = 1L;
+        Long chattingRoomId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User findUser = new User();
+
+        User patient = new User();
+        ReflectionTestUtils.setField(patient, "id", findUserId);
+
+        ChattingRoom findChattingRoom = new ChattingRoom();
+        ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
+        ReflectionTestUtils.setField(findChattingRoom, "isActive", false);
+
+        given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
+
+        given(userRepository.findByPatientId(userId)).willReturn(Optional.of(findUser));
+
+        // when
+        ClientException clientException = assertThrows(ClientException.class, () -> chattingRoomService.deleteChattingRoomById(authUser, chattingRoomId));
+
+        // then
+        assertThat(clientException.getErrorCode()).isEqualTo(ErrorCode.INACTIVE_CHATTING_ROOM);
+
+        verify(chattingRoomRepository, times(1)).findChattingRoomWithPatientAndDoctor(chattingRoomId);
+        verify(userRepository, times(1)).findByPatientId(userId);
+        verify(userRepository, times(0)).findByDoctorId(userId);
+    }
+
+    @Test
+    @DisplayName("채팅방 비활성화시 성공 테스트")
+    void deleteChattingRoomByIdTest(){
+        // given
+        Long userId = 1L;
+        Long findUserId = 1L;
+        Long chattingRoomId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        User findUser = new User();
+
+        User patient = new User();
+        ReflectionTestUtils.setField(patient, "id", findUserId);
+
+        ChattingRoom findChattingRoom = new ChattingRoom();
+        ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
+        ReflectionTestUtils.setField(findChattingRoom, "isActive", true);
+
+        given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
+
+        given(userRepository.findByPatientId(userId)).willReturn(Optional.of(findUser));
+
+        // when
+        chattingRoomService.deleteChattingRoomById(authUser, chattingRoomId);
+
+        // then
+        assertThat(findChattingRoom.getIsActive()).isFalse();
+
+        verify(chattingRoomRepository, times(1)).findChattingRoomWithPatientAndDoctor(chattingRoomId);
+        verify(userRepository, times(1)).findByPatientId(userId);
+        verify(userRepository, times(0)).findByDoctorId(userId);
+    }
 }
