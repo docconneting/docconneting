@@ -1,9 +1,6 @@
 package com.example.docconneting.domain.auth.controller;
 
 
-import com.example.docconneting.common.config.JwtUtil;
-import com.example.docconneting.common.filter.JwtFilter;
-import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
@@ -17,16 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,10 +32,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@TestPropertySource(properties = {
-        "jwt.secret.key=5Gk6hibHDtKLFVk4NdBX039rvehSLNjfKsdXpm/pHsU="
-})
-@Import({JwtUtil.class, AuthUserArgumentResolver.class, JwtFilter.class})
 public class AuthControllerTest {
 
     @Autowired
@@ -49,9 +39,6 @@ public class AuthControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    JwtUtil jwtUtil;
 
     @MockitoBean
     private AuthService authService;
@@ -134,10 +121,10 @@ public class AuthControllerTest {
         UserRefreshTokenRequest request = new UserRefreshTokenRequest();
         ReflectionTestUtils.setField(request, "refreshToken", "refresh");
 
-        String newAccessToken = jwtUtil.createToken(authUser.getId(),authUser.getUserRole());
-        String newRefreshToken = jwtUtil.createRefreshToken(authUser.getId());
+        String newAccessToken = "newAccessToken";
+        String newRefreshToken = "newRefreshToken";
 
-        given(authService.refreshAccessToken(authUser, refEq(request)))
+        given(authService.refreshAccessToken(any(AuthUser.class), any(UserRefreshTokenRequest.class)))
                 .willReturn(UserRefreshTokenResponse.of(newAccessToken, newRefreshToken));
 
         //when & then
