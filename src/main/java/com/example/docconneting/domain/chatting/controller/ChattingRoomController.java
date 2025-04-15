@@ -8,6 +8,7 @@ import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateR
 import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
 import com.example.docconneting.domain.chatting.dto.response.ChattingRoomSingleResponse;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
+import com.example.docconneting.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,7 +16,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,5 +49,18 @@ public class ChattingRoomController {
         return ResponseEntity
                 .ok()
                 .body(Response.of(chattingRooms.getContent(), chattingRooms.getPageInfo()));
+    }
+
+    @DeleteMapping("/chattingRooms/{chattingRoomId}")
+    public ResponseEntity<Response<Map<String, String>>> deletedChattingRoomById(@Auth AuthUser authUser, @PathVariable Long chattingRoomId){
+
+        Map<String, String> message = new HashMap<>();
+        message.put("message", "채팅방이 성공적으로 비활성화 되었습니다.");
+
+        chattingRoomService.deleteChattingRoomById(authUser, chattingRoomId);
+
+        return ResponseEntity
+                .ok()
+                .body(Response.of(message));
     }
 }

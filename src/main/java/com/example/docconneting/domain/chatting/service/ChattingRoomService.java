@@ -161,4 +161,38 @@ public class ChattingRoomService {
         return new PageResult<>(chattingRoomListResponses, pageInfo);
 
     }
+
+    @Transactional
+    public void deleteChattingRoomById(AuthUser authUser, Long chattingRoomId){
+
+        ChattingRoom findChattingRoom = chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId).orElseThrow(() -> new ClientException(ErrorCode.CHATTING_ROOM_NOT_FOUND));
+
+        if (UserRole.PATIENT.equals(authUser.getUserRole())){
+
+            userRepository.findByPatientId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+
+            if (authUser.getId() != findChattingRoom.getPatient().getId()){
+                throw new ClientException(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
+            }
+
+        }
+        else if (UserRole.DOCTOR.equals(authUser.getUserRole())){
+
+            userRepository.findByDoctorId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
+
+            if (authUser.getId() != findChattingRoom.getDoctor().getId()){
+                throw new ClientException(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
+            }
+
+        }
+
+        if (!findChattingRoom.getIsActive()){
+
+            throw new ClientException(ErrorCode.INACTIVE_CHATTING_ROOM);
+
+        }
+
+        findChattingRoom.setIsActive(false);
+
+    }
 }
