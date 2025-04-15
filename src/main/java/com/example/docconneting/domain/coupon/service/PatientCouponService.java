@@ -9,7 +9,9 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
 import com.example.docconneting.domain.coupon.dto.response.PatientCouponResponse;
 import com.example.docconneting.domain.coupon.entity.Coupon;
+import com.example.docconneting.domain.coupon.entity.CouponHistory;
 import com.example.docconneting.domain.coupon.entity.PatientCoupon;
+import com.example.docconneting.domain.coupon.repository.CouponHistoryRepository;
 import com.example.docconneting.domain.coupon.repository.CouponRepository;
 import com.example.docconneting.domain.coupon.repository.PatientCouponRepository;
 import com.example.docconneting.domain.user.entity.User;
@@ -21,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class PatientCouponService {
     private final UserRepository userRepository;
     private final CouponRepository couponRepository;
     private final PatientCouponRepository patientCouponRepository;
+    private final CouponHistoryRepository couponHistoryRepository;
 
     // 검증 후 쿠폰 발급
     @Transactional
@@ -104,45 +106,34 @@ public class PatientCouponService {
         return new PageResult<>(patientCoupons, pageInfo);
     }
 
-    // 받은 쿠폰 사용
+    // 받은 쿠폰 사용 후 히스토리 저장
     @Transactional
-    public PatientCouponResponse useCoupon(AuthUser authUser, Long couponId) {
-
-        User user = userRepository.findByPatientId(authUser.getId()).orElseThrow(
-                () -> new ClientException(ErrorCode.USER_NOT_FOUND)
-        );
+    public void useCoupon(User user, Long couponId, Long postId) {
 
         PatientCoupon patientCoupon = patientCouponRepository.findByUserIdAndCouponId(user.getId(), couponId).orElseThrow(
                 () -> new ClientException(ErrorCode.COUPON_NOT_FOUND)
         );
 
         // 자기 쿠폰인지 확인
-        if (!patientCoupon.getUser().getId().equals(authUser.getId())) {
+        if (!patientCoupon.getUser().getId().equals(user.getId())) {
             throw new ClientException(ErrorCode.SELF_COUPON_ONLY);
         }
 
-        // 잔여 횟수 체크
-        if (patientCoupon.getAvailableCount() <= 0) {
+        // 사용가능 횟수가 0이면 예외처리
+        if (!patientCoupon.isAvailableCountValid()) {
             throw new ClientException(ErrorCode.NO_AVAILABLE_USAGE);
         }
 
         // 쿠폰 사용 기간 체크
-        if (LocalDateTime.now().isBefore(patientCoupon.getStartDate()) || LocalDateTime.now().isAfter(patientCoupon.getEndDate())) {
+        if (!patientCoupon.isValidPeriod()) {
             throw new ClientException(ErrorCode.INVALID_COUPON_PERIOD);
         }
 
-        // 쿠폰 이용횟수 차감
-        if (patientCoupon.getAvailableCount() <= 0) {
-            throw new ClientException(ErrorCode.COUPON_ALREADY_USED);
-        }
         patientCoupon.decreaseAvailableCount();
         patientCouponRepository.save(patientCoupon);
 
-        return PatientCouponResponse.of(
-                patientCoupon.getCoupon().getId(),
-                patientCoupon.getAvailableCount(),
-                patientCoupon.getStartDate(),
-                patientCoupon.getEndDate()
-        );
+        // 쿠폰 히스토리에 저장
+        couponHistoryRepository.save(CouponHistory.of(patientCoupon, postId));
     }
+
 }

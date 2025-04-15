@@ -44,13 +44,4 @@ public class PatientCouponController {
         return ResponseEntity.ok().body(Response.of(pageResult.getContent(), pageResult.getPageInfo()));
     }
 
-    // 쿠폰 사용
-    @PostMapping("/{couponId}/use")
-    public ResponseEntity<Response<PatientCouponResponse>> useCoupon(
-            @Auth AuthUser authUser,
-            @PathVariable(name = "couponId") Long couponId
-    ) {
-        PatientCouponResponse response = patientCouponService.useCoupon(authUser, couponId);
-        return ResponseEntity.ok(Response.of(response));
-    }
 }

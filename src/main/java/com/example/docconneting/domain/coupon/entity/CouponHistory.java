@@ -1,6 +1,7 @@
 package com.example.docconneting.domain.coupon.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,5 +32,9 @@ public class CouponHistory {
     private CouponHistory(PatientCoupon patientCoupon, Long postId) {
         this.patientCoupon = patientCoupon;
         this.postId = postId;
+    }
+
+    public static CouponHistory of(PatientCoupon patientCoupon, Long postId) {
+        return new CouponHistory(patientCoupon, postId);
     }
 }

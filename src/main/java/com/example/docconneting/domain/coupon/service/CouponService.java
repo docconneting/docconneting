@@ -18,11 +18,11 @@ import java.time.LocalDateTime;
 public class CouponService {
 
     private final CouponRepository couponRepository;
+
     // 쿠폰 만료기간은 생성 시점부터 7일
     private static final int COUPON_VALID_DAYS = 7;
     // 한 쿠폰 당 이용 가능 횟수.
     private static final int DEFAULT_AVAILABLE_COUNT = 5;
-
 
     // 쿠폰 생성
     public CreateCouponResponse createCoupon(AuthUser authUser, CreateCouponRequest request) {

@@ -2,6 +2,7 @@ package com.example.docconneting.domain.coupon.entity;
 
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -48,8 +49,19 @@ public class PatientCoupon {
         return new PatientCoupon(user, coupon, availableCount, startDate, endDate);
     }
 
-    // 사용가능횟수 0이상일 때만 사용가능, 사용 후 0 되면 USED로 상태 변경
+    // 사용가능횟수 0이상일 때만 사용가능
     public void decreaseAvailableCount() {
         this.availableCount--;
     }
+
+    // 횟수 1 이상이면 true
+    public boolean isAvailableCountValid() {
+        return availableCount > 0;
+    }
+
+    // 쿠폰 사용 가능하면 true
+    public boolean isValidPeriod() {
+        return endDate.isAfter(LocalDateTime.now());
+    }
+
 }
