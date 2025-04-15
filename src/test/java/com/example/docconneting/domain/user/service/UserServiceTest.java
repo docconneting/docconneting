@@ -41,7 +41,6 @@ public class UserServiceTest {
     @Mock
     private S3Service s3Service;
 
-
     @InjectMocks
     private UserService userService;
 
