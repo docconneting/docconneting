@@ -40,10 +40,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -179,5 +177,27 @@ class ChattingRoomControllerTest {
         verify(chattingRoomService, times(1)).findAllChattingRooms(refEq(authUser), argThat(
                 p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize()
         ));
+    }
+
+    @Test
+    @DisplayName("채팅방 비활성화 api 테스트")
+    void deletedChattingRoomByIdTest() throws Exception {
+        // given
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+        Long chattingRoomId = 1L;
+
+        String accessToken = jwtUtil.createToken(userId, userRole);
+
+        doNothing().when(chattingRoomService).deleteChattingRoomById(refEq(authUser), eq(chattingRoomId));
+
+        // when, then
+        mockMvc.perform(delete("/api/v1/chattingRooms/{chattingRoomId}", chattingRoomId)
+                        .header("Authorization", accessToken))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.data.message").value("채팅방이 성공적으로 비활성화 되었습니다."));
+
+        verify(chattingRoomService).deleteChattingRoomById(refEq(authUser), eq(chattingRoomId));
     }
 }
