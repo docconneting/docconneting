@@ -7,6 +7,7 @@ import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class) // 생성일 자동 저장 리스너
 public class Order {
 

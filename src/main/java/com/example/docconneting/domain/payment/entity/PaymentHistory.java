@@ -5,6 +5,7 @@ import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "payment_histories")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class PaymentHistory {
     @Id
