@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/coupons")
 public class AdminCouponController {
 
-    private CouponService couponService;
-
+    private final CouponService couponService;
 
     // 운영자가 쿠폰 생성
     @PostMapping
@@ -30,6 +29,4 @@ public class AdminCouponController {
         CreateCouponResponse createCouponResponse = couponService.createCoupon(authUser, request);
         return ResponseEntity.ok(Response.of(createCouponResponse));
     }
-
-
 }

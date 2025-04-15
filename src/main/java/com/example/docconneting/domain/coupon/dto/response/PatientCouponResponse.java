@@ -1,10 +1,11 @@
 package com.example.docconneting.domain.coupon.dto.response;
 
-import com.example.docconneting.domain.coupon.entity.Coupon;
-import com.example.docconneting.domain.coupon.enums.CouponStatus;
+import com.example.docconneting.domain.coupon.entity.PatientCoupon;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class PatientCouponResponse {
@@ -13,17 +14,26 @@ public class PatientCouponResponse {
     private final Integer availableCount;
     private final LocalDateTime startDate;
     private final LocalDateTime endDate;
-    private final CouponStatus status;
 
-    private PatientCouponResponse(Long couponId, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate, CouponStatus status) {
+    private PatientCouponResponse(Long couponId, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate) {
         this.couponId = couponId;
         this.availableCount = availableCount;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.status = status;
     }
 
-    public static PatientCouponResponse of(Long couponId, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate, CouponStatus status) {
-        return new PatientCouponResponse(couponId, availableCount, startDate, endDate, status);
+    public static PatientCouponResponse of(Long couponId, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate) {
+        return new PatientCouponResponse(couponId, availableCount, startDate, endDate);
+    }
+
+    public static List<PatientCouponResponse> toPatientCouponResponses(List<PatientCoupon> patientCoupons) {
+        return patientCoupons.stream().map(patientCoupon ->
+                        new PatientCouponResponse(
+                                patientCoupon.getCoupon().getId(),
+                                patientCoupon.getAvailableCount(),
+                                patientCoupon.getStartDate(),
+                                patientCoupon.getEndDate())
+                )
+                .collect(Collectors.toList());
     }
 }

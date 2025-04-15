@@ -1,6 +1,5 @@
 package com.example.docconneting.domain.coupon.dto.response;
 
-import com.example.docconneting.domain.coupon.entity.Coupon;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

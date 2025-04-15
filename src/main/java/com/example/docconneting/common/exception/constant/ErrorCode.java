@@ -119,6 +119,7 @@ public enum ErrorCode {
     COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "사용 완료된 쿠폰입니다."),
     NO_AVAILABLE_USAGE(HttpStatus.BAD_REQUEST, "사용 가능한 횟수가 없습니다."),
     INVALID_COUPON_PERIOD(HttpStatus.BAD_REQUEST, "쿠폰 사용 기간이 아닙니다."),
+    EXPIRED_COUPON(HttpStatus.BAD_REQUEST, "만료된 쿠폰은 발급할 수 없습니다."),
 
 
     // 403

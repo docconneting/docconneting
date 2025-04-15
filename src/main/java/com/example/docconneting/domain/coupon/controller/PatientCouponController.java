@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.coupon.controller;
 
+import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
@@ -8,6 +9,8 @@ import com.example.docconneting.domain.coupon.dto.response.PatientCouponResponse
 import com.example.docconneting.domain.coupon.service.DistributedCouponService;
 import com.example.docconneting.domain.coupon.service.PatientCouponService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,20 +36,21 @@ public class PatientCouponController {
 
     // 쿠폰 목록 조회
     @GetMapping
-    public ResponseEntity<Response<List<PatientCouponResponse>>> getUserCoupons(
+    public ResponseEntity<Response<List<PatientCouponResponse>>> findAllUserCoupons(
+            @PageableDefault Pageable pageable,
             @Auth AuthUser authUser
     ) {
-        List<PatientCouponResponse> responses = patientCouponService.getUserCoupons(authUser);
-        return ResponseEntity.ok(Response.of(responses));
+        PageResult<PatientCouponResponse> pageResult = patientCouponService.findAllUserCoupons(pageable, authUser);
+        return ResponseEntity.ok().body(Response.of(pageResult.getContent(), pageResult.getPageInfo()));
     }
 
     // 쿠폰 사용
-    @PostMapping("/{userCouponId}/use")
+    @PostMapping("/{couponId}/use")
     public ResponseEntity<Response<PatientCouponResponse>> useCoupon(
             @Auth AuthUser authUser,
-            @PathVariable(name = "userCouponId") Long userCouponId
+            @PathVariable(name = "couponId") Long couponId
     ) {
-        PatientCouponResponse response = patientCouponService.useCoupon(authUser, userCouponId);
+        PatientCouponResponse response = patientCouponService.useCoupon(authUser, couponId);
         return ResponseEntity.ok(Response.of(response));
     }
 }
