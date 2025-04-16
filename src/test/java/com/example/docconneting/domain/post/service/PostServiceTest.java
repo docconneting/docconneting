@@ -70,7 +70,7 @@ class PostServiceTest {
         // given
         Long postId = 1L;
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", true);
 
         given(postRepository.findByIdWithUser(postId)).willReturn(Optional.of(post));
@@ -90,10 +90,10 @@ class PostServiceTest {
         // given
         Long postId = 1L;
 
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(user, "username", "username");
 
-        Post savedPost = new Post();
+        Post savedPost = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(savedPost, "id", postId);
         ReflectionTestUtils.setField(savedPost, "patient", user);
         ReflectionTestUtils.setField(savedPost, "title", "title");
@@ -134,7 +134,7 @@ class PostServiceTest {
         UserRole userRole = UserRole.ADMIN;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", false);
 
         // when, then
@@ -175,10 +175,10 @@ class PostServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User user = new User();
+        User user = User.of(null, null, null , null, null, null);
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", false);
         ReflectionTestUtils.setField(post, "patient", user);
 
@@ -202,10 +202,10 @@ class PostServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User user = new User();
+        User user = User.of(null, null, null , null, null, null);
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", false);
         ReflectionTestUtils.setField(post, "patient", user);
 
@@ -273,7 +273,7 @@ class PostServiceTest {
 
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", true);
 
         PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
@@ -300,10 +300,10 @@ class PostServiceTest {
 
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", false);
         ReflectionTestUtils.setField(post, "patient", user);
 
@@ -331,10 +331,10 @@ class PostServiceTest {
 
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", false);
         ReflectionTestUtils.setField(post, "id", postId);
         ReflectionTestUtils.setField(post, "patient", user);
@@ -371,7 +371,7 @@ class PostServiceTest {
     @DisplayName("서비스에서 게시물 리스트 조회")
     void findAllPostsTest(){
         // given
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(user, "username", "testName");
 
         Pageable pageable = PageRequest.of(0, 10);
