@@ -121,7 +121,6 @@ public enum ErrorCode {
     INVALID_COUPON_PERIOD(HttpStatus.BAD_REQUEST, "쿠폰 사용 기간이 아닙니다."),
     EXPIRED_COUPON(HttpStatus.BAD_REQUEST, "만료된 쿠폰은 발급할 수 없습니다."),
 
-
     // 403
     SELF_COUPON_ONLY(HttpStatus.FORBIDDEN, "자기 쿠폰만 사용할 수 있습니다."),
     FORBIDDEN_PATIENT_ONLY(HttpStatus.FORBIDDEN, "환자만 쿠폰 발급을 할 수 있습니다."),
@@ -134,7 +133,11 @@ public enum ErrorCode {
     LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "다른 요청이 락을 먼저 획득했습니다."),
 
     // 500
-    LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득 중 인터럽트가 발생했습니다.");
+    LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득 중 인터럽트가 발생했습니다."),
+    // 알람 에러코드
+
+    // 429
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많아 더 이상 요청을 처리할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

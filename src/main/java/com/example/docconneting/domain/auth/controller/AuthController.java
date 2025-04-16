@@ -1,6 +1,7 @@
 package com.example.docconneting.domain.auth.controller;
 
 import com.example.docconneting.common.response.Response;
+import com.example.docconneting.domain.alarm.service.AlarmService;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final AlarmService alarmService;
 
     //회원가입
     @PostMapping("/signup")
@@ -42,7 +44,7 @@ public class AuthController {
             @Valid @RequestBody UserSignInRequest requestDto
     ) {
         UserSignInResponse response = authService.signIn(requestDto);
-
+        alarmService.saveFcmToken(requestDto);
         return ResponseEntity.ok(Response.of(response));
     }
 
