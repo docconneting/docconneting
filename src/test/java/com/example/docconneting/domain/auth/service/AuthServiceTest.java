@@ -95,7 +95,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void 의사_회원가입() throws IOException {
+    public void 의사_회원가입() throws Exception {
         //given
         Long userId = 1L;
         String stringImage = "www.doctor.image";
