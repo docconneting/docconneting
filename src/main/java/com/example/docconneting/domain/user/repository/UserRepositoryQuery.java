@@ -7,4 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserRepositoryQuery {
     Page<User> findDoctors(Pageable pageable, String category, String name);
+
 }

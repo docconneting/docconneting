@@ -114,7 +114,12 @@ public enum ErrorCode {
 
     // 404
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
-    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다.");
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문상품입니다."),
+
+    // 알람 에러코드
+
+    // 429
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많아 더 이상 요청을 처리할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

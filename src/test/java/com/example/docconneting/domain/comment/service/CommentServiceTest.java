@@ -79,7 +79,7 @@ class CommentServiceTest {
 
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        post = new Post();
+        post = Post.of(null, null, null, null, null, null, null, null);
         Field postIdField = Post.class.getDeclaredField("id");
         ReflectionTestUtils.setField(post, "id", 1L);
     }
@@ -277,7 +277,7 @@ class CommentServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", true);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
@@ -302,13 +302,13 @@ class CommentServiceTest {
 
         List<Comment> content = new ArrayList<>();
         for(int i=0;i<50;i++){
-            Comment comment = new Comment();
+            Comment comment = Comment.of(null, null, null);
             content.add(comment);
         }
 
         Page<Comment> page = new PageImpl<>(content, pageable, content.size());
 
-        Post post = new Post();
+        Post post = Post.of(null, null, null, null, null, null, null, null);
         ReflectionTestUtils.setField(post, "isDeleted", false);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
