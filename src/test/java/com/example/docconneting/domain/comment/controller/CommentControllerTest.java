@@ -121,7 +121,7 @@ class CommentControllerTest {
 
         List<Comment> comments = new ArrayList<>();
         for(int i = 0; i < 50; i++){
-            Comment comment = new Comment();
+            Comment comment = Comment.of(null, null, null);
             comments.add(comment);
         }
 

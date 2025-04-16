@@ -244,11 +244,7 @@ public class AuthServiceTest {
     @Test
     public void 로그인() {
         //given
-        User user = new User();
-        ReflectionTestUtils.setField(user, "email", "test@test.com");
-        ReflectionTestUtils.setField(user, "password", "test");
-        ReflectionTestUtils.setField(user, "username", "testpatient");
-        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         UserSignInRequest request = new UserSignInRequest();
@@ -287,11 +283,8 @@ public class AuthServiceTest {
     @Test
     public void 로그인_비밀번호가_일치하지_않음() {
         //given
-        User user = new User();
-        ReflectionTestUtils.setField(user, "email", "test@test.com");
-        ReflectionTestUtils.setField(user, "password", "test");
-        ReflectionTestUtils.setField(user, "username", "testpatient");
-        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         UserSignInRequest request = new UserSignInRequest();
@@ -310,11 +303,8 @@ public class AuthServiceTest {
     @Test
     public void 토큰_재발급() {
         //given
-        User user = new User();
-        ReflectionTestUtils.setField(user, "email", "test@test.com");
-        ReflectionTestUtils.setField(user, "password", "test");
-        ReflectionTestUtils.setField(user, "username", "testpatient");
-        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         AuthUser authUser;
@@ -346,11 +336,8 @@ public class AuthServiceTest {
     @Test
     public void 재발급_리프레시_토큰_만료() {
         //given
-        User user = new User();
-        ReflectionTestUtils.setField(user, "email", "test@test.com");
-        ReflectionTestUtils.setField(user, "password", "test");
-        ReflectionTestUtils.setField(user, "username", "testpatient");
-        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         AuthUser authUser;
@@ -367,7 +354,7 @@ public class AuthServiceTest {
         given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
 
         //when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser,request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser, request));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.EXPIRED_REFRESH_TOKEN);
 
     }
@@ -375,11 +362,8 @@ public class AuthServiceTest {
     @Test
     public void 재발급_리프레시_토큰_불일치() {
         //given
-        User user = new User();
-        ReflectionTestUtils.setField(user, "email", "test@test.com");
-        ReflectionTestUtils.setField(user, "password", "test");
-        ReflectionTestUtils.setField(user, "username", "testpatient");
-        ReflectionTestUtils.setField(user, "userRole", UserRole.PATIENT);
+        User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         AuthUser authUser;
@@ -399,7 +383,7 @@ public class AuthServiceTest {
         given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
 
         //when && then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser,request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser, request));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
