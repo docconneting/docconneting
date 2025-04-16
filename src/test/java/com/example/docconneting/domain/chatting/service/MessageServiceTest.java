@@ -88,7 +88,7 @@ class MessageServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
 
         given(chattingRoomRepository.findById(userId)).willReturn(Optional.of(chattingRoom));
 
@@ -118,7 +118,7 @@ class MessageServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
 
         given(chattingRoomRepository.findById(userId)).willReturn(Optional.of(chattingRoom));
 
@@ -149,12 +149,12 @@ class MessageServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(chattingRoom, "patient", patient);
 
         given(chattingRoomRepository.findById(userId)).willReturn(Optional.of(chattingRoom));
@@ -186,12 +186,12 @@ class MessageServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", findUserId);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(chattingRoom, "doctor", doctor);
 
         given(chattingRoomRepository.findById(userId)).willReturn(Optional.of(chattingRoom));
@@ -223,12 +223,12 @@ class MessageServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(chattingRoom, "patient", patient);
         ReflectionTestUtils.setField(chattingRoom, "isActive", false);
 
@@ -261,18 +261,18 @@ class MessageServiceTest {
 
         Pageable pageable = PageRequest.of(0,10);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(chattingRoom, "patient", patient);
         ReflectionTestUtils.setField(chattingRoom, "isActive", true);
 
         List<Message> content = new ArrayList<>();
         for(int i=0;i<10;i++){
-            Message message = new Message();
+            Message message = Message.of(null, null, null);
             ReflectionTestUtils.setField(message, "user", patient);
             content.add(message);
         }
