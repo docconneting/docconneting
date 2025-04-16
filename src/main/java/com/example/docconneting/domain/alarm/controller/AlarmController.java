@@ -23,7 +23,7 @@ public class AlarmController {
 
     private final AlarmService alarmService;
 
-    @GetMapping("")
+    @GetMapping()
     public ResponseEntity<Response<List<AlarmResponse>>> findAlarmHistories(@Auth AuthUser authUser, @PageableDefault Pageable pageable) {
         PageResult<AlarmResponse> pageResult = alarmService.findAlarms(authUser, pageable);
         return ResponseEntity.ok().body(Response.of(pageResult.getContent(), pageResult.getPageInfo()));
