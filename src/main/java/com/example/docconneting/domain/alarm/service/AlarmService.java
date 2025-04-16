@@ -43,16 +43,17 @@ public class AlarmService {
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         String fcmToken = requestDto.getFcmToken();
-        boolean isTokenPresent = userRepository.existsByFcmToken(fcmToken);
+        Long isTokenPresent = userRepository.existsByFcmToken(user.getId());
+        boolean exist = isTokenPresent > 0 ? true : false;
 
         // fcm 토큰이 존재하지 않는다면 토큰과 알람 수락 권한 저장
         // TODO : 개발이 다 완료되면 마무리 할 때, 프론트에서 권한까지 같이 전송하는걸로 수정
-        if (!isTokenPresent) {
+        if (!exist) {
             user.updateAlarmInfo(requestDto.getFcmToken(), true);
         }
 
         // 기존에 가지고 있던 fcm 토큰과 클라이언트로부터 받은 fcm 토큰이 다르다면 fcm 토큰을 업데이트
-        if (isTokenPresent && !user.getFcmToken().equals(fcmToken)){
+        if (exist && !user.getFcmToken().equals(fcmToken)){
             user.updateFcmToken(requestDto.getFcmToken());
         }
     }

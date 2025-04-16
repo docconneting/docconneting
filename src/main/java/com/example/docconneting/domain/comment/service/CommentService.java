@@ -52,8 +52,6 @@ public class CommentService {
 
         Comment saved = commentRepository.save(comment);
 
-        alarmService.sendCommentCompletedMessage(post.getPatient());
-
         CommentResponse response = CommentResponse.of(
                 comment.getId(),
                 comment.getContents(),
