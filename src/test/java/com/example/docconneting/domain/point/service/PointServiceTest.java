@@ -37,7 +37,7 @@ class PointServiceTest {
         long userId = 1L;
         int point = 1000;
 
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(user, "id", userId);
         ReflectionTestUtils.setField(user, "point", point);
 
