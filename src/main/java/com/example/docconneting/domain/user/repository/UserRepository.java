@@ -18,7 +18,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     Optional<User> findByEmail(String email);
 
-    boolean existsByFcmToken(String fcmToken);
+    @Query("SELECT COUNT(u) FROM User u " +
+            "WHERE u.id = :userId " +
+            "AND u.fcmToken IS NOT NULL")
+    Long existsByFcmToken(Long userId);
 
     @Query("SELECT u FROM User u " +
             "WHERE u.major = :major " +
