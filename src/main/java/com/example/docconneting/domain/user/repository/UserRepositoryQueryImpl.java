@@ -2,6 +2,7 @@ package com.example.docconneting.domain.user.repository;
 
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,7 +25,7 @@ public class UserRepositoryQueryImpl implements UserRepositoryQuery{
         List<User> users = jpaQueryFactory
                     .select(user)
                     .from(user)
-                    .where(categoryEq(category), isDeletedEq(), nameEq(name))
+                    .where(categoryEq(category), isDoctorEq(), isDeletedEq(), nameEq(name))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize())
                     .fetch();
@@ -32,13 +33,17 @@ public class UserRepositoryQueryImpl implements UserRepositoryQuery{
         JPAQuery<Long> countQuery = jpaQueryFactory
                     .select(user.count())
                     .from(user)
-                    .where(categoryEq(category), isDeletedEq(), nameEq(name));
+                    .where(categoryEq(category), isDoctorEq(), isDeletedEq(), nameEq(name));
 
         return PageableExecutionUtils.getPage(users, pageable, countQuery::fetchOne);
     }
 
     BooleanExpression isDeletedEq() {
         return user.isDeleted.eq(Boolean.FALSE);
+    }
+
+    BooleanExpression isDoctorEq() {
+        return user.userRole.eq(UserRole.DOCTOR);
     }
 
     BooleanExpression categoryEq(String category) {

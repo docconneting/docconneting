@@ -4,6 +4,7 @@ import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.user.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +16,7 @@ import java.time.LocalTime;
                 @Index(name = "idx_major_is_deleted", columnList = "major, isDeleted")}
 )
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +43,11 @@ public class User extends BaseEntity {
     private UserRole userRole;
 
     private Boolean isDeleted;
+
+    private String fcmToken;
+
+    private Boolean isAlarmEnabled;
+
 
     // 환자 생성자
     private User(String email, String password, String username, Integer point, Boolean isDeleted, UserRole userRole) {
@@ -84,6 +90,17 @@ public class User extends BaseEntity {
     //의사 이미지 setter
     public void updateImage(String newImage) {
         this.image = newImage;
+    }
+
+    // fcm 토큰을 업데이트하는 메서드
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    // 알람 권한을 업데이트하는 메서드
+    public void updateAlarmInfo(String fcmToken, Boolean isAlarmEnabled) {
+        this.fcmToken = fcmToken;
+        this.isAlarmEnabled = isAlarmEnabled;
     }
 
 }
