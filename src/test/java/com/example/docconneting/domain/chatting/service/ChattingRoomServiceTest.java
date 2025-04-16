@@ -94,7 +94,7 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
 
         given(userRepository.findByPatientId(userId)).willReturn(Optional.of(user));
         given(userRepository.findByDoctorId(doctorId)).willReturn(Optional.empty());
@@ -117,12 +117,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", userId);
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", doctorId);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(chattingRoom, "isActive", true);
 
         given(userRepository.findByPatientId(userId)).willReturn(Optional.of(patient));
@@ -150,12 +150,12 @@ class ChattingRoomServiceTest {
         AuthUser authUser = AuthUser.of(userId, userRole);
         LocalDateTime createdAt = LocalDateTime.now();
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", userId);
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", doctorId);
 
-        ChattingRoom chattingRoom = new ChattingRoom();
+        ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(chattingRoom, "id", chattingRoomId);
         ReflectionTestUtils.setField(chattingRoom, "isActive", false);
         ReflectionTestUtils.setField(chattingRoom, "createdAt", createdAt);
@@ -191,13 +191,13 @@ class ChattingRoomServiceTest {
         AuthUser authUser = AuthUser.of(userId, userRole);
         LocalDateTime createdAt = LocalDateTime.now();
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", userId);
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", doctorId);
 
         ChattingRoom chattingRoom = ChattingRoom.of(doctor, patient, true);
-        ChattingRoom savedChattingRoom = new ChattingRoom();
+        ChattingRoom savedChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(savedChattingRoom, "id", chattingRoomId);
         ReflectionTestUtils.setField(savedChattingRoom, "createdAt", createdAt);
 
@@ -254,7 +254,7 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
 
         given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
 
@@ -281,12 +281,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
 
         given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
@@ -313,7 +313,7 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.DOCTOR;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
 
         given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
 
@@ -340,12 +340,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.DOCTOR;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User findUser = new User();
+        User findUser =  User.of(null, null, null, null, null, null);
 
-        User doctor = new User();
+        User doctor =  User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", findUserId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "doctor", doctor);
 
         given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
@@ -373,12 +373,12 @@ class ChattingRoomServiceTest {
         AuthUser authUser = AuthUser.of(userId, userRole);
         Boolean isActive = false;
 
-        User findUser = new User();
+        User findUser =  User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient =  User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", userId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
         ReflectionTestUtils.setField(findChattingRoom, "isActive", isActive);
 
@@ -409,12 +409,12 @@ class ChattingRoomServiceTest {
         Boolean isActive = true;
         LocalDateTime createdAt = LocalDateTime.now();
 
-        User findUser = new User();
+        User findUser =  User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient =  User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", userId);
 
-        User doctor = new User();
+        User doctor =  User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", doctorId);
 
         ChattingRoom findChattingRoom = ChattingRoom.of(doctor, patient, isActive);
@@ -496,16 +496,16 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
 
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", doctorId);
 
         Pageable pageable = PageRequest.of(0, 10);
 
         List<ChattingRoom> content = new ArrayList<>();
         for(int i=0;i<10;i++){
-            ChattingRoom chattingRoom = new ChattingRoom();
+            ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
             ReflectionTestUtils.setField(chattingRoom, "doctor", doctor);
             content.add(chattingRoom);
         }
@@ -544,16 +544,16 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.DOCTOR;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", patientId);
 
         Pageable pageable = PageRequest.of(0, 10);
 
         List<ChattingRoom> content = new ArrayList<>();
         for(int i=0;i<10;i++){
-            ChattingRoom chattingRoom = new ChattingRoom();
+            ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
             ReflectionTestUtils.setField(chattingRoom, "patient", patient);
             content.add(chattingRoom);
         }
@@ -616,12 +616,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
 
         given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
@@ -649,12 +649,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.DOCTOR;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", findUserId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "doctor", doctor);
 
         given(chattingRoomRepository.findChattingRoomWithPatientAndDoctor(chattingRoomId)).willReturn(Optional.of(findChattingRoom));
@@ -682,12 +682,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
         ReflectionTestUtils.setField(findChattingRoom, "isActive", false);
 
@@ -716,12 +716,12 @@ class ChattingRoomServiceTest {
         UserRole userRole = UserRole.PATIENT;
         AuthUser authUser = AuthUser.of(userId, userRole);
 
-        User findUser = new User();
+        User findUser = User.of(null, null, null, null, null, null);
 
-        User patient = new User();
+        User patient = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(patient, "id", findUserId);
 
-        ChattingRoom findChattingRoom = new ChattingRoom();
+        ChattingRoom findChattingRoom = ChattingRoom.of(null, null, null);
         ReflectionTestUtils.setField(findChattingRoom, "patient", patient);
         ReflectionTestUtils.setField(findChattingRoom, "isActive", true);
 

@@ -63,12 +63,12 @@ class MessageControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        User messageUser = new User();
+        User messageUser = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(messageUser, "id", 1L);
 
         List<Message> messages = new ArrayList<>();
         for(int i=0;i<10;i++){
-            Message message = new Message();
+            Message message = Message.of(null, null, null);
             ReflectionTestUtils.setField(message, "user", messageUser);
             messages.add(message);
         }
