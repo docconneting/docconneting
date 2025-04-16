@@ -49,7 +49,7 @@ public class UserControllerTest {
 
     @MockitoBean
     private AuthUserArgumentResolver authUserArgumentResolver;
-    
+
     @MockitoBean
     private S3Service s3Service;
 

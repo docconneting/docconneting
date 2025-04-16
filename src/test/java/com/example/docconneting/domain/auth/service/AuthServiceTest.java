@@ -244,7 +244,7 @@ public class AuthServiceTest {
     @Test
     public void 로그인() {
         //given
-        User user = User.of("test@test.com","test","testpatient",0,false,UserRole.PATIENT);
+        User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         UserSignInRequest request = new UserSignInRequest();
@@ -351,7 +351,7 @@ public class AuthServiceTest {
         given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
 
         //when & then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser,request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser, request));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.EXPIRED_REFRESH_TOKEN);
 
     }
@@ -379,7 +379,7 @@ public class AuthServiceTest {
         given(refreshTokenService.getRefreshTokenTTL(1L)).willReturn(ttl);
 
         //when && then
-        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser,request));
+        ClientException exception = assertThrows(ClientException.class, () -> authService.refreshAccessToken(authUser, request));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
