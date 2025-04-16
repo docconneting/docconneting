@@ -135,14 +135,14 @@ class ChattingRoomControllerTest {
         AuthUser authUser = AuthUser.of(userId, userRole);
         LocalDateTime createdAt = LocalDateTime.now();
 
-        User doctor = new User();
+        User doctor = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(doctor, "id", doctorId);
 
         Pageable pageable = PageRequest.of(0, 10);
 
         List<ChattingRoom> chattingRooms = new ArrayList<>();
         for(int i=0;i<10;i++){
-            ChattingRoom chattingRoom = new ChattingRoom();
+            ChattingRoom chattingRoom = ChattingRoom.of(null, null, null);
             ReflectionTestUtils.setField(chattingRoom, "doctor", doctor);
             chattingRooms.add(chattingRoom);
         }
