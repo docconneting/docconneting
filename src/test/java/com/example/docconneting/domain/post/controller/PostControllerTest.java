@@ -156,7 +156,7 @@ class PostControllerTest {
     @DisplayName("컨트롤러에서 게시물 리스트 조회")
     void findAllPostsTest() throws Exception {
         // given
-        User user = new User();
+        User user = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(user, "username", "testName");
 
         Pageable pageable = PageRequest.of(0, 10);
