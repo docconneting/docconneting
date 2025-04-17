@@ -109,6 +109,13 @@ public class PaymentController {
             @RequestBody PaymentVerificationRequest request
     ) throws IamportResponseException, IOException {
         Payment payment = portOneService.getPayment(request.getImpUid());
+        int paidAmount = payment.getAmount().intValue();
+
+        int expectedAmount = request.getOrderRequest().getPrice();
+
+        if (paidAmount != expectedAmount) {
+            throw new ClientException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
 
         if (!"paid".equals(payment.getStatus())) {
             throw new ClientException(ErrorCode.PAYMENT_NOT_COMPLETED);
