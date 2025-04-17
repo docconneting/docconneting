@@ -50,6 +50,11 @@ public class OrderService {
         };
     }
 
+    public Order findByMerchantUidOrThrow(String merchantUid) {
+        return orderRepository.findByMerchantUid(merchantUid)
+                .orElseThrow(() -> new ClientException(ErrorCode.ORDER_NOT_FOUND));
+    }
+
     @Transactional(readOnly = true)
     public OrderResponse findOrderById(AuthUser authUser, Long orderId) {
         User user = userRepository.findById(authUser.getId())

@@ -21,5 +21,3 @@ public class PortOneService {
         return iamportClient.paymentByImpUid(impUid).getResponse();
     }
 }
-
-
