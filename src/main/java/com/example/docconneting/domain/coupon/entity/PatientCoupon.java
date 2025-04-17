@@ -30,16 +30,38 @@ public class PatientCoupon {
 
     private Integer availableCount;
 
+    private LocalDateTime startDate;
     private LocalDateTime endDate;
 
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    private PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime endDate) {
+    private PatientCoupon(User user, Coupon coupon, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate) {
         this.user = user;
         this.coupon = coupon;
         this.availableCount = availableCount;
+        this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public static PatientCoupon of(User user, Coupon coupon, Integer availableCount, LocalDateTime startDate, LocalDateTime endDate) {
+        return new PatientCoupon(user, coupon, availableCount, startDate, endDate);
+    }
+
+    // 사용가능횟수 0이상일 때만 사용가능
+    public void decreaseAvailableCount() {
+        this.availableCount--;
+    }
+
+    // 횟수 1 이상이면 true
+    public boolean isAvailableCountValid() {
+        return availableCount > 0;
+    }
+
+    // 쿠폰 사용 가능하면 true
+    public boolean isValidPeriod() {
+        return endDate.isAfter(LocalDateTime.now());
+    }
+
 }
