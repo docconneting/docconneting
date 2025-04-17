@@ -32,14 +32,17 @@ public class PaymentHistory {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @Column(nullable = false)
     private Integer price;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
-    private String paymentKey; // 포트원 imp_uid
+    @Column(name = "imp_uid")
+    private String impUid;
 
     private LocalDateTime approvedAt;
 
@@ -47,19 +50,19 @@ public class PaymentHistory {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    private PaymentHistory(User user, Order order, Integer price, PaymentMethod paymentMethod,PaymentStatus paymentStatus, String paymentKey, LocalDateTime approvedAt) {
+    private PaymentHistory(User user, Order order, Integer price, PaymentMethod paymentMethod,PaymentStatus paymentStatus, String impUid, LocalDateTime approvedAt) {
         this.user = user;
         this.order = order;
         this.price = price;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
-        this.paymentKey = paymentKey;
+        this.impUid = impUid;
         this.approvedAt = approvedAt;
     }
 
     public static PaymentHistory of(User user, Order order, Integer price,
                                     PaymentMethod paymentMethod, PaymentStatus paymentStatus,
-                                    String paymentKey, LocalDateTime approvedAt) {
-        return new PaymentHistory(user, order, price, paymentMethod, paymentStatus, paymentKey, approvedAt);
+                                    String impUid, LocalDateTime approvedAt) {
+        return new PaymentHistory(user, order, price, paymentMethod, paymentStatus, impUid, approvedAt);
     }
 }

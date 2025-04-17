@@ -14,7 +14,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -64,48 +63,31 @@ public class Order {
 
     private Long doctorId;
 
-    // PG 연동용 merchantUid 자동 생성
-    private String generateMerchantUid() {
-        return "order_" + UUID.randomUUID();
-    }
-
-    private Order(User user, OrderType orderType, OrderStatus orderStatus,
-                  Integer price, Long chattingRoomId, OrderProduct orderProduct, Long doctorId) {
+    private Order(User user, OrderType orderType, Integer price, OrderProduct orderProduct, Long doctorId, String merchantUid) {
         this.user = user;
         this.orderType = orderType;
-        this.orderStatus = orderStatus;
         this.price = price;
-        this.chattingRoomId = chattingRoomId;
         this.orderProduct = orderProduct;
         this.doctorId = doctorId;
-        this.merchantUid = generateMerchantUid();
+        this.merchantUid = merchantUid;
+        this.orderStatus = OrderStatus.COMPLETED;
+        this.paymentStatus = PaymentStatus.COMPLETED;
     }
 
     // 포인트 충전 주문 생성
-    public static Order ofPointOrder(User user, OrderProduct orderProduct) {
-        return new Order(user, OrderType.POINT, OrderStatus.REQUESTED,
-                orderProduct.getPrice(), null, orderProduct, null);
+    public static Order ofPointOrder(User user, OrderProduct orderProduct, String merchantUid) {
+        return new Order(user, OrderType.POINT, orderProduct.getPrice(), orderProduct, null, merchantUid);
     }
 
-    // 채팅 주문 생성
-    public static Order ofChatOrder(User user, OrderProduct orderProduct, Long doctorId) {
-        return new Order(user, OrderType.CHAT, OrderStatus.REQUESTED,
-                orderProduct.getPrice(), null, orderProduct, doctorId);
+    public static Order ofChatOrder(User user, OrderProduct orderProduct, Long doctorId, String merchantUid) {
+        return new Order(user, OrderType.CHAT, orderProduct.getPrice(), orderProduct, doctorId, merchantUid);
     }
 
-    // 상태 업데이트 메서드들
-    public void updatePaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
-    public void updateOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
-    }
-
-    public void updatePaymentSummary(String impUid, String merchantUid,
-                                     PaymentMethod paymentMethod, LocalDateTime approvedAt) {
+    // 결제 성공 후 상태 업데이트
+    public void completeOrder(String impUid, PaymentMethod paymentMethod, LocalDateTime approvedAt) {
+        this.paymentStatus = PaymentStatus.COMPLETED;
+        this.orderStatus = OrderStatus.COMPLETED;
         this.impUid = impUid;
-        this.merchantUid = merchantUid;
         this.paymentMethod = paymentMethod;
         this.approvedAt = approvedAt;
     }
@@ -113,5 +95,14 @@ public class Order {
     // 채팅 주문일 경우 채팅방 id 부여
     public void assignChattingRoomId(Long chattingRoomId) {
         this.chattingRoomId = chattingRoomId;
+    }
+
+    public void failOrder() {
+        this.orderStatus = OrderStatus.EXPIRED;
+        this.paymentStatus = PaymentStatus.FAILED;
+    }
+
+    public boolean isCompleted() {
+        return OrderStatus.COMPLETED.equals(this.orderStatus);
     }
 }

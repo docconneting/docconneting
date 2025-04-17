@@ -23,10 +23,10 @@ public class OrderResponse {
     private PaymentMethod paymentMethod;
     private OrderProduct orderProduct;
     private Integer price;
-    private Long chattingUserId;
+    private Long chattingRoomId;
     private LocalDateTime approvedAt;
 
-    private OrderResponse(Long id, OrderType orderType, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, OrderProduct orderProduct, Integer price, Long chattingUserId, LocalDateTime approvedAt) {
+    private OrderResponse(Long id, OrderType orderType, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, OrderProduct orderProduct, Integer price, Long chattingRoomId, LocalDateTime approvedAt) {
         this.id = id;
         this.orderType = orderType;
         this.orderStatus = orderStatus;
@@ -34,7 +34,7 @@ public class OrderResponse {
         this.paymentMethod = paymentMethod;
         this.orderProduct = orderProduct;
         this.price = price;
-        this.chattingUserId = chattingUserId;
+        this.chattingRoomId = chattingRoomId;
         this.approvedAt = approvedAt;
     }
 
