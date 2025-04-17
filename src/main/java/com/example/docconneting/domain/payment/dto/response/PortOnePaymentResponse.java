@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 public class PortOnePaymentResponse {
 
     private String impUid;
-    private String merchantUId;
+    private String merchantUid;
     private Integer price;
     private OrderStatus orderStatus;
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private LocalDateTime createdAt;
 
-    private PortOnePaymentResponse(String impUid, String merchantUId, Integer price, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, LocalDateTime createdAt) {
+    private PortOnePaymentResponse(String impUid, String merchantUid, Integer price, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, LocalDateTime createdAt) {
         this.impUid = impUid;
-        this.merchantUId = merchantUId;
+        this.merchantUid = merchantUid;
         this.price = price;
         this.orderStatus = orderStatus;
         this.paymentStatus = paymentStatus;
@@ -28,7 +28,7 @@ public class PortOnePaymentResponse {
         this.createdAt = createdAt;
     }
 
-    public static PortOnePaymentResponse of(String impUid, String merchantUId, Integer price, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, LocalDateTime createdAt) {
-        return new PortOnePaymentResponse(impUid, merchantUId, price, orderStatus, paymentStatus, paymentMethod, createdAt);
+    public static PortOnePaymentResponse of(String impUid, String merchantUid, Integer price, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, LocalDateTime createdAt) {
+        return new PortOnePaymentResponse(impUid, merchantUid, price, orderStatus, paymentStatus, paymentMethod, createdAt);
     }
 }
