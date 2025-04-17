@@ -11,4 +11,12 @@ public class CreateCouponRequest {
     @Positive(message = "1 이상이어야 합니다.")
     private Integer quantity;
 
+    private CreateCouponRequest(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    // 테스트 코드에서 필요
+    public static CreateCouponRequest of(@NotNull Integer quantity) {
+        return new CreateCouponRequest(quantity);
+    }
 }
