@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Coupon {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Integer availableCount;
@@ -36,5 +36,17 @@ public class Coupon {
         this.quantity = quantity;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public static Coupon of(Integer availableCount, Integer quantity, LocalDateTime startDate, LocalDateTime endDate) {
+        return new Coupon(availableCount, quantity, startDate, endDate);
+    }
+
+    public void decreaseQuantity() {
+            this.quantity--;
+    }
+
+    public boolean isAvailable(LocalDateTime now) {
+        return endDate.isAfter(now);
     }
 }
