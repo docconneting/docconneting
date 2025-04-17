@@ -134,6 +134,7 @@ public enum ErrorCode {
 
     // 500
     LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득 중 인터럽트가 발생했습니다."),
+
     // 알람 에러코드
 
     // 429
