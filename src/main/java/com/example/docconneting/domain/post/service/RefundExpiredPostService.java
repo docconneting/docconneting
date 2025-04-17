@@ -1,6 +1,6 @@
 package com.example.docconneting.domain.post.service;
 
-import com.example.docconneting.domain.point.service.PointRefundService;
+import com.example.docconneting.domain.point.service.PointService;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.enums.PayType;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class RefundExpiredPostService {
     private static final int REFUND_POINT = 1000;
 
     private final FindExpiredPostService findExpiredPostService;
-    private final PointRefundService pointRefundService;
+    private final PointService pointService;
 
     @Transactional
     public void postRefund() {
@@ -29,7 +29,7 @@ public class RefundExpiredPostService {
             if (!post.getIsReplied()) {
                 if(post.getPayType().equals(PayType.POINT)) {
                     // 환불
-                    pointRefundService.refundPoint(post.getPatient().getId(), post.getId(), REFUND_POINT);
+                    pointService.refundPoint(post.getPatient().getId(), post.getId(), REFUND_POINT);
                     log.info("Refunded postId = {}, userId = {}, refunded = {} point", post.getId(), post.getPatient().getId(), REFUND_POINT);
                 }
                 // 무료 게시판으로 전환
