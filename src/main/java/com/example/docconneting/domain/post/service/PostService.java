@@ -6,19 +6,15 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.coupon.entity.CouponHistory;
 import com.example.docconneting.domain.coupon.entity.PatientCoupon;
-import com.example.docconneting.domain.coupon.repository.CouponHistoryRepository;
-import com.example.docconneting.domain.coupon.repository.PatientCouponRepository;
-import com.example.docconneting.domain.point.entity.PointHistory;
-import com.example.docconneting.domain.point.enums.PointType;
-import com.example.docconneting.domain.point.repository.PointHistoryRepository;
+import com.example.docconneting.domain.coupon.service.PatientCouponService;
+import com.example.docconneting.domain.point.service.PointService;
+import com.example.docconneting.domain.post.dto.reponse.PostCreateResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
 import com.example.docconneting.domain.post.dto.request.PostCreateRequest;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
-import com.example.docconneting.domain.post.dto.reponse.PostCreateResponse;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.enums.PayType;
 import com.example.docconneting.domain.post.repository.PostRepository;
@@ -39,12 +35,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
-    private final int POST_POINT_COST = 1000;
-
+    private final PointService pointService;
+    private final PatientCouponService patientCouponService;
     private final UserRepository userRepository;
-    private final PatientCouponRepository patientCouponRepository;
-    private final CouponHistoryRepository couponHistoryRepository;
-    private final PointHistoryRepository pointHistoryRepository;
     private final PostRepository postRepository;
     private final EntityManager entityManager;
 
@@ -68,34 +61,21 @@ public class PostService {
 
         switch (payType) {
             case COUPON -> {
-                PatientCoupon patientCoupon = patientCouponRepository.findPatientCouponByIdAndUserId(user.getId(), couponId)
-                        .orElseThrow(() -> new ClientException(ErrorCode.NOT_FOUND_COUPON));
-
-                validateCouponAvailableCount(patientCoupon);
-                validateCouponExpired(patientCoupon);
-
-                patientCoupon.decreaseAvailableCount();
+                if (couponId == null) {
+                    throw new ClientException(ErrorCode.MISSING_COUPON_ID);
+                }
 
                 post.updatePayType(PayType.COUPON);
-                postRepository.save(post);
+                Post savedPost = postRepository.save(post);
 
-                CouponHistory couponHistory = CouponHistory.of(patientCoupon, post.getId());
-                couponHistoryRepository.save(couponHistory);
+                patientCouponService.useCoupon(user, couponId, savedPost.getId());
             }
 
             case POINT -> {
-                validateHasPoint(user);
-                user.decreasePoint(POST_POINT_COST);
-
                 post.updatePayType(PayType.POINT);
-                postRepository.save(post);
+                Post savedPost = postRepository.save(post);
 
-                PointHistory pointHistory = PointHistory.of(
-                        user,
-                        post.getId(),
-                        false,
-                        PointType.EXPENSE, POST_POINT_COST);
-                pointHistoryRepository.save(pointHistory);
+                pointService.usePoint(user, savedPost.getId());
             }
 
             case FREE -> {
@@ -105,7 +85,8 @@ public class PostService {
 
             default -> throw new ClientException(ErrorCode.INVALID_PAY_TYPE);
         }
-            return PostCreateResponse.of(
+
+        return PostCreateResponse.of(
                     post.getId(),
                     post.getTitle(),
                     post.getContents(),
@@ -215,13 +196,6 @@ public class PostService {
     private void validateCouponExpired(PatientCoupon patientCoupon) {
         if (patientCoupon.getEndDate().isBefore(LocalDateTime.now())) {
             throw new ClientException(ErrorCode.EXPIRED_COUPON);
-        }
-    }
-
-    // 결제할 수 있는 포인트를 가지고 있는지 검증
-    private void validateHasPoint(User user) {
-        if (user.getPoint() < POST_POINT_COST) {
-            throw new ClientException(ErrorCode.INSUFFICIENT_POINT);
         }
     }
 }

@@ -60,6 +60,7 @@ public enum ErrorCode {
     // 400
     INVALID_PAY_TYPE(HttpStatus.BAD_REQUEST, "잘못된 결제 타입입니다."),
     INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
+    MISSING_COUPON_ID(HttpStatus.BAD_REQUEST, "유효하지 않은 쿠폰 아이디입니다."),
 
     // 403
     PATIENT_ONLY_ACCESS(HttpStatus.FORBIDDEN, "게시물 수정, 삭제는 환자만 접근 가능 합니다."),
@@ -124,7 +125,6 @@ public enum ErrorCode {
     COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "사용 완료된 쿠폰입니다."),
     NO_AVAILABLE_USAGE(HttpStatus.BAD_REQUEST, "사용 가능한 횟수가 없습니다."),
     INVALID_COUPON_PERIOD(HttpStatus.BAD_REQUEST, "쿠폰 사용 기간이 아닙니다."),
-    EXPIRED_COUPON(HttpStatus.BAD_REQUEST, "만료된 쿠폰은 발급할 수 없습니다."),
 
     // 403
     SELF_COUPON_ONLY(HttpStatus.FORBIDDEN, "자기 쿠폰만 사용할 수 있습니다."),
