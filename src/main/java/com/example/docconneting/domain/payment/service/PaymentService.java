@@ -37,15 +37,6 @@ public class PaymentService {
         paymentHistoryRepository.save(PaymentHistory.of(
                 order.getUser(), order, order.getPrice(), paymentMethod, PaymentStatus.COMPLETED, impUid, approvedAt
         ));
-
-        // 채팅 주문이면 채팅방 생성
-        if (OrderType.CHAT.equals(order.getOrderType())) {
-            AuthUser authUser = AuthUser.of(order.getUser().getId(), order.getUser().getUserRole());
-            ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
-            order.assignChattingRoomId(response.getId());
-
-            log.info("💬 ChattingRoom assigned: chattingRoomId={}, orderId={}", response.getId(), order.getId());
-        }
     }
 
     @Transactional

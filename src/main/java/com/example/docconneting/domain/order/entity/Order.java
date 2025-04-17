@@ -105,4 +105,8 @@ public class Order {
     public boolean isCompleted() {
         return OrderStatus.COMPLETED.equals(this.orderStatus);
     }
+
+    public boolean isChatOrder() {
+        return OrderType.CHAT.equals(this.orderType);
+    }
 }
