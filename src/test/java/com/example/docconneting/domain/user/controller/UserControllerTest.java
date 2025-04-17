@@ -2,6 +2,7 @@ package com.example.docconneting.domain.user.controller;
 
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.enums.Major;
+import com.example.docconneting.common.filter.JwtFilter;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.dto.request.UpdatePasswordRequest;
@@ -16,9 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,6 +37,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
+@TestPropertySource(properties = {
+        "jwt.secret.key=5Gk6hibHDtKLFVk4NdBX039rvehSLNjfKsdXpm/pHsU="
+})
+@Import({JwtUtil.class, AuthUserArgumentResolver.class, JwtFilter.class})
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -41,7 +48,7 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
+    @Autowired
     private JwtUtil jwtUtil;
 
     @MockitoBean
@@ -106,13 +113,11 @@ public class UserControllerTest {
         //given
         long userId = 1L;
         String username = "doctor";
-        String accessToken = "token";
+        String accessToken = jwtUtil.createToken(authDoctor.getId(), authDoctor.getUserRole());
         DoctorMyPageResponse response = DoctorMyPageResponse.of(username);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
-        given(jwtUtil.createToken(authDoctor.getId(), authDoctor.getUserRole())).willReturn(accessToken);
-
-        given(userService.findMyPage(any())).willReturn(response);
+        given(userService.findMyPage(refEq(authDoctor))).willReturn(response);
 
         //when & then
         mockMvc.perform(get("/api/v1/users")
@@ -127,9 +132,8 @@ public class UserControllerTest {
         long userId = 2L;
         String username = "patient";
         int point = 0;
-        String accessToken = "token";
-        given(jwtUtil.createToken(userId, UserRole.PATIENT)).willReturn(accessToken);
-        given(userService.findMyPage(any(AuthUser.class))).willReturn(PatientMyPageResponse.of(username, point));
+        String accessToken = jwtUtil.createToken(authPatient.getId(), authPatient.getUserRole());
+        given(userService.findMyPage(refEq(authPatient))).willReturn(PatientMyPageResponse.of(username, point));
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authPatient);
 
@@ -145,7 +149,7 @@ public class UserControllerTest {
         //given
         long userId = 1L;
         String username = "doctor";
-        String accessToken = "token";
+        String accessToken = jwtUtil.createToken(authDoctor.getId(), authDoctor.getUserRole());
         String messageValue = "비밀 번호 수정이 성공적으로 됐습니다";
         Map<String, String> message = new HashMap<>();
         message.put("message", messageValue);
@@ -153,12 +157,9 @@ public class UserControllerTest {
         ReflectionTestUtils.setField(request, "oldPassword", "old");
         ReflectionTestUtils.setField(request, "newPassword", "new");
 
-
-        given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(userService.updatePassword(any(), refEq(request))).willReturn(message);
+        given(userService.updatePassword(refEq(authDoctor), refEq(request))).willReturn(message);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
-
 
         //when&then
         mockMvc.perform(
@@ -176,7 +177,7 @@ public class UserControllerTest {
     void 의사_이미지_수정() throws Exception {
         // given
         long userId = 1L;
-        String accessToken = "token";
+        String accessToken = jwtUtil.createToken(authDoctor.getId(), authDoctor.getUserRole());
         String messageValue = "이미지 수정이 성공적으로 됐습니다";
 
         MockMultipartFile newImage = new MockMultipartFile(
@@ -191,9 +192,8 @@ public class UserControllerTest {
 
         String newImageUrl = "https://example.com/newimage.jpg";
 
-        given(jwtUtil.createToken(userId, UserRole.DOCTOR)).willReturn(accessToken);
-        given(s3Service.updateImage(any(Long.class),any(String.class), refEq(newImage))).willReturn(newImageUrl);
-        given(userService.updateImage(any(), refEq(newImage))).willReturn(message);
+        given(s3Service.updateImage(refEq(userId),refEq(doctor.getImage()), refEq(newImage))).willReturn(newImageUrl);
+        given(userService.updateImage(refEq(authDoctor), refEq(newImage))).willReturn(message);
         given(authUserArgumentResolver.resolveArgument(any(), any(), any(), any()))
                 .willReturn(authDoctor);
 

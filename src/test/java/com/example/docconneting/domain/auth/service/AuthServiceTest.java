@@ -95,7 +95,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void 의사_회원가입() throws IOException {
+    public void 의사_회원가입() throws Exception {
         //given
         Long userId = 1L;
         String stringImage = "www.doctor.image";
@@ -285,7 +285,6 @@ public class AuthServiceTest {
         //given
         User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
         ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         UserSignInRequest request = new UserSignInRequest();
         ReflectionTestUtils.setField(request, "email", "test@test.com");
@@ -304,7 +303,6 @@ public class AuthServiceTest {
     public void 토큰_재발급() {
         //given
         User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
-        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         AuthUser authUser;
@@ -338,7 +336,6 @@ public class AuthServiceTest {
         //given
         User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
         ReflectionTestUtils.setField(user, "id", 1L);
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         AuthUser authUser;
         authUser = AuthUser.of(1L, UserRole.PATIENT);
@@ -363,7 +360,6 @@ public class AuthServiceTest {
     public void 재발급_리프레시_토큰_불일치() {
         //given
         User user = User.of("test@test.com", "test", "testpatient",0, false, UserRole.PATIENT);
-        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(user, "id", 1L);
 
         AuthUser authUser;
