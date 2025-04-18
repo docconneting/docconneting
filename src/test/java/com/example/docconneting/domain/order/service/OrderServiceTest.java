@@ -68,7 +68,7 @@ class OrderServiceTest {
     private Order createTestOrder(User user, OrderType type, OrderProduct product, int price) {
         Order order = switch (type) {
             case POINT -> Order.ofPointOrder(user, product);
-            case CHAT -> Order.ofChatOrder(user, product);
+            case CHAT -> Order.ofChatOrder(user, product, );
             default -> throw new ClientException(ErrorCode.INVALID_ORDER_TYPE);
         };
         ReflectionTestUtils.setField(order, "user", user);
