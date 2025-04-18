@@ -92,6 +92,16 @@ public class User extends BaseEntity {
         this.image = newImage;
     }
 
+    // 포인트 차감
+    public void decreasePoint(int point) {
+        this.point -= point;
+    }
+
+    // 포인트 환불
+    public void refundPoint(int point) {
+        this.point += point;
+    }
+
     // fcm 토큰을 업데이트하는 메서드
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
