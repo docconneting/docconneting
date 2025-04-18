@@ -6,18 +6,18 @@ import com.example.docconneting.common.filter.JwtFilter;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
-import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.post.dto.reponse.PostCreateResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
+import com.example.docconneting.domain.post.dto.request.PostCreateRequest;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.entity.Post;
 import com.example.docconneting.domain.post.service.PostService;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.bytebuddy.asm.Advice;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,6 +64,40 @@ class PostControllerTest {
 
     @Autowired
     JwtUtil jwtUtil;
+
+    @Test
+    @DisplayName("컨트롤러에서 게시물 등록")
+    void createPostTest() throws Exception {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        UserRole userRole = UserRole.PATIENT;
+        String accessToken = jwtUtil.createToken(userId, userRole);
+
+        AuthUser authUser = AuthUser.of(userId, userRole);
+
+        PostCreateRequest request = new PostCreateRequest();
+        ReflectionTestUtils.setField(request, "title", "제목");
+        ReflectionTestUtils.setField(request, "contents", "내용");
+        ReflectionTestUtils.setField(request, "major", "SURGERY");
+        ReflectionTestUtils.setField(request, "payType", "FREE");
+
+        PostCreateResponse postCreateResponse = PostCreateResponse.of(postId, "제목", "내용", "SURGERY", LocalDateTime.now());
+
+        given(postService.createPost(refEq(authUser), isNull(), refEq(request))).willReturn(postCreateResponse);
+
+        // when, then
+        mockMvc.perform(post("/api/v1/posts")
+                        .header("Authorization", accessToken)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(postId))
+                .andExpect(jsonPath("$.data.title").value(postCreateResponse.getTitle()))
+                .andExpect(jsonPath("$.data.contents").value(postCreateResponse.getContents()))
+                .andExpect(jsonPath("$.data.major").value(postCreateResponse.getMajor()))
+                .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(postCreateResponse.getCreatedAt().toString().substring(0,19))));
+    }
 
     @Test
     @DisplayName("컨트롤러에서 게시물 단건 조회")
@@ -165,7 +199,7 @@ class PostControllerTest {
 
         List<Post> posts = new ArrayList<>();
         for(int i = 0; i < pageable.getPageSize(); i++){
-            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
+            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false);
             posts.add(post);
         }
 
