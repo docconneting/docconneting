@@ -71,7 +71,7 @@ jobs:
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
             # .env 파일 생성
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" > .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
 
@@ -94,6 +94,11 @@ jobs:
             mkdir -p src/main/resources/firebase
             echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
 
-            # 최신 Docker 이미지 pull 및 compose up
+            # 기존 컨테이너 정리
+            docker compose down || true
+
+            # 최신 Docker 이미지 pull
             docker compose pull
+
+            # 컨테이너 재배포
             docker compose up -d
