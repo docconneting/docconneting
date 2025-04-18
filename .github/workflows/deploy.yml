@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - feat/cicd 
+      - feat/cicd
 
 env:
   AWS_REGION: ap-northeast-2
