@@ -39,7 +39,7 @@ public class MessageController {
                                        Message<?> message) throws Exception {
 
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(message);
-        Long userId = (Long) stompHeaderAccessor.getSessionAttributes().get("userId");
+        Long userId = Long.parseLong(stompHeaderAccessor.getUser().getName());
 
         return messageService.createMessage(messageRequest, userId, chattingRoomId);
     }

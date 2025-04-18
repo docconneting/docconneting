@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     @MessageExceptionHandler(ClientException.class)
-    @SendToUser("/queue/errors")
+    @SendToUser(value = "/queue/errors", broadcast = false)
     public ErrorResponse handleClientMessageException(ClientException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         return ErrorResponse.of(errorCode);
