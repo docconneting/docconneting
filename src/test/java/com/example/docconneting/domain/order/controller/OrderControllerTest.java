@@ -10,6 +10,8 @@ import com.example.docconneting.domain.order.enums.OrderProduct;
 import com.example.docconneting.domain.order.enums.OrderStatus;
 import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.order.service.OrderService;
+import com.example.docconneting.domain.payment.enums.PaymentMethod;
+import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -69,6 +71,8 @@ class OrderControllerTest {
                 1L,
                 OrderType.POINT,
                 OrderStatus.REQUESTED,
+                PaymentStatus.COMPLETED,
+                PaymentMethod.KAKAOPAY,
                 OrderProduct.POINT_5000,
                 5000,
                 null,
@@ -100,6 +104,8 @@ class OrderControllerTest {
                 orderId,
                 OrderType.POINT,
                 OrderStatus.REQUESTED,
+                PaymentStatus.COMPLETED,
+                PaymentMethod.KAKAOPAY,
                 OrderProduct.POINT_5000,
                 5000,
                 null,
@@ -125,8 +131,8 @@ class OrderControllerTest {
         String accessToken = jwtUtil.createToken(userId, UserRole.PATIENT);
 
         List<OrderResponse> content = List.of(
-                OrderResponse.of(1L, OrderType.POINT, OrderStatus.REQUESTED, OrderProduct.POINT_5000, 5000, null, LocalDateTime.now()),
-                OrderResponse.of(2L, OrderType.CHAT, OrderStatus.REQUESTED, OrderProduct.CHAT_3000, 3000, null, LocalDateTime.now())
+                OrderResponse.of(1L, OrderType.POINT, OrderStatus.REQUESTED, PaymentStatus.COMPLETED, PaymentMethod.KAKAOPAY, OrderProduct.POINT_5000,5000, null, LocalDateTime.now()),
+                OrderResponse.of(2L, OrderType.CHAT, OrderStatus.REQUESTED, PaymentStatus.COMPLETED, PaymentMethod.KAKAOPAY, OrderProduct.POINT_5000,3000, null, LocalDateTime.now())
         );
 
         PageInfo pageInfo = PageInfo.builder()
