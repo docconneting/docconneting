@@ -33,4 +33,8 @@ public class CouponHistory {
         this.patientCoupon = patientCoupon;
         this.postId = postId;
     }
+
+    public static CouponHistory of(PatientCoupon patientCoupon, Long postId) {
+        return new CouponHistory(patientCoupon, postId);
+    }
 }

@@ -85,6 +85,10 @@ public class JwtFilter implements Filter {
 
     // URI + HTTP Method 기반 화이트리스트
     private boolean isWhiteList(String requestURI, String method) {
+        if (requestURI.equals("/api/v1/payments/webhook")) {
+            return true;
+        }
+
         if (requestURI.startsWith("/api/v1/signup") || requestURI.startsWith("/api/v1/signin") || requestURI.startsWith("/api/v1/refresh")) {
             return true;
         }
