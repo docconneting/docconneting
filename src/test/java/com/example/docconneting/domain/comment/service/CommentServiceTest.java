@@ -117,7 +117,7 @@ class CommentServiceTest {
                     commentService.createComment(1L, 1L, request)
             );
 
-            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.POST_NOT_FOUND);
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_POST);
         }
 
         @Test
