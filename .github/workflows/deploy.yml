@@ -74,15 +74,16 @@ jobs:
             docker rm -f spring-app || true
             
             # .env 파일 생성
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" > .env
+            echo "SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/docsql" > .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
-
+  
             echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
             echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
-
+  
             echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-
+  
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
 
