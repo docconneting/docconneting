@@ -1,16 +1,19 @@
 name: Deploy
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - dev
 
 jobs:
-  build-and-deploy:
+  build-and-push-to-ecr:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up JDK
@@ -20,28 +23,78 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission to Gradle
+      - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Build the project
         run: ./gradlew clean build
 
-      - name: Copy files to EC2 using SSH
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "."
-          target: "~/docconneting"
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-      - name: SSH and deploy
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: docconneting-repo
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  deploy-on-ec2:
+    needs: build-and-push-to-ecr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/docconneting
-            docker compose down
-            docker compose up -d --build
+            mkdir -p ~/server
+            cd ~/server
+            
+            # AWS 로그인
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            
+            # .env 파일 생성
+            echo "SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/docsql" > .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
+  
+            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+  
+            echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+  
+            echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
+            echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
+            
+            # application-local.yml 파일 생성
+            mkdir -p src/main/resources
+            echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
+            
+            # application-prod.yml 생성
+            echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
+      
+      
+            # fcm 인증 JSON 파일 생성
+            mkdir -p src/main/resources/firebase
+            echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
+            
+            # docker-compose.yml 파일 생성
+            echo "${{ secrets.DOCKER_COMPOSE_CONTENT }}" > docker-compose.yml
+            
+            # 최신 Docker 이미지 pull 및 compose up
+            docker compose pull
+            docker compose up -d
