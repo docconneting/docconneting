@@ -5,6 +5,9 @@ on:
     branches:
       - feat/cicd
 
+env:
+  AWS_REGION: ap-northeast-2
+
 jobs:
   build-and-push-to-ecr:
     runs-on: ubuntu-latest
@@ -32,8 +35,6 @@ jobs:
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          region: ap-northeast-2
 
       - name: Build, tag, and push Docker image to ECR
         env:
@@ -58,39 +59,38 @@ jobs:
           script: |
             mkdir -p ~/server
             cd ~/server
-            
+
             # AWS 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            
+
             # .env 파일 생성
             echo "SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/docsql" > .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
-  
+
             echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
             echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
-  
+
             echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-  
+
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
-            
+
             # application-local.yml 파일 생성
             mkdir -p src/main/resources
             echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
-            
-            # application-prod.yml 생성
+
+            # application-prod.yml 파일 생성
             echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
-      
-      
+
             # fcm 인증 JSON 파일 생성
             mkdir -p src/main/resources/firebase
             echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
-            
+
             # docker-compose.yml 파일 생성
             echo "${{ secrets.DOCKER_COMPOSE_CONTENT }}" > docker-compose.yml
-            
+
             # 최신 Docker 이미지 pull 및 compose up
             docker compose pull
             docker compose up -d
