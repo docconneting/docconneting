@@ -94,9 +94,6 @@ jobs:
             mkdir -p src/main/resources/firebase
             echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
 
-            # docker-compose.yml 파일 생성
-            echo "${{ secrets.DOCKER_COMPOSE_CONTENT }}" > docker-compose.yml
-
             # 최신 Docker 이미지 pull 및 compose up
             docker compose pull
             docker compose up -d
