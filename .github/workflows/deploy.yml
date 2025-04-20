@@ -12,6 +12,9 @@ jobs:
   build-and-push-to-ecr:
     runs-on: ubuntu-latest
 
+    outputs:
+      ecr-registry: ${{ steps.login-ecr.outputs.registry }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,6 +28,13 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
+
+      - name: Create resource files
+        run: |
+          mkdir -p src/main/resources/firebase
+          echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
+          echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
+          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
 
       - name: Build the project
         run: ./gradlew clean build -x test
@@ -64,44 +74,31 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # AWS CLI 설치 (없으면 설치)
+            sudo apt-get update && sudo apt-get install -y awscli
+
             mkdir -p ~/server
             cd ~/server
 
-            # AWS 로그인
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            # AWS ECR 로그인
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ needs.build-and-push-to-ecr.outputs.ecr-registry }}
 
-            # spring-app 컨테이너 강제 종료 및 삭제
+            # 기존 spring-app 컨테이너 종료 및 삭제
             docker rm -f spring-app || true
-            
+
             # .env 파일 생성
             echo "SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/docsql" > .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
-  
             echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
             echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
-  
             echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-  
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
 
-            # application-local.yml 파일 생성
-            mkdir -p src/main/resources
-            echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
-
-            # application-prod.yml 파일 생성
-            echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
-
-            # fcm 인증 JSON 파일 생성
-            mkdir -p src/main/resources/firebase
-            echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
-
-            # 기존 컨테이너 정리
+            # 기존 컨테이너 및 이미지 정리
             docker compose down || true
-
-            # 최신 Docker 이미지 pull
             docker compose pull
 
             # 컨테이너 재배포
