@@ -32,7 +32,7 @@ jobs:
       - name: Create resource files
         run: |
           mkdir -p src/main/resources/firebase
-          echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
+          echo -e "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
           echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
           echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
 
