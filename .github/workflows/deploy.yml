@@ -26,15 +26,26 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew 
+      - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
       - name: Create resource files
         run: |
           mkdir -p src/main/resources/firebase
+
           printf "%s" "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
           printf "%s" "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
           printf "%s" "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
+
+      - name: Validate JSON and YAML files ✅
+        run: |
+          echo "Checking JSON validity..."
+          jq empty src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
+
+          echo "Checking YAML validity..."
+          pip install yq > /dev/null
+          yq eval src/main/resources/application-local.yml > /dev/null
+          yq eval src/main/resources/application-prod.yml > /dev/null
 
       - name: Build the project
         run: ./gradlew clean build -x test
@@ -74,19 +85,15 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # AWS CLI 설치 (없으면 설치)
             sudo apt-get update && sudo apt-get install -y awscli
 
             mkdir -p ~/server
             cd ~/server
 
-            # AWS ECR 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ needs.build-and-push-to-ecr.outputs.ecr-registry }}
 
-            # 기존 spring-app 컨테이너 종료 및 삭제
             docker rm -f spring-app || true
 
-            # .env 파일 생성
             echo "SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/docsql" > .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
@@ -97,10 +104,8 @@ jobs:
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
 
-            # 기존 컨테이너 및 이미지 정리
             docker compose down || true
             docker compose pull
             docker image prune -f
 
-            # 컨테이너 재배포
             docker compose up -d
