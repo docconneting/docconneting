@@ -100,6 +100,7 @@ jobs:
             # 기존 컨테이너 및 이미지 정리
             docker compose down || true
             docker compose pull
+            docker image prune -f
 
             # 컨테이너 재배포
             docker compose up -d
