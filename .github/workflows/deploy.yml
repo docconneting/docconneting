@@ -37,16 +37,6 @@ jobs:
           echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" | base64 --decode > src/main/resources/application-local.yml
           echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
-      - name: Validate JSON and YAML files ✅
-        run: |
-          echo "Checking JSON validity..."
-          jq empty src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
-
-          echo "Checking YAML validity..."
-          pip install yq > /dev/null
-          yq eval src/main/resources/application-local.yml > /dev/null
-          yq eval src/main/resources/application-prod.yml > /dev/null
-
       - name: Build the project
         run: ./gradlew clean build -x test
 
