@@ -6,14 +6,20 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.coupon.service.PatientCouponService;
+import com.example.docconneting.domain.point.service.PointService;
+import com.example.docconneting.domain.post.dto.reponse.PostCreateResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostListResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostSingleResponse;
 import com.example.docconneting.domain.post.dto.reponse.PostUpdateResponse;
+import com.example.docconneting.domain.post.dto.request.PostCreateRequest;
 import com.example.docconneting.domain.post.dto.request.PostUpdateRequest;
 import com.example.docconneting.domain.post.entity.Post;
+import com.example.docconneting.domain.post.enums.PayType;
 import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
+import com.example.docconneting.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -32,21 +39,188 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
     @Mock
+    UserRepository userRepository;
+
+    @Mock
     PostRepository postRepository;
 
     @Mock
     EntityManager entityManager;
 
+    @Mock
+    PatientCouponService patientCouponService;
+
+    @Mock
+    PointService pointService;
+
     @InjectMocks
     PostService postService;
+
+    @Test
+    @DisplayName("무료로 게시물 등록")
+    void freeCreatePost() {
+        // given
+        Long userId = 1L;
+        Long postId = 1L;
+
+        AuthUser authUser = AuthUser.of(userId, UserRole.PATIENT);
+        User user = User.of("test@example.com", "password", "username", 0, false, UserRole.PATIENT);
+
+        PostCreateRequest request = new PostCreateRequest();
+        ReflectionTestUtils.setField(request, "title", "title");
+        ReflectionTestUtils.setField(request, "contents", "contents");
+        ReflectionTestUtils.setField(request, "major", "ORTHOPEDICS");
+        ReflectionTestUtils.setField(request, "payType", "FREE");
+
+        Post savedPost = Post.of(
+                user,
+                "title",
+                "content",
+                Major.ORTHOPEDICS,
+                PayType.FREE,
+                false,
+                false,
+                LocalDateTime.now().plusDays(1));
+        ReflectionTestUtils.setField(savedPost, "id", postId);
+
+        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+
+        // when
+        PostCreateResponse response = postService.createPost(authUser, null, request);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(request.getTitle()).isEqualTo(response.getTitle());
+    }
+
+    @Test
+    @DisplayName("쿠폰으로 유료 게시물 등록")
+    void couponCreatePostTest() {
+        // given
+        Long userId = 1L;
+        Long postId = 1L;
+        Long couponId = 1L;
+
+        AuthUser authUser = AuthUser.of(userId, UserRole.PATIENT);
+        User user = User.of("test@example.com", "password", "username", 0, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        PostCreateRequest request = new PostCreateRequest();
+        ReflectionTestUtils.setField(request, "title", "title");
+        ReflectionTestUtils.setField(request, "contents", "contents");
+        ReflectionTestUtils.setField(request, "major", "ORTHOPEDICS");
+        ReflectionTestUtils.setField(request, "payType", "COUPON");
+
+        Post savedPost = Post.of(
+                user,
+                "title",
+                "content",
+                Major.ORTHOPEDICS,
+                PayType.COUPON,
+                false,
+                false,
+                LocalDateTime.now().plusDays(1));
+        ReflectionTestUtils.setField(savedPost, "id", postId);
+
+        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+        given(postRepository.save(any(Post.class))).willReturn(savedPost);
+
+        // when
+        PostCreateResponse response = postService.createPost(authUser, couponId, request);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(request.getTitle()).isEqualTo(response.getTitle());
+    }
+
+    @Test
+    @DisplayName("포인트로 유료 게시물 등록")
+    void pointCreatePostTest() {
+        // given
+        Long userId = 1L;
+        Long postId = 1L;
+        int point = 1000;
+
+        AuthUser authUser = AuthUser.of(userId, UserRole.PATIENT);
+        User user = User.of("test@example.com", "password", "username", point, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        PostCreateRequest request = new PostCreateRequest();
+        ReflectionTestUtils.setField(request, "title", "title");
+        ReflectionTestUtils.setField(request, "contents", "contents");
+        ReflectionTestUtils.setField(request, "major", "ORTHOPEDICS");
+        ReflectionTestUtils.setField(request, "payType", "POINT");
+
+        Post savedPost = Post.of(
+                user,
+                "title",
+                "content",
+                Major.ORTHOPEDICS,
+                PayType.POINT,
+                false,
+                false,
+                LocalDateTime.now().plusDays(1));
+        ReflectionTestUtils.setField(savedPost, "id", postId);
+
+        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+        given(postRepository.save(any(Post.class))).willReturn(savedPost);
+
+        // when
+        PostCreateResponse response = postService.createPost(authUser, null, request);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(request.getTitle()).isEqualTo(response.getTitle());
+    }
+
+    @Test
+    @DisplayName("게시글 등록 유저 조회 실패")
+    void createPostUserNotFoundTest() {
+        // given
+        Long userId = 1L;
+
+        AuthUser authUser = AuthUser.of(userId, UserRole.PATIENT);
+        PostCreateRequest request = new PostCreateRequest();
+
+        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.empty());
+
+        // when, then
+        ClientException thrown = assertThrows(ClientException.class, () -> postService.createPost(authUser, null, request));
+        assertThat(HttpStatus.NOT_FOUND).isEqualTo(thrown.getErrorCode().getStatus());
+        assertThat(ErrorCode.USER_NOT_FOUND.getMessage()).isEqualTo(thrown.getErrorCode().getMessage());
+    }
+
+    @Test
+    @DisplayName("쿠폰으로 게시글 등록 시 쿠폰 아이디가 null일 때")
+    void missingCouponIdBadRequestTest() {
+        // given
+        Long userId = 1L;
+
+        AuthUser authUser = AuthUser.of(userId, UserRole.PATIENT);
+        PostCreateRequest request = new PostCreateRequest();
+        ReflectionTestUtils.setField(request, "title", "title");
+        ReflectionTestUtils.setField(request, "contents", "contents");
+        ReflectionTestUtils.setField(request, "major", "ORTHOPEDICS");
+        ReflectionTestUtils.setField(request, "payType", "COUPON");
+
+        User user = User.of("test@example.com", "password", "username", 0, false, UserRole.PATIENT);
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+
+        // when, then
+        ClientException thrown = assertThrows(ClientException.class, () -> postService.createPost(authUser, null, request));
+        assertThat(HttpStatus.BAD_REQUEST).isEqualTo(thrown.getErrorCode().getStatus());
+        assertThat(ErrorCode.MISSING_COUPON_ID.getMessage()).isEqualTo(thrown.getErrorCode().getMessage());
+    }
 
     @Test
     @DisplayName("서비스에서 게시물 단건 조회시 게시물이 없을 때")
@@ -380,7 +554,7 @@ class PostServiceTest {
 
         List<Post> content = new ArrayList<>();
         for(int i = 0; i < 50; i++){
-            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false, false, LocalDateTime.now());
+            Post post = Post.of(user, title, "contents", Major.valueOf(major), false, false);
             content.add(post);
         }
 
