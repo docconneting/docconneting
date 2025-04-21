@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -63,7 +63,12 @@ class PaymentControllerTest {
                 OrderProduct.POINT_5000, 5000, null, LocalDateTime.now()
         );
 
-        given(paymentApplicationService.verifyAndCreateOrder(any())).willReturn(response);
+        given(paymentApplicationService.verifyAndCreateOrder(argThat(req ->
+                        req.getImpUid().equals("imp_123456") &&
+                                req.getMerchantId().equals("merchant_abc") &&
+                                req.getUserId().equals(1L)
+                )
+        )).willReturn(response);
 
         String accessToken = jwtUtil.createToken(1L, UserRole.PATIENT);
 
@@ -87,7 +92,15 @@ class PaymentControllerTest {
                 PaymentMethod.KAKAOPAY, LocalDateTime.now()
         );
 
-        given(paymentApplicationService.handleWebhook(any())).willReturn(response);
+        given(paymentApplicationService.handleWebhook(
+                argThat(req ->
+                        req.getImpUid().equals("imp_123456") &&
+                                req.getMerchantUid().equals("merchant_abc") &&
+                                req.getPaymentStatus().equals("paid") &&
+                                req.getPayMethod().equals("card")
+                )
+        )).willReturn(response);
+
 
         mockMvc.perform(post("/api/v1/payments/webhook")
                         .contentType("application/json")

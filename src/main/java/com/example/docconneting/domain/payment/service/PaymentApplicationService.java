@@ -37,49 +37,53 @@ public class PaymentApplicationService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderResponse verifyAndCreateOrder(PaymentVerificationRequest request)
-            throws IamportResponseException, IOException {
-        // PG 결제 검증
-        Payment payment = portOneService.getPayment(request.getImpUid());
-        int paidAmount = payment.getAmount().intValue();
-        int expectedAmount = request.getOrderRequest().getPrice();
+    public OrderResponse verifyAndCreateOrder(PaymentVerificationRequest request) {
+        try {
+            // PG 결제 검증
+            Payment payment = portOneService.getPayment(request.getImpUid());
+            int paidAmount = payment.getAmount().intValue();
+            int expectedAmount = request.getOrderRequest().getPrice();
 
-        if (paidAmount != expectedAmount) {
-            throw new ClientException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+            if (paidAmount != expectedAmount) {
+                throw new ClientException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+            }
+
+            if (!"paid".equals(payment.getStatus())) {
+                throw new ClientException(ErrorCode.PAYMENT_NOT_COMPLETED);
+            }
+
+            // 주문 생성
+            AuthUser authUser = AuthUser.of(request.getUserId(), UserRole.PATIENT);
+            Order order = orderService.createOrder(request.getOrderRequest(), request.getMerchantId(), authUser);
+
+            // 결제 완료 처리
+            PaymentMethod paymentMethod = PaymentMethod.of(payment.getPgProvider(), payment.getPayMethod());
+            LocalDateTime approvedAt = payment.getPaidAt().toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDateTime();
+            paymentService.completePayment(order, payment.getImpUid(), paymentMethod, approvedAt);
+
+            // 채팅 주문 후처리
+            if (order.isChatOrder()) {
+                ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
+                order.assignChattingRoomId(response.getId());
+            }
+
+            return OrderResponse.of(
+                    order.getId(),
+                    order.getOrderType(),
+                    order.getOrderStatus(),
+                    order.getPaymentStatus(),
+                    order.getPaymentMethod(),
+                    order.getOrderProduct(),
+                    order.getPrice(),
+                    order.getChattingRoomId(),
+                    order.getApprovedAt()
+            );
+
+        } catch (IamportResponseException | IOException e) {
+            throw new ClientException(ErrorCode.PAYMENT_SERVER_ERROR);
         }
-
-        if (!"paid".equals(payment.getStatus())) {
-            throw new ClientException(ErrorCode.PAYMENT_NOT_COMPLETED);
-        }
-
-        // 주문 생성
-        AuthUser authUser = AuthUser.of(request.getUserId(), UserRole.PATIENT);
-        Order order = orderService.createOrder(request.getOrderRequest(), request.getMerchantId(), authUser);
-
-        // 결제 완료 처리
-        PaymentMethod paymentMethod = PaymentMethod.of(payment.getPgProvider(), payment.getPayMethod());
-        LocalDateTime approvedAt = payment.getPaidAt().toInstant()
-                .atZone(java.time.ZoneId.systemDefault())
-                .toLocalDateTime();
-        paymentService.completePayment(order, payment.getImpUid(), paymentMethod, approvedAt);
-
-        // 채팅 주문 후처리
-        if (order.isChatOrder()) {
-            ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
-            order.assignChattingRoomId(response.getId());
-        }
-
-        return OrderResponse.of(
-                order.getId(),
-                order.getOrderType(),
-                order.getOrderStatus(),
-                order.getPaymentStatus(),
-                order.getPaymentMethod(),
-                order.getOrderProduct(),
-                order.getPrice(),
-                order.getChattingRoomId(),
-                order.getApprovedAt()
-        );
     }
 
     @Transactional

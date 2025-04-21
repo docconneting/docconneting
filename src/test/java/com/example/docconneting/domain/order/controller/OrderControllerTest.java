@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -118,9 +119,9 @@ class OrderControllerTest {
         given(orderService.findOrders(refEq(authUser), any(Pageable.class))).willReturn(pageResult);
 
         mockMvc.perform(get("/api/v1/orders")
-                .param("page", "0")
-                .param("size", "10")
-                .header("Authorization",accessToken))
+                        .param("page", "0")
+                        .param("size", "10")
+                        .header("Authorization",accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(1L))
                 .andExpect(jsonPath("$.data[0].orderProduct").value("POINT_5000"))
