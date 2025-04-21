@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 public class HealthController {
 
-    @GetMapping("/healthy")
+    @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("현재 시간 " + LocalDateTime.now() + " 기준 서버가 정상 작동 중입니다!");
     }
