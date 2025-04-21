@@ -110,7 +110,7 @@ public class PatientCouponService {
     @Transactional
     public void useCoupon(User user, Long couponId, Long postId) {
 
-        PatientCoupon patientCoupon = patientCouponRepository.findByUserIdAndCouponId(user.getId(), couponId).orElseThrow(
+        PatientCoupon patientCoupon = patientCouponRepository.findPatientCouponByIdAndUserId(user.getId(), couponId).orElseThrow(
                 () -> new ClientException(ErrorCode.COUPON_NOT_FOUND)
         );
 
