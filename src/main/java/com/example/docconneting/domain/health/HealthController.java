@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/healthcheck")
 
 public class HealthController {
 

@@ -89,7 +89,7 @@ public class JwtFilter implements Filter {
             return true;
         }
 
-        if (requestURI.startsWith("/api/v1/signup") || requestURI.startsWith("/api/v1/signin") || requestURI.startsWith("/api/v1/refresh")) {
+        if (requestURI.startsWith("/api/v1/signup") || requestURI.startsWith("/api/v1/signin") || requestURI.startsWith("/api/v1/refresh") || requestURI.startsWith("/api/v1/healthcheck")) {
             return true;
         }
 
