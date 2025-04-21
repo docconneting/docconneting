@@ -33,9 +33,9 @@ jobs:
         run: |
           mkdir -p src/main/resources/firebase
 
-          printf "%s" "${{ secrets.FCM_CERT_JSON_CONTENT }}" > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
-          printf "%s" "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" > src/main/resources/application-local.yml
-          printf "%s" "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" > src/main/resources/application-prod.yml
+          echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" | base64 --decode > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
+          echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" | base64 --decode > src/main/resources/application-local.yml
+          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
       - name: Validate JSON and YAML files ✅
         run: |
