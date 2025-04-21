@@ -33,7 +33,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @MessageMapping("/chattingRooms/{chattingRoomId}")
-    @SendTo("/sub/chattingRooms/{chattingRoomId}")
+    @SendTo("/topic/chattingRooms.{chattingRoomId}")
     public MessageResponse sendMessage(@DestinationVariable Long chattingRoomId,
                                        @Payload MessageRequest messageRequest,
                                        Message<?> message) throws Exception {
