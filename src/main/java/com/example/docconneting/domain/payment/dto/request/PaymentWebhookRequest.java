@@ -20,4 +20,14 @@ public class PaymentWebhookRequest {
 
     @JsonProperty("pay_method")
     private String payMethod;
+
+    public static PaymentWebhookRequest of(String impUid, String merchantUid, String status, String payMethod) {
+        PaymentWebhookRequest req = new PaymentWebhookRequest();
+        req.impUid = impUid;
+        req.merchantUid = merchantUid;
+        req.paymentStatus = status;
+        req.payMethod = payMethod;
+        return req;
+    }
+
 }
