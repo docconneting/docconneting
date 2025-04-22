@@ -88,6 +88,7 @@ class PointServiceTest {
         void usePointTest() {
             // given
             Long postId = 1L;
+            Long userId = 1L;
             int point = 1000;
             int resultPoint = 0;
 
@@ -98,6 +99,7 @@ class PointServiceTest {
                     point,
                     false,
                     UserRole.PATIENT);
+            ReflectionTestUtils.setField(user, "id", userId);
 
             PointHistory pointHistory = PointHistory.of(
                     user,
@@ -121,6 +123,7 @@ class PointServiceTest {
         void insufficientPointBadRequestExceptionTest() {
             // given
             Long postId = 1L;
+            Long userId = 1L;
             User user = User.of(
                     "test@example.com",
                     "password",
@@ -128,6 +131,7 @@ class PointServiceTest {
                     0,
                     false,
                     UserRole.PATIENT);
+            ReflectionTestUtils.setField(user, "id", userId);
 
             // when, then
             ClientException thrown = assertThrows(ClientException.class, () -> pointService.usePoint(user, postId));

@@ -1,6 +1,8 @@
 package com.example.docconneting.common.aop;
 
 import com.example.docconneting.common.annotation.DistributedLock;
+import com.example.docconneting.common.exception.constant.ErrorCode;
+import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.parser.CustomSpringELParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +41,12 @@ public class DistributedLockAop {
             boolean lockable = lock.tryLock(annotation.waitTime(), annotation.leaseTime(), annotation.timeUnit());
             if (!lockable) {
                 log.info("Lock 획득 실패 = {}", lockKey);
-                return false;
+                throw new ClientException(ErrorCode.LOCK_ACQUISITION_FAILED);
             }
 
             return aopForTransaction.proceed(joinPoint);
         } catch (InterruptedException e) {
-            log.info("에러 발생");
+            log.error("락 획득 중 인터럽트 발생", e);
             throw e;
         } finally {
                 log.info("락 해제");

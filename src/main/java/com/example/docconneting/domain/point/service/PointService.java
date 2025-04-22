@@ -32,11 +32,12 @@ public class PointService {
         return PointResponse.of(user.getPoint());
     }
 
-    @Transactional
+    @DistributedLock(value = "#user.id")
     public void usePoint(User user, Long postId) {
-
+        System.out.println("포인트 사용 시작 ---------");
         validateHasPoint(user);
         user.decreasePoint(POST_POINT_COST);
+        userRepository.save(user);
 
         PointHistory pointHistory = PointHistory.of(
                 user,
@@ -45,11 +46,12 @@ public class PointService {
                 PointType.EXPENSE,
                 POST_POINT_COST);
         pointHistoryRepository.save(pointHistory);
+        System.out.println("포인트 사용 끝 ---------");
     }
 
     @DistributedLock(value = "#userId")
     public void refundPoint(Long userId, Long postId, int point) {
-
+        System.out.println("포인트 환불 시작 ---------");
         User user = userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT).orElseThrow(() ->
                 new ClientException(ErrorCode.USER_NOT_FOUND));
 
@@ -62,6 +64,7 @@ public class PointService {
                 PointType.INCOME,
                 point);
         pointHistoryRepository.save(pointHistory);
+        System.out.println("포인트 환불 끝 ---------");
     }
 
     // 결제할 수 있는 포인트를 가지고 있는지 검증

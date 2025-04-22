@@ -1,10 +1,7 @@
 package com.example.docconneting.domain.post.service;
 
-import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.point.service.PointService;
 import com.example.docconneting.domain.post.dto.request.PostCreateRequest;
-import com.example.docconneting.domain.post.entity.Post;
-import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
@@ -14,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,18 +29,14 @@ public class CreatePostDistributedLockTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PostRepository postRepository;
-
-    private AuthUser authUser;
-
     @Test
-    @DisplayName("포인트 환불과 동시에 게시글 등록 상황에서 분산락으로 정합성 보장 테스트")
+    @DisplayName("포인트 환불과 동시에 포인트 사용 상황에서 분산락으로 정합성 보장 테스트")
     void distributedLockTest() throws InterruptedException{
         // given
+        Long postId1 = 3L;
+        Long postId2 = 6L;
         User user = User.of("test@example.com", "password", "username", 1000, false, UserRole.PATIENT);
         userRepository.save(user);
-        authUser = AuthUser.of(user.getId(), user.getUserRole());
 
         PostCreateRequest request = new PostCreateRequest();
         ReflectionTestUtils.setField(request, "title", "제목");
@@ -58,9 +50,9 @@ public class CreatePostDistributedLockTest {
         // when
         executorService.submit(() -> {
             try {
-                postService.createPost(authUser, null, request);
+                pointService.usePoint(user, postId1); // 임의의 postId
             } catch (Exception e) {
-                System.out.println("게시글 등록 실패: " + e.getMessage());
+                System.out.println("포인트 사용 실패 " + e.getMessage());
             } finally {
                 latch.countDown();
             }
@@ -68,7 +60,7 @@ public class CreatePostDistributedLockTest {
 
         executorService.submit(() -> {
             try {
-                pointService.refundPoint(user.getId(), 3L, 1000); // 임의의 postId
+                pointService.refundPoint(user.getId(), postId2, 1000); // 임의의 postId
             } catch (Exception e) {
                 System.out.println("포인트 환불 실패: " + e.getMessage());
             } finally {
@@ -85,9 +77,6 @@ public class CreatePostDistributedLockTest {
         // 환불 1000
         assertThat(point).isGreaterThanOrEqualTo(1000);
         assertThat(point).isEqualTo(1000);
-
-        List<Post> posts = postRepository.findAll();
-        assertThat(posts.size()).isBetween(0, 1); // 하나만 등록됐거나 실패했을 수도 있음
     }
 
 }
