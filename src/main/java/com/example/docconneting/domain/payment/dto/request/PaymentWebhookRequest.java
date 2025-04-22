@@ -21,13 +21,14 @@ public class PaymentWebhookRequest {
     @JsonProperty("pay_method")
     private String payMethod;
 
-    public static PaymentWebhookRequest of(String impUid, String merchantUid, String status, String payMethod) {
-        PaymentWebhookRequest req = new PaymentWebhookRequest();
-        req.impUid = impUid;
-        req.merchantUid = merchantUid;
-        req.paymentStatus = status;
-        req.payMethod = payMethod;
-        return req;
+    private PaymentWebhookRequest(String impUid, String merchantUid, String paymentStatus, String payMethod) {
+        this.impUid = impUid;
+        this.merchantUid = merchantUid;
+        this.paymentStatus = paymentStatus;
+        this.payMethod = payMethod;
     }
 
+    public static PaymentWebhookRequest of(String impUid, String merchantUid, String status, String payMethod) {
+        return new PaymentWebhookRequest(impUid, merchantUid, status, payMethod);
+    }
 }
