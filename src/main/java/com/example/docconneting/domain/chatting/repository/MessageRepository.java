@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    @Query("SELECT m FROM Message m JOIN FETCH m.user WHERE m.chattingRoom.id = :chattingRoomId ORDER BY m.createdAt")
+    @Query("SELECT m FROM Message m JOIN FETCH m.user WHERE m.chattingRoom.id = :chattingRoomId ORDER BY m.createdAt DESC")
     Page<Message> findAllMessagesWithUser(Long chattingRoomId, Pageable pageable);
 }

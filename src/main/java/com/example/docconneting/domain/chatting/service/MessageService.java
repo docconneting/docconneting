@@ -17,6 +17,8 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,24 +30,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageService {
 
+    @Value("${chat.exchange}")
+    private String exchange;
+
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final ChattingRoomRepository chattingRoomRepository;
+    private final RabbitMessagingTemplate rabbitTemplate;
 
     @Transactional
-    public MessageResponse createMessage(MessageRequest messageRequest, Long userId, Long chattingRoomId){
+    public void createMessage(MessageRequest messageRequest, Long userId, Long chattingRoomId){
 
-        // 채팅방에 들어올 삭제된 유저인지 여부를 확인 하므로 유저만 찾아오도록 함
         User findUser = userRepository.findById(userId).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+        if(findUser.getIsDeleted()){
+            throw new ClientException(ErrorCode.USER_NOT_FOUND);
+        }
 
-        // 채팅방에 들어올 때 비활성화 된 채팅방인지 여부를 확인 하므로 채팅방만 찾아오도록 함
         ChattingRoom findChattingRoom = chattingRoomRepository.findById(chattingRoomId).orElseThrow(() -> new ClientException(ErrorCode.CHATTING_ROOM_NOT_FOUND));
+        if(!findChattingRoom.getIsActive()){
+            throw new ClientException(ErrorCode.INACTIVE_CHATTING_ROOM);
+        }
 
         Message message = Message.of(findUser, findChattingRoom, messageRequest.getContents());
 
         Message savedMessage = messageRepository.save(message);
 
-        return MessageResponse.of(userId, findUser.getUsername(), savedMessage.getContents(), savedMessage.getCreatedAt());
+        MessageResponse messageResponse = MessageResponse.of(chattingRoomId, userId, findUser.getUsername(), savedMessage.getContents(), savedMessage.getCreatedAt());
+
+        rabbitTemplate.convertAndSend(exchange, "", messageResponse);
     }
 
     @Transactional(readOnly = true)
