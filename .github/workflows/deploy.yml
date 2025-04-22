@@ -16,9 +16,11 @@ jobs:
       ecr-registry: ${{ steps.login-ecr.outputs.registry }}
 
     steps:
+      # 1. GitHub 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. Java 17 세팅
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -26,26 +28,31 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      # 3. gradlew 실행권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      # 4. 리소스 파일 생성 (base64 복호화해서)
       - name: Create resource files
         run: |
           mkdir -p src/main/resources/firebase
-
           echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" | base64 --decode > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
           echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" | base64 --decode > src/main/resources/application-local.yml
           echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
+      # 5. 프로젝트 빌드 (Test 제외)
       - name: Build the project
         run: ./gradlew clean build -x test
 
+      # 6. 실행용 Jar 따로 빌드
       - name: Build Jar
         run: ./gradlew clean bootJar
 
+      # 7. Docker Buildx 세팅
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      # 8. AWS Credentials 세팅
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -53,10 +60,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ap-northeast-2
 
+      # 9. AWS ECR 로그인
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # 10. Docker 이미지 빌드 후 ECR로 Push
       - name: Build, tag, and push Docker image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -66,35 +75,22 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Upload Jar to Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-jar
-          path: build/libs/*.jar
-
   deploy-on-ec2:
     needs: build-and-push-to-ecr
     runs-on: ubuntu-latest
 
     steps:
+      # 11. GitHub 코드 다시 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download Jar from Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: build/libs
-
+      # 12. SSH 연결 세팅
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Copy jar to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@${{ secrets.EC2_HOST }}:~/server/build/libs/
-
+      # 13. EC2 접속해서 배포 스크립트 실행
       - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -102,16 +98,18 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # (1) AWS CLI 설치 (만약 없으면)
             sudo apt-get update && sudo apt-get install -y awscli
 
+            # (2) 서버 디렉토리 이동
             mkdir -p ~/server
             cd ~/server
 
+            # (3) AWS ECR 로그인
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ needs.build-and-push-to-ecr.outputs.ecr-registry }}
 
-            docker rm -f spring-app || true
-
-            echo "SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/docsql" > .env
+            # (4) 필요한 환경 변수 .env 파일로 저장
+            echo "SPRING_DATASOURCE_URL=jdbc:mysql://docconneting-service-db.cfuesu40qxcw.ap-northeast-2.rds.amazonaws.com:3306/docconneting" > .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
@@ -121,8 +119,14 @@ jobs:
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
 
-            docker compose down || true
-            docker compose pull
-            docker image prune -f
+            # (5) docker-compose down + orphan 컨테이너까지 모두 제거
+            docker compose down --remove-orphans
 
+            # (6) 최신 이미지 pull
+            docker compose pull
+
+            # (7) 사용하지 않는 Docker 이미지, 컨테이너, 네트워크 전부 정리
+            docker system prune -af
+
+            # (8) docker-compose up으로 다시 띄우기
             docker compose up -d
