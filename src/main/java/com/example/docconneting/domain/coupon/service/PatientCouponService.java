@@ -39,7 +39,7 @@ public class PatientCouponService {
     @Transactional
     public IssueCouponResponse issue(AuthUser authUser, Long couponId) {
 
-        if (authUser.getUserRole().equals(UserRole.PATIENT)) {
+        if (authUser.getUserRole() != UserRole.PATIENT) {
             throw new ClientException(ErrorCode.FORBIDDEN_PATIENT_ONLY);
         }
 
@@ -85,7 +85,7 @@ public class PatientCouponService {
         );
 
         // 환자만 쿠폰 조회 가능
-        if (user.getUserRole().equals(UserRole.PATIENT)) {
+        if (user.getUserRole() != UserRole.PATIENT) {
             throw new ClientException(ErrorCode.FORBIDDEN_PATIENT_ONLY);
         }
 
