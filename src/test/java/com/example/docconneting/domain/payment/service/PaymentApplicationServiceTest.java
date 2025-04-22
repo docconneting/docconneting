@@ -40,8 +40,8 @@ import static com.example.docconneting.common.exception.constant.ErrorCode.PAYME
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-
 
 @SpringBootTest
 @Transactional
@@ -52,10 +52,8 @@ class PaymentApplicationServiceTest {
 
     @Autowired
     private PaymentService paymentService;
-
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private OrderService orderService;
 
@@ -67,20 +65,16 @@ class PaymentApplicationServiceTest {
     private Order order;
     private PaymentVerificationRequest paymentVerificationRequest;
 
-
     @BeforeEach
     void setUp() {
-        // 유저 생성
         user = User.of("test@test.com", "test123!", "환자", 0, false, UserRole.PATIENT);
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        // 주문 요청 생성
         orderRequest = new OrderRequest();
         ReflectionTestUtils.setField(orderRequest, "orderType", OrderType.POINT);
         ReflectionTestUtils.setField(orderRequest, "orderProduct", OrderProduct.POINT_5000);
         ReflectionTestUtils.setField(orderRequest, "price", 5000);
 
-        // 결제 검증 요청 생성
         paymentVerificationRequest = new PaymentVerificationRequest();
         ReflectionTestUtils.setField(paymentVerificationRequest, "impUid", "imp_123456");
         ReflectionTestUtils.setField(paymentVerificationRequest, "userId", 1L);
@@ -93,19 +87,16 @@ class PaymentApplicationServiceTest {
     void PG_결제_검증_및_주문_생성_성공() throws Exception {
         LocalDateTime approvedAt = LocalDateTime.now();
         Payment iamportPayment = mock(Payment.class);
-        when(iamportPayment.getAmount()).thenReturn(BigDecimal.valueOf(5000));
-        when(iamportPayment.getStatus()).thenReturn("paid");
-        when(iamportPayment.getPgProvider()).thenReturn("KAKAOPAY");
-        when(iamportPayment.getPayMethod()).thenReturn("card");
-        when(iamportPayment.getPaidAt()).thenReturn(Date.from(approvedAt.atZone(ZoneId.systemDefault()).toInstant()));
-
-        when(portOneService.getPayment("imp_123456")).thenReturn(iamportPayment);
+        given(iamportPayment.getAmount()).willReturn(BigDecimal.valueOf(5000));
+        given(iamportPayment.getStatus()).willReturn("paid");
+        given(iamportPayment.getPgProvider()).willReturn("KAKAOPAY");
+        given(iamportPayment.getPayMethod()).willReturn("card");
+        given(iamportPayment.getPaidAt()).willReturn(Date.from(approvedAt.atZone(ZoneId.systemDefault()).toInstant()));
+        given(portOneService.getPayment("imp_123456")).willReturn(iamportPayment);
 
         OrderResponse response = paymentApplicationService.verifyAndCreateOrder(paymentVerificationRequest);
-
         Order savedOrder = orderRepository.findById(response.getId()).orElseThrow();
 
-        assertThat(response).isNotNull();
         assertThat(savedOrder.getOrderProduct()).isEqualTo(OrderProduct.POINT_5000);
         assertThat(savedOrder.getPrice()).isEqualTo(5000);
         assertThat(savedOrder.getPaymentMethod()).isEqualTo(PaymentMethod.KAKAOPAY);
@@ -116,16 +107,15 @@ class PaymentApplicationServiceTest {
     @Test
     @DisplayName("IamportResponseException 발생 테스트")
     void iamportResponseException_발생() throws Exception {
-        // 가짜 HTTP Response (500 에러)
         Response<?> fakeResponse = Response.error(500, okhttp3.ResponseBody.create(null, "Server Error"));
         HttpException httpException = new HttpException(fakeResponse);
 
-        when(portOneService.getPayment("imp_123456"))
-                .thenThrow(new IamportResponseException("포트원 서버 오류", httpException));
+        given(portOneService.getPayment("imp_123456"))
+                .willThrow(new IamportResponseException("포트원 서버 오류", httpException));
 
-        Throwable thrown = catchThrowable(() -> {
-            paymentApplicationService.verifyAndCreateOrder(paymentVerificationRequest);
-        });
+        Throwable thrown = catchThrowable(() ->
+                paymentApplicationService.verifyAndCreateOrder(paymentVerificationRequest)
+        );
 
         assertThat(thrown)
                 .isInstanceOf(ClientException.class)
@@ -136,12 +126,13 @@ class PaymentApplicationServiceTest {
     @Test
     @DisplayName("PG 통신 중 IOException 발생 시 예외 반환")
     void ioException_발생() throws Exception {
-        when(portOneService.getPayment("imp_123456"))
-                .thenThrow(new IOException("네트워크 오류"));
+        given(portOneService.getPayment("imp_123456"))
+                .willThrow(new IOException("네트워크 오류"));
 
         assertThatThrownBy(() -> paymentApplicationService.verifyAndCreateOrder(paymentVerificationRequest))
-                .isInstanceOf(IOException.class)
-                .hasMessageContaining("네트워크 오류");
+                .isInstanceOf(ClientException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.PAYMENT_SERVER_ERROR);
     }
 
     @Test
@@ -149,28 +140,25 @@ class PaymentApplicationServiceTest {
     void 결제_상태가_COMPLETED면_결제_완료_처리() throws Exception {
         LocalDateTime approvedAt = LocalDateTime.now();
 
-        // 1. 주문 생성 및 저장
         order = Order.ofPointOrder(user, OrderProduct.POINT_5000, "merchant_abc");
-        order = orderRepository.save(order); // 실제 저장
+        order = orderRepository.save(order);
         ReflectionTestUtils.setField(order, "paymentMethod", PaymentMethod.KAKAOPAY);
         ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.FAILED);
         ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.EXPIRED);
-        orderRepository.save(order); // 변경사항 저장
+        orderRepository.save(order);
 
-        // 2. 포트원 결제 응답 Mock 설정
         Payment iamportPayment = mock(Payment.class);
-        when(iamportPayment.getPgProvider()).thenReturn("KAKAOPAY");
-        when(iamportPayment.getPayMethod()).thenReturn("card");
-        when(iamportPayment.getPaidAt()).thenReturn(Date.from(approvedAt.atZone(ZoneId.systemDefault()).toInstant()));
-        when(iamportPayment.getImpUid()).thenReturn("imp_123456");
+        given(iamportPayment.getPgProvider()).willReturn("KAKAOPAY");
+        given(iamportPayment.getPayMethod()).willReturn("card");
+        given(iamportPayment.getPaidAt()).willReturn(Date.from(approvedAt.atZone(ZoneId.systemDefault()).toInstant()));
+        given(iamportPayment.getImpUid()).willReturn("imp_123456");
 
-        when(portOneService.getPayment("imp_123456")).thenReturn(iamportPayment);
+        given(portOneService.getPayment("imp_123456")).willReturn(iamportPayment);
 
         PaymentWebhookRequest request = PaymentWebhookRequest.of("imp_123456", "merchant_abc", "paid", "card");
         paymentApplicationService.handleWebhook(request);
 
         Order updatedOrder = orderRepository.findById(order.getId()).orElseThrow();
-
         assertThat(updatedOrder.getImpUid()).isEqualTo("imp_123456");
         assertThat(updatedOrder.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETED);
         assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.COMPLETED);
@@ -180,14 +168,14 @@ class PaymentApplicationServiceTest {
     @DisplayName("결제 금액 불일치 시 예외 발생")
     void 결제_금액_불일치_예외() throws Exception {
         Payment iamportPayment = mock(Payment.class);
-        when(iamportPayment.getAmount()).thenReturn(BigDecimal.valueOf(9999)); // 다르게 설정
-        when(iamportPayment.getStatus()).thenReturn("paid");
+        given(iamportPayment.getAmount()).willReturn(BigDecimal.valueOf(9999));
+        given(iamportPayment.getStatus()).willReturn("paid");
 
-        when(portOneService.getPayment("imp_123456")).thenReturn(iamportPayment);
+        given(portOneService.getPayment("imp_123456")).willReturn(iamportPayment);
 
-        Throwable thrown = catchThrowable(() -> {
-            paymentApplicationService.verifyAndCreateOrder(paymentVerificationRequest);
-        });
+        Throwable thrown = catchThrowable(() ->
+                paymentApplicationService.verifyAndCreateOrder(paymentVerificationRequest)
+        );
 
         assertThat(thrown)
                 .isInstanceOf(ClientException.class)
@@ -198,7 +186,6 @@ class PaymentApplicationServiceTest {
     @Test
     @DisplayName("Webhook 요청 시 주문이 존재하지 않으면 예외 발생")
     void webhook_주문_없을때_예외() throws Exception {
-        // 실제로 주문을 저장하지 않음 (DB에 없음)
         PaymentWebhookRequest request = PaymentWebhookRequest.of("imp_xxx", "merchant_not_exist", "paid", "card");
 
         assertThatThrownBy(() -> paymentApplicationService.handleWebhook(request))
