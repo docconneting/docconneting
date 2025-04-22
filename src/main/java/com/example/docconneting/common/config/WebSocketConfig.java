@@ -23,8 +23,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        //registry.setPathMatcher(new AntPathMatcher("."));
-        registry.enableStompBrokerRelay("/topic","/queue");
         registry.setApplicationDestinationPrefixes("/pub");
     }
 

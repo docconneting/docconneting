@@ -10,6 +10,8 @@ import com.example.docconneting.domain.chatting.dto.response.MessageListResponse
 import com.example.docconneting.domain.chatting.dto.response.MessageResponse;
 import com.example.docconneting.domain.chatting.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -33,15 +35,14 @@ public class MessageController {
     private final MessageService messageService;
 
     @MessageMapping("/chattingRooms/{chattingRoomId}")
-    @SendTo("/topic/chattingRooms.{chattingRoomId}")
-    public MessageResponse sendMessage(@DestinationVariable Long chattingRoomId,
+    public void sendMessage(@DestinationVariable Long chattingRoomId,
                                        @Payload MessageRequest messageRequest,
                                        Message<?> message) throws Exception {
 
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(message);
         Long userId = Long.parseLong(stompHeaderAccessor.getUser().getName());
 
-        return messageService.createMessage(messageRequest, userId, chattingRoomId);
+        messageService.createMessage(messageRequest, userId, chattingRoomId);
     }
     
     @GetMapping("/api/v1/chattingRooms/{chattingRoomId}/messages")
