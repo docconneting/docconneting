@@ -1,15 +1,17 @@
 name: Deploy
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
-      - feat/redis
+      - dev
 
 env:
   AWS_REGION: ap-northeast-2
 
 jobs:
   build-and-push-to-ecr:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     outputs:
