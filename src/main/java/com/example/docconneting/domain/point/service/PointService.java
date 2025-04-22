@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.point.service;
 
+import com.example.docconneting.common.annotation.DistributedLock;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.point.dto.response.PointResponse;
@@ -46,10 +47,10 @@ public class PointService {
         pointHistoryRepository.save(pointHistory);
     }
 
-    @Transactional
+    @DistributedLock(value = "#userId")
     public void refundPoint(Long userId, Long postId, int point) {
 
-        User user = userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT).orElseThrow(() ->
+        User user = userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT).orElseThrow(() ->
                 new ClientException(ErrorCode.USER_NOT_FOUND));
 
         user.refundPoint(point);
