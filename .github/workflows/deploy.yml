@@ -138,3 +138,4 @@ jobs:
 
             # (8) docker-compose up
             docker compose up -d
+ 
