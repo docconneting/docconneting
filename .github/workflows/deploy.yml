@@ -40,6 +40,9 @@ jobs:
       - name: Build the project
         run: ./gradlew clean build -x test
 
+      - name: Build Jar 
+        run: ./gradlew clean bootJar
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
