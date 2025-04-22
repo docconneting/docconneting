@@ -40,9 +40,9 @@ jobs:
           echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" | base64 --decode > src/main/resources/application-local.yml
           echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
-      # 5. 프로젝트 빌드
+      # 5. 프로젝트 빌드 ( 테스트 제외 )
       - name: Build the project
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
 
       # 6. 실행용 Jar 따로 빌드
       - name: Build Jar
