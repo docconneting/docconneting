@@ -163,7 +163,7 @@ class PointServiceTest {
                     point
             );
 
-            given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
             given(pointHistoryRepository.save(any(PointHistory.class))).willReturn(pointHistory);
 
             // when
@@ -181,7 +181,7 @@ class PointServiceTest {
             Long postId = 1L;
             int point = 1000;
 
-            given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.empty());
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.empty());
 
             // when, then
             ClientException thrown = assertThrows(ClientException.class, () -> pointService.refundPoint(userId, postId, point));

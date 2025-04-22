@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.post.service;
 
+import com.example.docconneting.common.annotation.DistributedLock;
 import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
@@ -42,10 +43,10 @@ public class PostService {
     private final EntityManager entityManager;
 
     // 게시글 등록
-    @Transactional
+    @DistributedLock(value = "#authUser.id")
     public PostCreateResponse createPost(AuthUser authUser, Long couponId, PostCreateRequest request) {
 
-        User user = userRepository.findUserByIdAndUserRoleWithPessimisticLock(authUser.getId(), UserRole.PATIENT)
+        User user = userRepository.findUserByIdAndUserRole(authUser.getId(), UserRole.PATIENT)
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         PayType payType = PayType.of(request.getPayType());
