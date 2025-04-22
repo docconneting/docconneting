@@ -59,7 +59,9 @@ public class ChattingRoomService {
                 return ChattingRoomCreateResponse.of(
                         findChattingRoom.getId(),
                         patient.getId(),
+                        patient.getUsername(),
                         doctor.getId(),
+                        doctor.getUsername(),
                         true,
                         findChattingRoom.getCreatedAt());
 
@@ -73,7 +75,9 @@ public class ChattingRoomService {
         return ChattingRoomCreateResponse.of(
                 savedChattingRoom.getId(),
                 patient.getId(),
+                patient.getUsername(),
                 doctor.getId(),
+                doctor.getUsername(),
                 false,
                 savedChattingRoom.getCreatedAt());
     }
@@ -111,7 +115,9 @@ public class ChattingRoomService {
         return ChattingRoomSingleResponse.of(
                 findChattingRoom.getId(),
                 findChattingRoom.getPatient().getId(),
+                findChattingRoom.getPatient().getUsername(),
                 findChattingRoom.getDoctor().getId(),
+                findChattingRoom.getDoctor().getUsername(),
                 findChattingRoom.getCreatedAt());
     }
 
