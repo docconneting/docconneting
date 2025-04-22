@@ -18,7 +18,7 @@ jobs:
     steps:
       # 1. GitHub 코드 체크아웃
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Java 17 세팅
       - name: Set up JDK
@@ -28,11 +28,11 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 3. gradlew 실행권한 부여
+      # 3. gradlew 실행 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 4. 리소스 파일 생성 (base64 복호화해서)
+      # 4. 리소스 파일 생성 (base64 복호화)
       - name: Create resource files
         run: |
           mkdir -p src/main/resources/firebase
@@ -40,16 +40,16 @@ jobs:
           echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" | base64 --decode > src/main/resources/application-local.yml
           echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
-      # 5. 프로젝트 빌드 ( 테스트 제외 )
+      # 5. 프로젝트 빌드 (Test 제외)
       - name: Build the project
         run: ./gradlew clean build -x test
 
       # 6. 실행용 Jar 따로 빌드
-      - name: Build Jar
+      - name: Build bootJar
         run: ./gradlew clean bootJar
 
       # 7. Docker Buildx 세팅
-      - name: Set up Docker
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
       # 8. AWS Credentials 세팅
@@ -61,12 +61,12 @@ jobs:
           aws-region: ap-northeast-2
 
       # 9. AWS ECR 로그인
-      - name: Log in to Amazon ECR
+      - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 10. Docker 이미지 빌드 후 ECR로 Push
-      - name: Build, tag, and push Docker image to ECR
+      # 10. Docker 이미지 빌드 및 ECR 푸시
+      - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: docconneting
@@ -82,24 +82,32 @@ jobs:
     steps:
       # 11. GitHub 코드 다시 체크아웃
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 12. SSH 연결 세팅
+      # 12. SSH Agent 세팅
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      # 13. EC2 접속해서 배포 스크립트 실행
-      - name: Deploy on EC2 via SSH
+      # 13. EC2 서버에 접속해서 배포
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # (1) AWS CLI 설치 (만약 없으면)
-            sudo apt-get update && sudo apt-get install -y awscli
+            # (1) AWS CLI 설치 (존재하면 스킵)
+            if ! command -v aws &> /dev/null
+            then
+              echo "AWS CLI not found, installing..."
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
+            else
+              echo "AWS CLI already installed, skipping installation."
+            fi
 
             # (2) 서버 디렉토리 이동
             mkdir -p ~/server
@@ -119,14 +127,14 @@ jobs:
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
 
-            # (5) docker-compose down + orphan 컨테이너까지 모두 제거
+            # (5) docker-compose down + orphan 제거
             docker compose down --remove-orphans
 
             # (6) 최신 이미지 pull
             docker compose pull
 
-            # (7) 사용하지 않는 Docker 이미지, 컨테이너, 네트워크 전부 정리
+            # (7) 사용하지 않는 Docker 리소스 모두 정리
             docker system prune -af
 
-            # (8) docker-compose up으로 다시 띄우기
+            # (8) docker-compose up
             docker compose up -d
