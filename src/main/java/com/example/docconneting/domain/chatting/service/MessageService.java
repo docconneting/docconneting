@@ -6,9 +6,8 @@ import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.chatting.dto.request.MessageRequest;
-import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
-import com.example.docconneting.domain.chatting.dto.response.MessageResponse;
+import com.example.docconneting.domain.chatting.dto.response.MessageQueuePayload;
 import com.example.docconneting.domain.chatting.entity.ChattingRoom;
 import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.repository.ChattingRoomRepository;
@@ -55,9 +54,9 @@ public class MessageService {
 
         Message savedMessage = messageRepository.save(message);
 
-        MessageResponse messageResponse = MessageResponse.of(chattingRoomId, userId, findUser.getUsername(), savedMessage.getContents(), savedMessage.getCreatedAt());
+        MessageQueuePayload messageQueuePayload = MessageQueuePayload.of(chattingRoomId, userId, savedMessage.getContents(), savedMessage.getCreatedAt());
 
-        rabbitTemplate.convertAndSend(exchange, "", messageResponse);
+        rabbitTemplate.convertAndSend(exchange, "", messageQueuePayload);
     }
 
     @Transactional(readOnly = true)

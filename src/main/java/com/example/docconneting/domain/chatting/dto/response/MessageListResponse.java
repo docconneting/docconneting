@@ -5,22 +5,18 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Getter
 public class MessageListResponse {
     private final Long userId;
 
-    private final String username;
-
     private final String contents;
 
     private final LocalDateTime createdAt;
 
-    private MessageListResponse(Long userId, String username, String contents, LocalDateTime createdAt) {
+    private MessageListResponse(Long userId, String contents, LocalDateTime createdAt) {
         this.userId = userId;
-        this.username = username;
         this.contents = contents;
         this.createdAt = createdAt;
     }
@@ -29,7 +25,6 @@ public class MessageListResponse {
         return messages.stream().map(message ->
                     new MessageListResponse(
                             message.getUser().getId(),
-                            message.getUser().getUsername(),
                             message.getContents(),
                             message.getCreatedAt())
                 )
