@@ -68,6 +68,10 @@ dependencies {
 
     // 포트원 연동
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
+
+    // rabitmq
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
 }
 
 tasks.named('test') {

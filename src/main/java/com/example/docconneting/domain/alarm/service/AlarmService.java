@@ -1,8 +1,6 @@
 package com.example.docconneting.domain.alarm.service;
 
 import com.example.docconneting.common.enums.Major;
-import com.example.docconneting.common.exception.constant.ErrorCode;
-import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.alarm.dto.AlarmResponse;
@@ -10,7 +8,6 @@ import com.example.docconneting.domain.alarm.entity.AlarmHistories;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesBulkRepository;
 import com.example.docconneting.domain.alarm.repository.AlarmHistoriesRepository;
-import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
@@ -33,30 +30,6 @@ public class AlarmService {
     private final AlarmSenderService alarmSenderService;
     private final AlarmHistoriesRepository alarmHistoriesRepository;
     private final AlarmHistoriesBulkRepository alarmHistoriesBulkRepository;
-
-    /*
-     * 로그인을 진행할 때 프론트에서 넘겨준 FCM 토큰과 알람 수락 권한을 데이터베이스에 저장
-     */
-    @Transactional
-    public void saveFcmToken(UserSignInRequest requestDto) {
-        User user = userRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
-
-        String fcmToken = requestDto.getFcmToken();
-        Long isTokenPresent = userRepository.existsByFcmToken(user.getId());
-        boolean exist = isTokenPresent > 0 ? true : false;
-
-        // fcm 토큰이 존재하지 않는다면 토큰과 알람 수락 권한 저장
-        // TODO : 개발이 다 완료되면 마무리 할 때, 프론트에서 권한까지 같이 전송하는걸로 수정
-        if (!exist) {
-            user.updateAlarmInfo(requestDto.getFcmToken(), true);
-        }
-
-        // 기존에 가지고 있던 fcm 토큰과 클라이언트로부터 받은 fcm 토큰이 다르다면 fcm 토큰을 업데이트
-        if (exist && !user.getFcmToken().equals(fcmToken)){
-            user.updateFcmToken(requestDto.getFcmToken());
-        }
-    }
 
     /*
      * 알람 목록 조회
