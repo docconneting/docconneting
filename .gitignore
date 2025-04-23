@@ -43,6 +43,12 @@ out/
 *-local.yml
 *-local.properties
 
+### prod properties ###
+*-prod.yml
+*-prod.properties
+
 ### Firebase secret key ###
 *.json
 
+### docker-compose ###
+docker-compose.yml
