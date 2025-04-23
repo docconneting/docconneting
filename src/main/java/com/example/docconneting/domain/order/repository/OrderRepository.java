@@ -17,6 +17,8 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findAllByUser(User user, Pageable pageable);
     Optional<Order> findByMerchantUid(String merchantUid);
+    // 중복 요청 방지용 메서드 추가
+    boolean existsByMerchantUid(String merchantUid);
 
     @Query("""
     SELECT o FROM Order o
