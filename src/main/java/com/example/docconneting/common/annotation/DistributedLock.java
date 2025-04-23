@@ -16,9 +16,9 @@ public @interface DistributedLock {
     // 락의 시간 단위
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
-    // 락 획득을 시도하는 최대 시간 (ms)
+    // 락 획득을 시도하는 최대 시간 (s)
     long waitTime() default 5L;
 
-    // 락을 획득한 후, 점유하는 최대 시간 (ms)
+    // 락을 획득한 후, 점유하는 최대 시간 (s)
     long leaseTime() default 3L;
 }

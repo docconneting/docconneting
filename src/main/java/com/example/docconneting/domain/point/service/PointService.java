@@ -32,11 +32,14 @@ public class PointService {
         return PointResponse.of(user.getPoint());
     }
 
-    @Transactional
-    public void usePoint(User user, Long postId) {
+    @DistributedLock(value = "#userId")
+    public void usePoint(Long userId, Long postId) {
+        User user = userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT).orElseThrow(() ->
+                new ClientException(ErrorCode.USER_NOT_FOUND));
 
         validateHasPoint(user);
         user.decreasePoint(POST_POINT_COST);
+        userRepository.save(user);
 
         PointHistory pointHistory = PointHistory.of(
                 user,
@@ -49,11 +52,11 @@ public class PointService {
 
     @DistributedLock(value = "#userId")
     public void refundPoint(Long userId, Long postId, int point) {
-
         User user = userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT).orElseThrow(() ->
                 new ClientException(ErrorCode.USER_NOT_FOUND));
 
         user.refundPoint(point);
+        userRepository.save(user);
 
         PointHistory pointHistory = PointHistory.of(
                 user,
