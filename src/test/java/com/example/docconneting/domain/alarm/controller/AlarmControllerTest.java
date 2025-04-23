@@ -8,7 +8,7 @@ import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.alarm.dto.AlarmResponse;
 import com.example.docconneting.domain.alarm.entity.AlarmHistories;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
-import com.example.docconneting.domain.alarm.service.AlarmService;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.user.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ class AlarmControllerTest {
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @MockitoBean
-    AlarmService alarmService;
+    AlarmSenderService alarmSenderService;
 
     @Autowired
     JwtUtil jwtUtil;
@@ -105,7 +105,7 @@ class AlarmControllerTest {
 
         PageResult<AlarmResponse> pageResult = new PageResult<>(alarmResponses, pageInfo);
 
-        given(alarmService.findAlarms(refEq(authUser)
+        given(alarmSenderService.findAlarms(refEq(authUser)
                 , argThat(p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize())))
                 .willReturn(pageResult);
 

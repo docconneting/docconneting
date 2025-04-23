@@ -26,13 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class AlarmServiceTest {
+class AlarmSenderServiceTest {
 
     @Mock
     private AlarmHistoriesRepository alarmHistoriesRepository;
 
     @InjectMocks
-    private AlarmService alarmService;
+    private AlarmSenderService alarmSenderService;
 
     private AlarmHistories histories1;
     private AlarmHistories histories2;
@@ -72,7 +72,7 @@ class AlarmServiceTest {
         given(alarmHistoriesRepository.findAlarmHistories(userId, pageable)).willReturn(alarmPage);
 
         // when
-        PageResult<AlarmResponse> result = alarmService.findAlarms(authUser, pageable);
+        PageResult<AlarmResponse> result = alarmSenderService.findAlarms(authUser, pageable);
 
         // then
         assertThat(result.getContent()).hasSize(alarmHistories.size());

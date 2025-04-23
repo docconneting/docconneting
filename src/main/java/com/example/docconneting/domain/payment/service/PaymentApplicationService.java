@@ -2,6 +2,7 @@ package com.example.docconneting.domain.payment.service;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateResponse;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
@@ -14,15 +15,17 @@ import com.example.docconneting.domain.payment.dto.request.PaymentWebhookRequest
 import com.example.docconneting.domain.payment.dto.response.PortOnePaymentResponse;
 import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
+import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
+import com.example.docconneting.domain.user.repository.UserRepository;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.Payment;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -34,7 +37,9 @@ public class PaymentApplicationService {
     private final PortOneService portOneService;
     private final OrderService orderService;
     private final ChattingRoomService chattingRoomService;
+    private final AlarmSenderService alarmSenderService;
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public OrderResponse verifyAndCreateOrder(PaymentVerificationRequest request) {
@@ -65,6 +70,9 @@ public class PaymentApplicationService {
 
             // 채팅 주문 후처리
             if (order.isChatOrder()) {
+                User patient = userRepository.findById(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+                User doctor = userRepository.findById(order.getDoctorId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
+                alarmSenderService.sendMedicalRequestMessage(patient, doctor);
                 ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
                 order.assignChattingRoomId(response.getId());
             }

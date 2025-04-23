@@ -4,7 +4,7 @@ package com.example.docconneting.domain.auth.controller;
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.filter.JwtFilter;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
-import com.example.docconneting.domain.alarm.service.AlarmService;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
@@ -57,7 +57,7 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @MockitoBean
-    private AlarmService alarmService;
+    private AlarmSenderService alarmSenderService;
 
     @MockitoBean
     private UserRepository userRepository;
