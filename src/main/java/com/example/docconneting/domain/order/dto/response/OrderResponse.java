@@ -38,8 +38,8 @@ public class OrderResponse {
         this.approvedAt = approvedAt;
     }
 
-    public static OrderResponse of(Long id, OrderType orderType, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, OrderProduct orderProduct, Integer price, Long chattingUserId, LocalDateTime approvedAt) {
-        return new OrderResponse(id, orderType, orderStatus, paymentStatus, paymentMethod,orderProduct, price, chattingUserId, approvedAt);
+    public static OrderResponse of(Long id, OrderType orderType, OrderStatus orderStatus, PaymentStatus paymentStatus, PaymentMethod paymentMethod, OrderProduct orderProduct, Integer price, Long chattingRoomId, LocalDateTime approvedAt) {
+        return new OrderResponse(id, orderType, orderStatus, paymentStatus, paymentMethod,orderProduct, price, chattingRoomId, approvedAt);
     }
 
     public static List<OrderResponse> toOrderResponseList(List<Order> orders) {
