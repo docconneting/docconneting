@@ -22,7 +22,7 @@ public class ChattingRoomAsyncService {
     private final OrderRepository orderRepository;
     private final ChattingRoomService chattingRoomService;
 
-    @Async("chattingRoomExecutor")
+    @Async("asyncExecutor")
     @Transactional
     public void createChattingRoom(Order order) {
         try {
