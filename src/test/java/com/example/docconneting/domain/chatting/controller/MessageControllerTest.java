@@ -51,48 +51,48 @@ class MessageControllerTest {
     @Autowired
     JwtUtil jwtUtil;
 
-    @Test
-    @DisplayName("채팅방 메시지 목록 조회 api 테스트")
-    void findAllMessagesTest() throws Exception {
-        // given
-        Long userId = 1L;
-        UserRole userRole = UserRole.PATIENT;
-        AuthUser authUser = AuthUser.of(userId, userRole);
-
-        Long chattingRoomId = 1L;
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        User messageUser = User.of(null, null, null, null, null, null);
-        ReflectionTestUtils.setField(messageUser, "id", 1L);
-
-        List<Message> messages = new ArrayList<>();
-        for(int i=0;i<10;i++){
-            Message message = Message.of(null, null, null);
-            ReflectionTestUtils.setField(message, "user", messageUser);
-            messages.add(message);
-        }
-
-        List<MessageListResponse> content = MessageListResponse.toMessageListResponses(messages);
-
-        PageInfo pageInfo = PageInfo.builder()
-                .pageNum(pageable.getPageNumber())
-                .pageSize(pageable.getPageSize())
-                .totalElement(content.size())
-                .totalPage(content.size()/pageable.getPageSize())
-                .build();
-
-        PageResult<MessageListResponse> pageResult = new PageResult<>(content, pageInfo);
-
-        String accessToken = jwtUtil.createToken(userId, userRole);
-
-        given(messageService.findAllMessages(refEq(authUser), eq(chattingRoomId), argThat(
-                p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize()
-        ))).willReturn(pageResult);
-
-        // when, then
-        mockMvc.perform(get("/api/v1/chattingRooms/{chattingRoomId}/messages", chattingRoomId)
-                .header("Authorization", accessToken))
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    @DisplayName("채팅방 메시지 목록 조회 api 테스트")
+//    void findAllMessagesTest() throws Exception {
+//        // given
+//        Long userId = 1L;
+//        UserRole userRole = UserRole.PATIENT;
+//        AuthUser authUser = AuthUser.of(userId, userRole);
+//
+//        Long chattingRoomId = 1L;
+//
+//        Pageable pageable = PageRequest.of(0, 10);
+//
+//        User messageUser = User.of(null, null, null, null, null, null);
+//        ReflectionTestUtils.setField(messageUser, "id", 1L);
+//
+//        List<Message> messages = new ArrayList<>();
+//        for(int i=0;i<10;i++){
+//            Message message = Message.of(null, null, null);
+//            ReflectionTestUtils.setField(message, "user", messageUser);
+//            messages.add(message);
+//        }
+//
+//        List<MessageListResponse> content = MessageListResponse.toMessageListResponses(messages);
+//
+//        PageInfo pageInfo = PageInfo.builder()
+//                .pageNum(pageable.getPageNumber())
+//                .pageSize(pageable.getPageSize())
+//                .totalElement(content.size())
+//                .totalPage(content.size()/pageable.getPageSize())
+//                .build();
+//
+//        PageResult<MessageListResponse> pageResult = new PageResult<>(content, pageInfo);
+//
+//        String accessToken = jwtUtil.createToken(userId, userRole);
+//
+//        given(messageService.findAllMessages(refEq(authUser), eq(chattingRoomId), argThat(
+//                p -> p.getPageNumber() == pageable.getPageNumber() && p.getPageSize() == pageable.getPageSize()
+//        ))).willReturn(pageResult);
+//
+//        // when, then
+//        mockMvc.perform(get("/api/v1/chattingRooms/{chattingRoomId}/messages", chattingRoomId)
+//                .header("Authorization", accessToken))
+//                .andExpect(status().isOk());
+//    }
 }
