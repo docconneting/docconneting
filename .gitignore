@@ -50,5 +50,3 @@ out/
 ### Firebase secret key ###
 *.json
 
-### docker-compose ###
-docker-compose.yml
