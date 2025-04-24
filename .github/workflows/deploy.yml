@@ -128,6 +128,9 @@ jobs:
             echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
             echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
             echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
+            echo "OPENSEARCH_HOST=${{ secrets.OPENSEARCH_HOST }}" >> .env
+            echo "OPENSEARCH_USERNAME=${{ secrets.OPENSEARCH_USERNAME }}" >> .env
+            echo "OPENSEARCH_PASSWORD=${{ secrets.OPENSEARCH_PASSWORD }}" >> .env
  
             # (5) docker-compose down + orphan 제거
             docker compose down --remove-orphans
