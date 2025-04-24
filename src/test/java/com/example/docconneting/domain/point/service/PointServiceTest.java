@@ -110,7 +110,7 @@ class PointServiceTest {
             given(pointHistoryRepository.save(any(PointHistory.class))).willReturn(pointHistory);
 
             // when
-            pointService.usePoint(user, postId);
+            pointService.usePoint(user.getId(), postId);
 
             // then
             assertThat(resultPoint).isEqualTo(user.getPoint());
@@ -130,7 +130,7 @@ class PointServiceTest {
                     UserRole.PATIENT);
 
             // when, then
-            ClientException thrown = assertThrows(ClientException.class, () -> pointService.usePoint(user, postId));
+            ClientException thrown = assertThrows(ClientException.class, () -> pointService.usePoint(user.getId(), postId));
             assertThat(HttpStatus.BAD_REQUEST).isEqualTo(thrown.getErrorCode().getStatus());
             assertThat(ErrorCode.INSUFFICIENT_POINT.getMessage()).isEqualTo(thrown.getErrorCode().getMessage());
         }
@@ -163,7 +163,7 @@ class PointServiceTest {
                     point
             );
 
-            given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
             given(pointHistoryRepository.save(any(PointHistory.class))).willReturn(pointHistory);
 
             // when
@@ -181,7 +181,7 @@ class PointServiceTest {
             Long postId = 1L;
             int point = 1000;
 
-            given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.empty());
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.empty());
 
             // when, then
             ClientException thrown = assertThrows(ClientException.class, () -> pointService.refundPoint(userId, postId, point));
