@@ -5,6 +5,7 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.chatting.dto.projection.MessageList;
 import com.example.docconneting.domain.chatting.dto.request.MessageRequest;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageQueuePayload;
@@ -89,9 +90,10 @@ public class MessageService {
 
         }
 
-        Page<Message> messages = messageRepository.findAllMessagesWithUser(chattingRoomId, pageable);
+        Page<MessageList> messages = messageRepository.findAllMessagesWithUser(chattingRoomId, pageable);
 
-        List<Message> content = messages.getContent();
+        List<MessageList> content = messages.getContent();
+
         Pageable messagesPageable = messages.getPageable();
 
         List<MessageListResponse> messageListResponses = MessageListResponse.toMessageListResponses(content);
