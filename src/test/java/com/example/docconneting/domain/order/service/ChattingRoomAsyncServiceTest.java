@@ -40,11 +40,10 @@ class ChattingRoomAsyncServiceTest {
         User patient = createUser("test@patient.com", "환자", UserRole.PATIENT);
         User doctor = createUser("test@doctor.com", "의사", UserRole.DOCTOR);
         userRepository.saveAll(java.util.List.of(patient, doctor));
-        userRepository.flush();
 
         String uniqueMerchantUid = "merchant_" + UUID.randomUUID();
         Order order = Order.ofChatOrder(patient, OrderProduct.CHAT_3000, doctor.getId(), uniqueMerchantUid);
-        orderRepository.saveAndFlush(order);
+        orderRepository.save(order);
 
         // when
         chattingRoomAsyncService.createChattingRoom(order);
