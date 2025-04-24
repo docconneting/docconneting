@@ -1,7 +1,5 @@
-package com.example.docconneting.domain.post.service;
+package com.example.docconneting.domain.point.service;
 
-import com.example.docconneting.domain.point.service.PointService;
-import com.example.docconneting.domain.post.repository.PostRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
@@ -20,16 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CreatePostDistributedLockTest {
 
     @Autowired
-    private PostService postService;
-
-    @Autowired
     private PointService pointService;
 
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PostRepository postRepository;
 
     @Test
     @DisplayName("포인트 환불과 동시에 게시글 등록 상황에서 분산락으로 정합성 보장 테스트")

@@ -1,6 +1,6 @@
 package com.example.docconneting.domain.point.service;
 
-import com.example.docconneting.common.annotation.DistributedLock;
+import com.example.docconneting.common.config.annotation.DistributedLock;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.point.dto.response.PointResponse;
