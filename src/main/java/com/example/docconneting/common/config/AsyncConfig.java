@@ -31,21 +31,6 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
-    @Bean(name = "chattingRoomExecutor")
-    public Executor chattingRoomExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(6);
-        executor.setQueueCapacity(100);
-        executor.setKeepAliveSeconds(60);
-        executor.setThreadNamePrefix("ChattingRoom-Async-");
-        executor.setRejectedExecutionHandler((r, exec) -> {
-            throw new ServerException(ErrorCode.TOO_MANY_REQUESTS);
-        });
-        executor.initialize();
-        return executor;
-    }
-
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new CustomAsyncExceptionHandler();
