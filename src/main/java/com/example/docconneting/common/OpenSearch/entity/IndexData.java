@@ -5,25 +5,14 @@ public class IndexData {
     private String firstName;
     private String lastName;
 
-    public IndexData(String firstName, String lastName) {
+    private IndexData(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public static IndexData of(String firstName, String lastName)
+    {
+        return new IndexData(firstName,lastName);
     }
 
     @Override

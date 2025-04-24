@@ -1,5 +1,6 @@
 package com.example.docconneting.common.OpenSearch.service;
 
+import com.example.docconneting.common.OpenSearch.dto.UpdateDto;
 import com.example.docconneting.common.OpenSearch.entity.IndexData;
 import com.example.docconneting.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class OpenSearchService {
         String index = "sample-index";
 
         //내용
-        IndexData indexData = new IndexData("first_name", "Bruce");
+        IndexData indexData = IndexData.of("first_name", "Bruce");
 
         //저장
         IndexRequest<IndexData> indexRequest = new IndexRequest.Builder<IndexData>().index(index).id("1").document(indexData).build();
@@ -48,7 +49,7 @@ public class OpenSearchService {
         String id = "1";
 
         // 새로 덮어쓸 문서 데이터 (예시)
-        IndexData updatedData = new IndexData("updated_name", "Tony");
+        IndexData updatedData = IndexData.of("updated_name", "Tony");
 
         // 덮어쓰기 요청 (기존 문서가 동일 ID로 존재하면 삭제 후 재작성)
         IndexRequest<IndexData> request = new IndexRequest.Builder<IndexData>()
@@ -62,15 +63,15 @@ public class OpenSearchService {
         System.out.println("Overwritten document ID: " + response.id());
     }
 
-    // 부분 업데이트: firstName만 변경 (DTO 기반)
+    // 부분 업데이트: firstName만 변경
     public void updateDocumentPartially(String id) throws IOException {
         String index = "sample-index";
 
         // 일부만 수정할 필드만 채워서 전달
-        IndexData partialData = new IndexData("UpdatedFirstName", null);
+        UpdateDto partialData = new UpdateDto("UpdatedFirstName", null);
 
         // UpdateRequest 구성
-        UpdateRequest<IndexData, IndexData> request = new UpdateRequest.Builder<IndexData, IndexData>()
+        UpdateRequest<IndexData, UpdateDto> request = new UpdateRequest.Builder<IndexData, UpdateDto>()
                 .index(index)
                 .id(id)
                 .doc(partialData)
