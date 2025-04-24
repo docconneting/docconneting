@@ -13,9 +13,12 @@ public enum PaymentMethod {
         }
 
         return switch (pgProvider.toLowerCase()) {
-            case "kakaopay" -> KAKAOPAY;
+            case "kakaopay", "kakao" -> KAKAOPAY;
             case "tosspayments", "uplus" -> TOSS_PAYMENTS;
-            default -> throw new ClientException(ErrorCode.INVALID_PAYMENT_METHOD);
+            default -> {
+                System.out.println("⚠️ Invalid PG provider or method: " + pgProvider + " / " + method);
+                throw new ClientException(ErrorCode.INVALID_PAYMENT_METHOD);
+            }
         };
     }
 }
