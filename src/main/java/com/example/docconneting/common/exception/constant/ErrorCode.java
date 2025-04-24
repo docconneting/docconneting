@@ -154,7 +154,10 @@ public enum ErrorCode {
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 불일치합니다."),
 
     // 402
-    PAYMENT_VERIFICATION_FAILED(HttpStatus.PAYMENT_REQUIRED, "결제 검증에 실패했습니다.");
+    PAYMENT_VERIFICATION_FAILED(HttpStatus.PAYMENT_REQUIRED, "결제 검증에 실패했습니다."),
+
+    // 500
+    PAYMENT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 서버 오류입니다.");
 
     private final HttpStatus status;
     private final String message;

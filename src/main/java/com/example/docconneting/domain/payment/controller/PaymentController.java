@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.payment.controller;
 
+import com.example.docconneting.common.response.Response;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.payment.dto.request.PaymentVerificationRequest;
 import com.example.docconneting.domain.payment.dto.request.PaymentWebhookRequest;
@@ -24,16 +25,16 @@ public class PaymentController {
 
     // 포트원 PG 사의 웹훅 콜백 처리
     @PostMapping("/webhook")
-    public ResponseEntity<PortOnePaymentResponse> handleWebhook(
+    public ResponseEntity<Response<PortOnePaymentResponse>> handleWebhook(
             @RequestBody PaymentWebhookRequest request
     ) throws Exception {
-        return ResponseEntity.ok(paymentApplicationService.handleWebhook(request));
-        }
+        return ResponseEntity.ok(Response.of(paymentApplicationService.handleWebhook(request)));
+    }
 
     @PostMapping("/verify")
-    public ResponseEntity<OrderResponse> verifyAndCreateOrder(
+    public ResponseEntity<Response<OrderResponse>> verifyAndCreateOrder(
             @RequestBody PaymentVerificationRequest request
     ) throws Exception {
-        return ResponseEntity.ok(paymentApplicationService.verifyAndCreateOrder(request));
+        return ResponseEntity.ok(Response.of(paymentApplicationService.verifyAndCreateOrder(request)));
     }
 }

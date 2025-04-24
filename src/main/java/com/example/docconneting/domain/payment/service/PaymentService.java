@@ -1,10 +1,7 @@
 package com.example.docconneting.domain.payment.service;
 
-import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateResponse;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
 import com.example.docconneting.domain.order.entity.Order;
-import com.example.docconneting.domain.order.enums.OrderType;
 import com.example.docconneting.domain.order.repository.OrderRepository;
 import com.example.docconneting.domain.payment.entity.PaymentHistory;
 import com.example.docconneting.domain.payment.enums.PaymentMethod;
