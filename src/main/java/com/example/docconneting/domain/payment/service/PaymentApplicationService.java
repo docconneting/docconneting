@@ -9,7 +9,6 @@ import com.example.docconneting.domain.chatting.service.ChattingRoomService;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.order.entity.Order;
 import com.example.docconneting.domain.order.repository.OrderRepository;
-import com.example.docconneting.domain.order.service.ChattingRoomAsyncService;
 import com.example.docconneting.domain.order.service.OrderService;
 import com.example.docconneting.domain.payment.dto.request.PaymentVerificationRequest;
 import com.example.docconneting.domain.payment.dto.request.PaymentWebhookRequest;
@@ -37,7 +36,6 @@ public class PaymentApplicationService {
     private final OrderService orderService;
     private final ChattingRoomService chattingRoomService;
     private final OrderRepository orderRepository;
-    private final ChattingRoomAsyncService chattingRoomAsyncService;
 
     @DistributedLock(value = "#request.merchantId")
     @Transactional
@@ -81,10 +79,12 @@ public class PaymentApplicationService {
             log.info("결제 완료 처리 완료 | orderId={}, paymentMethod={}, approvedAt={}",
                     order.getId(), paymentMethod, approvedAt);
 
-            // 채팅 주문 후처리 (비동기)
+            // 채팅 주문 후처리
             if (order.isChatOrder()) {
-                log.info("채팅 주문으로 채팅방 비동기 생성 시도 | doctorId={}", order.getDoctorId());
-                chattingRoomAsyncService.createChattingRoom(order);
+                log.info("채팅 주문으로 채팅방 생성 시도 | doctorId={}", order.getDoctorId());
+                ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
+                order.assignChattingRoomId(response.getId());
+                log.info("채팅방 생성 완료 | chattingRoomId={}", response.getId());
             }
 
             log.info("[END] verifyAndCreateOrder 완료 | orderId={}", order.getId());
