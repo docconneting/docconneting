@@ -54,6 +54,11 @@ jobs:
       - name: Write application.yml in test resources
         run: echo "${{ secrets.APPLICATION_TEST_YML_CONTENT }}" | base64 -d > src/test/resources/application-test.yml
 
+      #test-firebase-adminsdk.json 생성
+      - name: Write test-firebase-adminsdk.json in test resources
+        run: |
+          mkdir -p src/test/resources/firebase
+          echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" | base64 -d > src/test/resources/firebase/test-firebase-adminsdk.json
 
       # DB 연결 테스트
       - name: Check MySQL connection
