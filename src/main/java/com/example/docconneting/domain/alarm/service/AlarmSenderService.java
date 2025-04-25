@@ -4,6 +4,7 @@ import com.example.docconneting.common.enums.Major;
 import com.example.docconneting.domain.alarm.enums.AlarmType;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import com.example.docconneting.infra.rabbitmq.dto.FcmInfo;
 import com.example.docconneting.infra.rabbitmq.dto.Message;
 import com.example.docconneting.infra.rabbitmq.producer.AlarmServerSender;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,11 @@ public class AlarmSenderService {
     @Transactional
     public void sendPostUploadCompletedMessage(Major major) {
         List<User> users = userRepository.findByMajor(major);
-        List<Long> userIdList = users.stream().map(User::getId).toList();
-        List<String> fcmTokenList = users.stream().map(User::getFcmToken).toList();
-        Message messageDto = Message.of(fcmTokenList, userIdList, "새로운 유료 질문이 등록되었습니다", AlarmType.POST_UPLOAD);
+        List<FcmInfo> fcmInfoList = users.stream()
+                                    .map(user -> FcmInfo.of(user.getFcmToken(), user.getId()))
+                                    .toList();
+
+        Message messageDto = Message.of(fcmInfoList, "새로운 유료 질문이 등록되었습니다", AlarmType.POST_UPLOAD);
         alarmServerSender.send(messageDto);
     }
 
@@ -38,10 +41,10 @@ public class AlarmSenderService {
      */
     @Transactional
     public void sendCommentCompletedMessage(User user) {
-        String fcmToken = user.getFcmToken();
-        Long userId = user.getId();
+        FcmInfo fcmInfo = FcmInfo.of(user.getFcmToken(), user.getId());
+        List<FcmInfo> fcmInfoList = List.of(fcmInfo);
         String message = "회원님의 게시물에 의사가 답변을 달았습니다";
-        Message messageDto = Message.of(fcmToken, message, userId, AlarmType.COMMENT);
+        Message messageDto = Message.of(fcmInfoList, message, AlarmType.COMMENT);
         alarmServerSender.send(messageDto);
     }
 
@@ -50,11 +53,10 @@ public class AlarmSenderService {
      */
     @Transactional
     public void sendMedicalRequestMessage(User patient, User doctor) {
-        String patientName = patient.getUsername();
-        String fcmToken = doctor.getFcmToken();
-        Long userId = doctor.getId();
-        String message = patientName + "님이 채팅 진료를 요청 했습니다";
-        Message messageDto = Message.of(fcmToken, message, userId, AlarmType.MEDICAL_REQUEST);
+        FcmInfo fcmInfo = FcmInfo.of(doctor.getFcmToken(), doctor.getId());
+        List<FcmInfo> fcmInfoList = List.of(fcmInfo);
+        String message = patient.getUsername() + "님이 채팅 진료를 요청 했습니다";
+        Message messageDto = Message.of(fcmInfoList, message, AlarmType.MEDICAL_REQUEST);
         alarmServerSender.send(messageDto);
     }
 
