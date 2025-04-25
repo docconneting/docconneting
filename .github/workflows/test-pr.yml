@@ -52,7 +52,7 @@ jobs:
 
       # application-test.yml 생성
       - name: Write application.yml in test resources
-        run: echo "${{ secrets.APPLICATION_TEST_YML_BASE64 }}" | base64 -d > src/test/resources/application.yml
+        run: echo "${{ secrets.APPLICATION_TEST_YML_BASE64 }}" | base64 -d > src/test/resources/application-test.yml
 
 
       # DB 연결 테스트
@@ -66,18 +66,18 @@ jobs:
         run: sleep 20
 
       # 디코딩한 application-test.yml 확인
-      - name: 🔍 Debug application-test.yml content
-        run: cat src/main/resources/application-test.yml
+      - name: Debug application-test.yml content
+        run: cat src/test/resources/application-test.yml
 
       # MySQL에 실제 접속해서 docconneting_test 데이터베이스 확인
-      - name: ✅ MySQL connection & table check
+      - name:  MySQL connection & table check
         run: |
           sudo apt-get update && sudo apt-get install -y mysql-client
-          echo "🎯 Available databases:"
+          echo " Available databases:"
           mysql -h mysql -P 3306 -u root -p0000 -e "SHOW DATABASES;"
-          echo "📄 Tables in 'docconneting_test':"
+          echo " Tables in 'docconneting_test':"
           mysql -h mysql -P 3306 -u root -p0000 -e "SHOW TABLES FROM docconneting_test;"
-          
+
       # 테스트 실행 (test profile 활성화)
       - name: Run Tests with `test` profile
         run: ./gradlew test -Dspring.profiles.active=test
