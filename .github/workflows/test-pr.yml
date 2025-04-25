@@ -1,8 +1,11 @@
 name: Test Every PR
 
 on:
-  workflow_dispatch:
-  pull_request:
+  push:
+    branches:
+      - feat/cicd  # 이 브랜치에 push될 때마다 작동
+  workflow_dispatch:  # 수동 실행도 가능하게
+
 
 permissions:
   contents: read
@@ -15,6 +18,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        #  현재 브랜치의 코드를 가져옵니다
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -22,9 +26,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+        #  Java 17 + Gradle 캐싱
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
+        #  gradlew 실행권한 부여 (CI 환경은 기본적으로 권한 없음)
+
+      - name: Set up application-test.yml from secret
+        run: |
+          echo "${{ secrets.APPLICATION_TEST_YML_CONTENT }}" | base64 -d > src/main/resources/application-test.yml
+        #  GitHub Secrets에 저장된 application-test.yml 가져오기
 
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew test -Dspring.profiles.active=test
+        #  spring.profiles.active=test 로 테스트 환경 실행
