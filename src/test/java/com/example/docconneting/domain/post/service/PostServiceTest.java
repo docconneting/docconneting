@@ -91,7 +91,7 @@ class PostServiceTest {
                 LocalDateTime.now().plusDays(1));
         ReflectionTestUtils.setField(savedPost, "id", postId);
 
-        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+        given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
 
         // when
         PostCreateResponse response = postService.createPost(authUser, null, request);
@@ -130,7 +130,7 @@ class PostServiceTest {
                 LocalDateTime.now().plusDays(1));
         ReflectionTestUtils.setField(savedPost, "id", postId);
 
-        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+        given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
         given(postRepository.save(any(Post.class))).willReturn(savedPost);
 
         // when
@@ -170,7 +170,7 @@ class PostServiceTest {
                 LocalDateTime.now().plusDays(1));
         ReflectionTestUtils.setField(savedPost, "id", postId);
 
-        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+        given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
         given(postRepository.save(any(Post.class))).willReturn(savedPost);
 
         // when
@@ -190,7 +190,7 @@ class PostServiceTest {
         AuthUser authUser = AuthUser.of(userId, UserRole.PATIENT);
         PostCreateRequest request = new PostCreateRequest();
 
-        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.empty());
+        given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.empty());
 
         // when, then
         ClientException thrown = assertThrows(ClientException.class, () -> postService.createPost(authUser, null, request));
@@ -214,7 +214,7 @@ class PostServiceTest {
         User user = User.of("test@example.com", "password", "username", 0, false, UserRole.PATIENT);
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(userRepository.findUserByIdAndUserRoleWithPessimisticLock(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+        given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
 
         // when, then
         ClientException thrown = assertThrows(ClientException.class, () -> postService.createPost(authUser, null, request));

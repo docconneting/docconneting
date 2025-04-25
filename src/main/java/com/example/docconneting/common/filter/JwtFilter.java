@@ -103,7 +103,8 @@ public class JwtFilter implements Filter {
                     requestURI.matches("^/api/v1/doctors/\\d+$") ||
                     requestURI.matches("^/api/v1/doctors$") ||
                     requestURI.matches("^/api/v1/health") ||
-                    requestURI.matches("/websocket");
+                    requestURI.matches("/websocket") ||
+                    requestURI.matches("/opensearch/health");
         }
 
         return false;
