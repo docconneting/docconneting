@@ -45,7 +45,7 @@ public class PostService {
     @Transactional
     public PostCreateResponse createPost(AuthUser authUser, Long couponId, PostCreateRequest request) {
 
-        User user = userRepository.findUserByIdAndUserRoleWithPessimisticLock(authUser.getId(), UserRole.PATIENT)
+        User user = userRepository.findUserByIdAndUserRole(authUser.getId(), UserRole.PATIENT)
                 .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
 
         PayType payType = PayType.of(request.getPayType());
@@ -75,7 +75,7 @@ public class PostService {
                 post.updatePayType(PayType.POINT);
                 Post savedPost = postRepository.save(post);
 
-                pointService.usePoint(user, savedPost.getId());
+                pointService.usePoint(user.getId(), savedPost.getId());
             }
 
             case FREE -> {
