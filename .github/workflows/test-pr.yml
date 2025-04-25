@@ -1,10 +1,9 @@
 name: Test Every PR
 
 on:
-  push:
-    branches:
-      - feat/cicd  # 이 브랜치에 push될 때마다 작동
-  workflow_dispatch:  # 수동 실행도 가능하게
+  workflow_dispatch:
+  pull_request:      # PR 생성/업데이트 시 자동 실행
+
 
 permissions:
   contents: read
