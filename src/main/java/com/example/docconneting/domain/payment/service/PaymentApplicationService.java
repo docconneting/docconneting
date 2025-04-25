@@ -4,7 +4,6 @@ import com.example.docconneting.common.config.annotation.DistributedLock;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateResponse;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.order.entity.Order;
@@ -43,41 +42,6 @@ public class PaymentApplicationService {
     @Transactional
     public OrderResponse verifyAndCreateOrder(PaymentVerificationRequest request) {
         try {
-            // TEST 모드 분기 시작
-            if (request.getImpUid().startsWith("TEST_")) {
-                log.info("[TEST MODE] impUid={}, merchantId={}", request.getImpUid(), request.getMerchantId());
-
-                if (orderRepository.existsByMerchantUid(request.getMerchantId())) {
-                    throw new ClientException(ErrorCode.LOCK_ACQUISITION_FAILED);
-                }
-
-                AuthUser authUser = AuthUser.of(request.getUserId(), UserRole.PATIENT);
-                Order order = orderService.createOrder(request.getOrderRequest(), request.getMerchantId(), authUser);
-
-                // 결제 완료 처리 (가짜)
-                paymentService.completePayment(order, request.getImpUid(), PaymentMethod.TEST, LocalDateTime.now());
-
-                // 비동기 채팅방 생성
-                if (order.isChatOrder()) {
-                    chattingRoomAsyncService.createChattingRoom(order);
-                }
-
-                log.info("[TEST MODE] 주문 완료 | orderId={}", order.getId());
-
-                return OrderResponse.of(
-                        order.getId(),
-                        order.getOrderType(),
-                        order.getOrderStatus(),
-                        order.getPaymentStatus(),
-                        order.getPaymentMethod(),
-                        order.getOrderProduct(),
-                        order.getPrice(),
-                        order.getChattingRoomId(),
-                        order.getApprovedAt()
-                );
-            }
-            // TEST 모드 끝
-
             // PG 결제 검증
             Payment payment = portOneService.getPayment(request.getImpUid());
             log.info("PG 결제 정보 조회 완료 | impUid={}, amount={}, status={}",
