@@ -46,9 +46,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      # test dir 생성
+      - name: Create test resource dir
+        run: mkdir -p src/test/resources
+
       # application-test.yml 생성
-      - name: Write application-test.yml
-        run: echo "${{ secrets.APPLICATION_TEST_YML_BASE64 }}" | base64 -d > src/main/resources/application-test.yml
+      - name: Write application.yml in test resources
+        run: echo "${{ secrets.APPLICATION_TEST_YML_BASE64 }}" | base64 -d > src/test/resources/application.yml
+
 
       # DB 연결 테스트
       - name: Check MySQL connection
