@@ -52,7 +52,7 @@ jobs:
 
       # application-test.yml 생성
       - name: Write application.yml in test resources
-        run: echo "${{ secrets.APPLICATION_TEST_YML_BASE64 }}" | base64 -d > src/test/resources/application-test.yml
+        run: echo "${{ secrets.APPLICATION_TEST_YML_CONTENT }}" | base64 -d > src/test/resources/application-test.yml
 
 
       # DB 연결 테스트
