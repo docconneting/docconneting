@@ -70,13 +70,13 @@ jobs:
         run: cat src/test/resources/application-test.yml
 
       # MySQL에 실제 접속해서 docconneting_test 데이터베이스 확인
-      - name:  MySQL connection & table check
+      - name: ✅ MySQL connection & table check
         run: |
           sudo apt-get update && sudo apt-get install -y mysql-client
-          echo " Available databases:"
-          mysql -h mysql -P 3306 -u root -p0000 -e "SHOW DATABASES;"
-          echo " Tables in 'docconneting_test':"
-          mysql -h mysql -P 3306 -u root -p0000 -e "SHOW TABLES FROM docconneting_test;"
+          echo "🎯 Available databases:"
+          mysql -h 127.0.0.1 -P 3306 -u root -p0000 -e "SHOW DATABASES;"
+          echo "📄 Tables in 'docconneting_test':"
+          mysql -h 127.0.0.1 -P 3306 -u root -p0000 -e "SHOW TABLES FROM docconneting_test;"
 
       # 테스트 실행 (test profile 활성화)
       - name: Run Tests with `test` profile
