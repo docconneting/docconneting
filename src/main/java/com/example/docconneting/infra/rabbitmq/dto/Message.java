@@ -9,34 +9,18 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class Message {
-    // id값 추가, 이벤트가 처음 발생하는 시점에서 줘야 함
-    private String fcmToken;
-    private Long userId;
-    private List<String> fcmTokenList;
-    private List<Long> userIdList;
+    private List<FcmInfo> fcmInfos;
     private String message;
     private AlarmType alarmType;
 
-    private Message(List<String> fcmTokenList, List<Long> userIdList, String message, AlarmType alarmType) {
-        this.fcmTokenList = fcmTokenList;
-        this.userIdList = userIdList;
+    private Message(List<FcmInfo> fcmInfos, String message, AlarmType alarmType) {
+        this.fcmInfos = fcmInfos;
         this.message = message;
         this.alarmType = alarmType;
     }
 
-    private Message(String fcmToken, String message, Long userId, AlarmType alarmType) {
-        this.fcmToken = fcmToken;
-        this.message = message;
-        this.userId = userId;
-        this.alarmType = alarmType;
-    }
-
-    public static Message of(List<String> fcmTokenList, List<Long> userIdList, String message, AlarmType alarmType) {
-        return new Message(fcmTokenList, userIdList, message, alarmType);
-    }
-
-    public static Message of(String fcmToken, String message, Long userId, AlarmType alarmType) {
-        return new Message(fcmToken, message, userId, alarmType);
+    public static Message of(List<FcmInfo> fcmInfos, String message, AlarmType alarmType) {
+        return new Message(fcmInfos, message, alarmType);
     }
 
 }
