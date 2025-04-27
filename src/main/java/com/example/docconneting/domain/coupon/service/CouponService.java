@@ -25,14 +25,13 @@ public class CouponService {
     private static final int DEFAULT_AVAILABLE_COUNT = 5;
 
     // 쿠폰 생성
-    public CreateCouponResponse createCoupon(AuthUser authUser, CreateCouponRequest request) {
+    public CreateCouponResponse createCoupon(AuthUser authUser, CreateCouponRequest request, LocalDateTime now) {
 
         //운영자인지 확인
         if (authUser.getUserRole() != UserRole.ADMIN) {
             throw new ClientException(ErrorCode.FORBIDDEN_ADMIN_ONLY);
         }
 
-        LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = now.plusDays(COUPON_VALID_DAYS);
 
         Coupon coupon = Coupon.of(
@@ -41,7 +40,7 @@ public class CouponService {
                 now,
                 expiredAt
         );
-        couponRepository.save(coupon);
+        coupon = couponRepository.save(coupon);
 
         return CreateCouponResponse.of(
                 coupon.getId(),
