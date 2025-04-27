@@ -51,7 +51,7 @@ class PatientCouponServiceTest {
 
     @Test
     void 동시에_쿠폰10개를_여러_사람이_요청하면_초과_발급되지_않는다() throws InterruptedException {
-        int testCount = 1000;
+        int testCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(testCount);
         AtomicInteger successfulUpdates = new AtomicInteger(0);

@@ -6,7 +6,9 @@ import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
 import com.example.docconneting.domain.coupon.service.DistributedCouponService;
+import com.example.docconneting.domain.coupon.service.OptimisticLockService;
 import com.example.docconneting.domain.coupon.service.PatientCouponService;
+import com.example.docconneting.domain.coupon.service.PessimisticLockService;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +50,12 @@ class PatientCouponControllerTest {
     private DistributedCouponService distributedCouponService;
 
     @MockitoBean
+    private OptimisticLockService optimisticLockService;
+
+    @MockitoBean
+    private PessimisticLockService pessimisticLockService;
+
+    @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @Autowired
@@ -87,11 +95,5 @@ class PatientCouponControllerTest {
                 .andExpect(jsonPath("$.data.availableCount").value(response.getAvailableCount()))
                 .andExpect(jsonPath("$.data.startDate").value(response.getStartDate().toString()))
                 .andExpect(jsonPath("$.data.endDate").value(response.getEndDate().toString()));
-    }
-
-    @Test
-    @DisplayName("잘못된 쿠폰 ID로 요청 시 400 Bad Request 응답이 반환된다.")
-    void issueCouponWithInvalidCouponIdTest() throws Exception {
-
     }
 }
