@@ -135,7 +135,7 @@ public enum ErrorCode {
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),
 
     // 409
-    LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "다른 요청이 락을 먼저 획득했습니다."),
+    LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "락 획득에 실패했습니다."),
 
     // 500
     LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득 중 인터럽트가 발생했습니다."),

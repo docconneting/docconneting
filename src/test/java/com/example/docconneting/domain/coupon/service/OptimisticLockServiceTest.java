@@ -3,6 +3,7 @@ package com.example.docconneting.domain.coupon.service;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.entity.Coupon;
 import com.example.docconneting.domain.coupon.repository.CouponRepository;
+import com.example.docconneting.domain.coupon.repository.PatientCouponRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
@@ -21,43 +21,40 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ActiveProfiles("test")
 @SpringBootTest
-class PatientCouponServiceTest {
+class OptimisticLockServiceTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private OptimisticLockService optimisticLockService;
+
+    @Autowired
+    private PatientCouponRepository patientCouponRepository;
 
     @Autowired
     private CouponRepository couponRepository;
 
     @Autowired
-    private DistributedCouponService distributedCouponService;
+    private UserRepository userRepository;
 
     private Long couponId;
 
     @BeforeEach
     void setUp() {
-        Coupon coupon = couponRepository.save(
-                Coupon.of(
-                        1,
-                        10,
-                        LocalDateTime.now(),
-                        LocalDateTime.now().plusDays(7)
-                )
-        );
-        couponId = coupon.getId();
+        // 쿠폰 생성
+        Coupon coupon = Coupon.of(5, 10, LocalDateTime.now(), LocalDateTime.now().plusDays(7));
+        Coupon savedCoupon = couponRepository.save(coupon);
+        this.couponId = savedCoupon.getId();
     }
 
     @Test
-    void 동시에_쿠폰10개를_여러_사람이_요청하면_초과_발급되지_않는다() throws InterruptedException {
-        int testCount = 100;
+    void 동시에_100명이_쿠폰을_요청하면_10명만_발급된다() throws InterruptedException {
+        int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(10);
-        CountDownLatch latch = new CountDownLatch(testCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
         AtomicInteger successfulUpdates = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
 
-        for (int i = 0; i < testCount; i++) {
+        for (int i = 0; i < threadCount; i++) {
             final int userId = i;
 
             User user = userRepository.save(
@@ -72,9 +69,9 @@ class PatientCouponServiceTest {
             );
             AuthUser authUser = AuthUser.of(user.getId(), user.getUserRole());
 
-            executorService.execute(() -> {
+            executorService.submit(() -> {
                 try {
-                    distributedCouponService.issueCoupon(authUser, couponId);
+                    optimisticLockService.issueWithOptimisticLock(authUser, couponId);
                     successfulUpdates.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();
@@ -83,10 +80,10 @@ class PatientCouponServiceTest {
                 }
             });
         }
-
         latch.await();
         executorService.shutdown();
 
+        long issuedCount = patientCouponRepository.count();
         System.out.println("성공 수: " + successfulUpdates.get());
         System.out.println("실패 수: " + failCount.get());
 
