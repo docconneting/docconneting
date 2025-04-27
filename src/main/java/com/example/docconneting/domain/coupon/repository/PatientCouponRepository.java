@@ -11,8 +11,9 @@ import java.util.Optional;
 
 public interface PatientCouponRepository extends JpaRepository<PatientCoupon, Long> {
 
+    Optional<PatientCoupon> findPatientCouponByIdAndUserId(Long couponId, Long userId);
+
     boolean existsByUserIdAndCouponId(Long userId, Long couponId);
-    Optional<PatientCoupon> findByUserIdAndCouponId(Long userId, Long couponId);
 
     @Query("SELECT pc FROM PatientCoupon pc JOIN FETCH pc.coupon WHERE pc.user.id = :userId And pc.endDate > CURRENT_TIMESTAMP")
     Page<PatientCoupon> findAllByUserId(Pageable pageable, @Param("userId") Long userId);
