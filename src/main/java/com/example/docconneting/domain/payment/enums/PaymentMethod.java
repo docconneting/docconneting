@@ -5,7 +5,8 @@ import com.example.docconneting.common.exception.object.ClientException;
 
 public enum PaymentMethod {
     KAKAOPAY,
-    TOSS_PAYMENTS;
+    TOSS_PAYMENTS,
+    TEST;
 
     public static PaymentMethod of(String pgProvider, String method) {
         if (pgProvider == null || method == null) {
