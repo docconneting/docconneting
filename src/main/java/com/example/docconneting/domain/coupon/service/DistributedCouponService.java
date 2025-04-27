@@ -1,7 +1,7 @@
 package com.example.docconneting.domain.coupon.service;
 
+import com.example.docconneting.common.config.annotation.DistributedLock;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.coupon.annotation.DistributedLock;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ public class DistributedCouponService {
 
 
     // 쿠폰 발급
-    @DistributedLock(key = "#couponId")  // SpEL 사용해서 key 지정
+    @DistributedLock(value = "#couponId")  // SpEL 사용해서 key 지정
     public IssueCouponResponse issueCoupon(AuthUser authUser, Long couponId) {
         return patientCouponService.issue(authUser, couponId);
     }
