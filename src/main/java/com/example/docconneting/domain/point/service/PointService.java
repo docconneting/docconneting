@@ -1,9 +1,14 @@
 package com.example.docconneting.domain.point.service;
 
+import com.example.docconneting.common.config.annotation.DistributedLock;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.point.dto.response.PointResponse;
+import com.example.docconneting.domain.point.entity.PointHistory;
+import com.example.docconneting.domain.point.enums.PointType;
+import com.example.docconneting.domain.point.repository.PointHistoryRepository;
 import com.example.docconneting.domain.user.entity.User;
+import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PointService {
 
+    private static final int POST_POINT_COST = 1000;
+
     private final UserRepository userRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     @Transactional(readOnly = true)
     public PointResponse findPoint(Long userId) {
@@ -22,5 +30,47 @@ public class PointService {
                new ClientException(ErrorCode.USER_NOT_FOUND));
 
         return PointResponse.of(user.getPoint());
+    }
+
+    @DistributedLock(value = "#userId")
+    public void usePoint(Long userId, Long postId) {
+        User user = userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT).orElseThrow(() ->
+                new ClientException(ErrorCode.USER_NOT_FOUND));
+
+        validateHasPoint(user);
+        user.decreasePoint(POST_POINT_COST);
+        userRepository.save(user);
+
+        PointHistory pointHistory = PointHistory.of(
+                user,
+                postId,
+                false,
+                PointType.EXPENSE,
+                POST_POINT_COST);
+        pointHistoryRepository.save(pointHistory);
+    }
+
+    @DistributedLock(value = "#userId")
+    public void refundPoint(Long userId, Long postId, int point) {
+        User user = userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT).orElseThrow(() ->
+                new ClientException(ErrorCode.USER_NOT_FOUND));
+
+        user.refundPoint(point);
+        userRepository.save(user);
+
+        PointHistory pointHistory = PointHistory.of(
+                user,
+                postId,
+                true,
+                PointType.INCOME,
+                point);
+        pointHistoryRepository.save(pointHistory);
+    }
+
+    // 결제할 수 있는 포인트를 가지고 있는지 검증
+    private void validateHasPoint(User user) {
+        if (user.getPoint() < POST_POINT_COST) {
+            throw new ClientException(ErrorCode.INSUFFICIENT_POINT);
+        }
     }
 }

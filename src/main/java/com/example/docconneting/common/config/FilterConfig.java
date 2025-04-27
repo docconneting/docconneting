@@ -18,6 +18,9 @@ public class FilterConfig {
         registrationBean.setFilter(new JwtFilter(jwtUtil));
         registrationBean.addUrlPatterns("/*");
 
+        registrationBean.addInitParameter("excludeUrlPatterns", "/api/v1/payments/webhook");
+        registrationBean.setOrder(1);
+
         return registrationBean;
     }
 }

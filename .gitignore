@@ -43,6 +43,14 @@ out/
 *-local.yml
 *-local.properties
 
+### test properties ###
+*-test.yml
+*-test.properties
+
+### prod properties ###
+*-prod.yml
+*-prod.properties
+
 ### Firebase secret key ###
 *.json
 

@@ -5,9 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends PostRepositoryCustom, JpaRepository<Post, Long> {
     @Query("select p from Post p join fetch p.patient where p.id = :userId")
     Optional<Post> findByIdWithUser(@Param(value = "userId") Long userId);
+
+    @Query("select p from Post p where p.deadline < :now and (p.payType = 'COUPON' or p.payType = 'POINT')")
+    List<Post> findAllByDeadlineBeforeAndPayTypeCouponOrPayTypePoint(LocalDateTime now);
 }
