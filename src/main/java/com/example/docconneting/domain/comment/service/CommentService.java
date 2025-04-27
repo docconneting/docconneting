@@ -46,7 +46,7 @@ public class CommentService {
         }
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ServerException(ErrorCode.POST_NOT_FOUND));
+                .orElseThrow(() -> new ServerException(ErrorCode.NOT_FOUND_POST));
 
         Comment comment = Comment.of(user, post, request.getContents());
 

@@ -85,7 +85,14 @@ public class JwtFilter implements Filter {
 
     // URI + HTTP Method 기반 화이트리스트
     private boolean isWhiteList(String requestURI, String method) {
-        if (requestURI.startsWith("/api/v1/signup") || requestURI.startsWith("/api/v1/signin") || requestURI.startsWith("/api/v1/refresh")) {
+        if (requestURI.equals("/api/v1/payments/webhook")) {
+            return true;
+        }
+
+        if (requestURI.startsWith("/api/v1/signup") ||
+                requestURI.startsWith("/api/v1/signin") ||
+                requestURI.startsWith("/api/v1/refresh") ||
+                requestURI.startsWith("/api/v1/healthcheck")) {
             return true;
         }
 
@@ -96,7 +103,8 @@ public class JwtFilter implements Filter {
                     requestURI.matches("^/api/v1/doctors/\\d+$") ||
                     requestURI.matches("^/api/v1/doctors$") ||
                     requestURI.matches("^/api/v1/health") ||
-                    requestURI.matches("/websocket");
+                    requestURI.matches("/websocket") ||
+                    requestURI.matches("/opensearch/health");
         }
 
         return false;

@@ -2,6 +2,7 @@ package com.example.docconneting.domain.post.entity;
 
 import com.example.docconneting.common.base.BaseEntity;
 import com.example.docconneting.common.enums.Major;
+import com.example.docconneting.domain.post.enums.PayType;
 import com.example.docconneting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "posts", indexes = {
         @Index(name = "idx_is_deleted_created_at", columnList = "isDeleted, createdAt"),
         @Index(name = "idx_major_is_deleted_created_at", columnList = "major, isDeleted, createdAt"),
+        @Index(name = "idx_deadline_payType", columnList = "deadline, payType")
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,7 +35,8 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Major major;
 
-    private Boolean isPaid;
+    @Enumerated(EnumType.STRING)
+    private PayType payType;
 
     private Boolean isDeleted;
 
@@ -41,19 +44,32 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deadline;
 
-    Post(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
+    private Post(User patient, String title, String contents, Major major, PayType payType, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline) {
         this.patient = patient;
         this.title = title;
         this.contents = contents;
         this.major = major;
-        this.isPaid = isPaid;
+        this.payType = payType;
         this.isDeleted = isDeleted;
         this.isReplied = isReplied;
         this.deadline = deadline;
     }
 
-    public static Post of(User patient, String title, String contents, Major major, Boolean isPaid, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline){
-        return new Post(patient, title, contents, major, isPaid, isDeleted, isReplied, deadline);
+    private Post(User patient, String title, String contents, Major major, Boolean isDeleted, Boolean isReplied) {
+        this.patient = patient;
+        this.title = title;
+        this.contents = contents;
+        this.major = major;
+        this.isDeleted = isDeleted;
+        this.isReplied = isReplied;
+    }
+
+    public static Post of(User patient, String title, String contents, Major major, PayType payType, Boolean isDeleted, Boolean isReplied, LocalDateTime deadline){
+        return new Post(patient, title, contents, major, payType, isDeleted, isReplied, deadline);
+    }
+
+    public static Post of(User patient, String title, String contents, Major major, Boolean isDeleted, Boolean isReplied){
+        return new Post(patient, title, contents, major, isDeleted, isReplied);
     }
 
     public void updateTitle(String title){
@@ -64,7 +80,21 @@ public class Post extends BaseEntity {
         this.contents = contents;
     }
 
+    public void updatePayType(PayType payType) {
+        this.payType = payType;
+    }
+
     public void delete(){
         isDeleted = true;
+    }
+
+    public void changePayTypeAndDeadline() {
+        this.payType = PayType.FREE;
+        this.deadline = null;
+    }
+
+    @PrePersist
+    public void setting() {
+        this.deadline = this.payType.equals(PayType.POINT) || this.payType.equals(PayType.COUPON) ? this.getCreatedAt().plusDays(1) : null;
     }
 }
