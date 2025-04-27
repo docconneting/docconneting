@@ -14,8 +14,8 @@ public @interface DistributedLock {
 
     TimeUnit tineUnit() default TimeUnit.SECONDS;
 
-    long waitTime() default 5L;
+    long waitTime() default 30L;
 
-    long leaseTime() default 3L;
+    long leaseTime() default 30L;
 
 }
