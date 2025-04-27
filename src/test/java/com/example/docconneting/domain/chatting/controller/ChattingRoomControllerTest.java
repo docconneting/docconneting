@@ -67,65 +67,68 @@ class ChattingRoomControllerTest {
     @Autowired
     JwtUtil jwtUtil;
 
-//    @Test
-//    @DisplayName("채팅방 생성 api 테스트")
-//    void createdChattingRoomTest() throws Exception {
-//        // given
-//        Long userId = 1L;
-//        Long doctorId = 2L;
-//        UserRole userRole = UserRole.PATIENT;
-//        AuthUser authUser = AuthUser.of(userId, userRole);
-//        Long chattingRoomId = 1L;
-//        boolean isRecovered = false;
-//        LocalDateTime createdAt = LocalDateTime.now();
-//
-//        String accessToken = jwtUtil.createToken(userId, userRole);
-//
-//        ChattingRoomCreateResponse chattingRoomCreateResponse = ChattingRoomCreateResponse.of(chattingRoomId, userId, doctorId, isRecovered, createdAt);
-//
-//        given(chattingRoomService.createdChattingRoom(refEq(authUser), eq(doctorId))).willReturn(chattingRoomCreateResponse);
-//
-//        // when, then
-//        mockMvc.perform(post("/api/v1/doctors/{doctorId}/chattingRooms", doctorId)
-//                        .header("Authorization", accessToken))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.data.id").value(chattingRoomId))
-//                .andExpect(jsonPath("$.data.patientId").value(userId))
-//                .andExpect(jsonPath("$.data.doctorId").value(doctorId))
-//                .andExpect(jsonPath("$.data.isRecovered").value(isRecovered))
-//                .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(createdAt.toString().substring(0,19))));
-//
-//        verify(chattingRoomService, times(1)).createdChattingRoom(refEq(authUser), eq(doctorId));
-//    }
-//
-//    @Test
-//    @DisplayName("채팅방 단건 조회 api 테스트")
-//    void findChattingRoomByIdTest() throws Exception {
-//        // given
-//        Long userId = 1L;
-//        Long doctorId = 2L;
-//        UserRole userRole = UserRole.PATIENT;
-//        AuthUser authUser = AuthUser.of(userId, userRole);
-//        Long chattingRoomId = 1L;
-//        LocalDateTime createdAt = LocalDateTime.now();
-//
-//        String accessToken = jwtUtil.createToken(userId, userRole);
-//
-//        ChattingRoomSingleResponse chattingRoomSingleResponsee = ChattingRoomSingleResponse.of(chattingRoomId, userId, doctorId, createdAt);
-//
-//        given(chattingRoomService.findChattingRoomById(refEq(authUser), eq(chattingRoomId))).willReturn(chattingRoomSingleResponsee);
-//
-//        // when, then
-//        mockMvc.perform(get("/api/v1/chattingRooms/{chattingRoomId}", chattingRoomId)
-//                        .header("Authorization", accessToken))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.data.id").value(chattingRoomId))
-//                .andExpect(jsonPath("$.data.patientId").value(userId))
-//                .andExpect(jsonPath("$.data.doctorId").value(doctorId))
-//                .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(createdAt.toString().substring(0,19))));
-//
-//        verify(chattingRoomService, times(1)).findChattingRoomById(refEq(authUser), eq(chattingRoomId));
-//    }
+    @Test
+    @DisplayName("채팅방 생성 api 테스트")
+    void createdChattingRoomTest() throws Exception {
+        // given
+        Long userId = 1L;
+        Long doctorId = 2L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+        Long chattingRoomId = 1L;
+        boolean isRecovered = false;
+        LocalDateTime createdAt = LocalDateTime.now();
+
+        String patientName = "patient";
+        String doctorName = "doctor";
+
+        String accessToken = jwtUtil.createToken(userId, userRole);
+
+        ChattingRoomCreateResponse chattingRoomCreateResponse = ChattingRoomCreateResponse.of(chattingRoomId, userId, patientName, doctorId, doctorName, isRecovered, createdAt);
+
+        given(chattingRoomService.createdChattingRoom(refEq(authUser), eq(doctorId))).willReturn(chattingRoomCreateResponse);
+
+        // when, then
+        mockMvc.perform(post("/api/v1/doctors/{doctorId}/chattingRooms", doctorId)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(chattingRoomId))
+                .andExpect(jsonPath("$.data.patientId").value(userId))
+                .andExpect(jsonPath("$.data.doctorId").value(doctorId))
+                .andExpect(jsonPath("$.data.isRecovered").value(isRecovered))
+                .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(createdAt.toString().substring(0,19))));
+
+        verify(chattingRoomService, times(1)).createdChattingRoom(refEq(authUser), eq(doctorId));
+    }
+
+    @Test
+    @DisplayName("채팅방 단건 조회 api 테스트")
+    void findChattingRoomByIdTest() throws Exception {
+        // given
+        Long userId = 1L;
+        Long doctorId = 2L;
+        UserRole userRole = UserRole.PATIENT;
+        AuthUser authUser = AuthUser.of(userId, userRole);
+        Long chattingRoomId = 1L;
+        LocalDateTime createdAt = LocalDateTime.now();
+
+        String accessToken = jwtUtil.createToken(userId, userRole);
+
+        ChattingRoomSingleResponse chattingRoomSingleResponsee = ChattingRoomSingleResponse.of(chattingRoomId, userId, null, doctorId, null, createdAt);
+
+        given(chattingRoomService.findChattingRoomById(refEq(authUser), eq(chattingRoomId))).willReturn(chattingRoomSingleResponsee);
+
+        // when, then
+        mockMvc.perform(get("/api/v1/chattingRooms/{chattingRoomId}", chattingRoomId)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(chattingRoomId))
+                .andExpect(jsonPath("$.data.patientId").value(userId))
+                .andExpect(jsonPath("$.data.doctorId").value(doctorId))
+                .andExpect(jsonPath("$.data.createdAt", Matchers.startsWith(createdAt.toString().substring(0,19))));
+
+        verify(chattingRoomService, times(1)).findChattingRoomById(refEq(authUser), eq(chattingRoomId));
+    }
 
     @Test
     @DisplayName("채팅방 리스트 조회 api 테스트")
