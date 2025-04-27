@@ -58,6 +58,7 @@ public class PatientCouponController {
         return ResponseEntity.ok(Response.of(response));
     }
 
+    // 비관적 락 쿠폰 발급
     @PostMapping("/pessimistic/{couponId}")
     public ResponseEntity<Response<IssueCouponResponse>> issueWithPessimisticLock(
             @Auth AuthUser authUser,
