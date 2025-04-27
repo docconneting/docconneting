@@ -47,17 +47,22 @@ public class DistributedLockAspect {
             boolean available = lock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.tineUnit());
             if (!available) {
                 log.warn("락 획득 실패 key: {}", key);
-                return false;
+                System.out.println("락 획득 실패 key: " + key);
+//                return false;
+                throw new ServerException(ErrorCode.LOCK_ACQUISITION_FAILED);
             }
 
-            // 트랜잭션 보장 처리
-            return aopForTransaction.proceed(joinPoint);
+            return joinPoint.proceed();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ServerException(ErrorCode.LOCK_INTERRUPTED);
         } finally {
             try {
-                lock.unlock();
+                System.out.println("is lock::: " + lock.isLocked());
+                System.out.println("is Held By ct::: " + lock.isHeldByCurrentThread());
+                if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
             } catch (IllegalStateException e) {
                 log.info("이미 락이 해제된 상태입니다. key: {}", key);
             }
