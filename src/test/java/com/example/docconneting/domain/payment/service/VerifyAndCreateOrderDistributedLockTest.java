@@ -1,5 +1,6 @@
 package com.example.docconneting.domain.payment.service;
 
+import com.example.docconneting.common.config.TestAsyncConfig;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.domain.auth.entity.AuthUser;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.mock;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@Import(TestAsyncConfig.class)
 public class VerifyAndCreateOrderDistributedLockTest {
 
     @Autowired
