@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/coupons")
@@ -26,7 +28,7 @@ public class AdminCouponController {
     public ResponseEntity<Response<CreateCouponResponse>> createCoupon(
             @Auth AuthUser authUser,
             @Valid @RequestBody CreateCouponRequest request) {
-        CreateCouponResponse createCouponResponse = couponService.createCoupon(authUser, request);
+        CreateCouponResponse createCouponResponse = couponService.createCoupon(authUser, request, LocalDateTime.now());
         return ResponseEntity.ok(Response.of(createCouponResponse));
     }
 }
