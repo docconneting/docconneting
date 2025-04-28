@@ -24,8 +24,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @ActiveProfiles("test")
@@ -89,6 +88,7 @@ class PointServiceTest {
         @DisplayName("포인트 사용 성공")
         void usePointTest() {
             // given
+            Long userId = 1L;
             Long postId = 1L;
             int point = 1000;
             int resultPoint = 0;
@@ -109,19 +109,37 @@ class PointServiceTest {
                     point
             );
 
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
             given(pointHistoryRepository.save(any(PointHistory.class))).willReturn(pointHistory);
 
             // when
-            pointService.usePoint(user.getId(), postId);
+            pointService.usePoint(userId, postId);
 
             // then
             assertThat(resultPoint).isEqualTo(user.getPoint());
         }
 
         @Test
+        @DisplayName("포인트 사용 유저 조회 실패")
+        void usePointUserNotFoundExceptionTest() {
+            // given
+            long userId = 1L;
+            Long postId = 1L;
+            int point = 1000;
+
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.empty());
+
+            // when, then
+            ClientException thrown = assertThrows(ClientException.class, () -> pointService.usePoint(userId, postId));
+            assertThat(HttpStatus.NOT_FOUND).isEqualTo(thrown.getErrorCode().getStatus());
+            assertThat(ErrorCode.USER_NOT_FOUND.getMessage()).isEqualTo(thrown.getErrorCode().getMessage());
+        }
+
+        @Test
         @DisplayName("포인트가 부족해서 실패")
         void insufficientPointBadRequestExceptionTest() {
             // given
+            Long userId = 1L;
             Long postId = 1L;
             User user = User.of(
                     "test@example.com",
@@ -131,8 +149,10 @@ class PointServiceTest {
                     false,
                     UserRole.PATIENT);
 
+            given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.of(user));
+
             // when, then
-            ClientException thrown = assertThrows(ClientException.class, () -> pointService.usePoint(user.getId(), postId));
+            ClientException thrown = assertThrows(ClientException.class, () -> pointService.usePoint(userId, postId));
             assertThat(HttpStatus.BAD_REQUEST).isEqualTo(thrown.getErrorCode().getStatus());
             assertThat(ErrorCode.INSUFFICIENT_POINT.getMessage()).isEqualTo(thrown.getErrorCode().getMessage());
         }

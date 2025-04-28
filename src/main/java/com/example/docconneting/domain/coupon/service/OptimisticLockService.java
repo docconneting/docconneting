@@ -3,13 +3,9 @@ package com.example.docconneting.domain.coupon.service;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.exception.object.ServerException;
-import com.example.docconneting.common.response.PageInfo;
-import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
-import com.example.docconneting.domain.coupon.dto.response.PatientCouponResponse;
 import com.example.docconneting.domain.coupon.entity.Coupon;
-import com.example.docconneting.domain.coupon.entity.CouponHistory;
 import com.example.docconneting.domain.coupon.entity.PatientCoupon;
 import com.example.docconneting.domain.coupon.repository.CouponHistoryRepository;
 import com.example.docconneting.domain.coupon.repository.CouponRepository;
@@ -17,27 +13,59 @@ import com.example.docconneting.domain.coupon.repository.PatientCouponRepository
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PatientCouponService {
+public class OptimisticLockService {
 
     private final UserRepository userRepository;
     private final CouponRepository couponRepository;
     private final PatientCouponRepository patientCouponRepository;
-    private final CouponHistoryRepository couponHistoryRepository;
+
+    // 최대 재시도 횟수
+    private static final int MAX_RETRIES = 1;
+
+    // 재시도 간 대기 시간 (단위: 밀리초)
+    private static final int RETRY_DELAY_MS = 1000;
+
+    // 재시도 3번만 허용, 재시도 후 1초 동안 대기 후 재시도
+    public IssueCouponResponse issueWithOptimisticLock(AuthUser authUser, Long couponId) {
+        int retryCount = 0;
+        boolean success = false;
+        IssueCouponResponse response = null;
+
+        while (retryCount < MAX_RETRIES && !success) {
+            try {
+                response = tryIssueCoupon(authUser, couponId);
+                success = true;
+            } catch (OptimisticLockingFailureException e) {
+                retryCount++;
+                if (retryCount >= MAX_RETRIES) {
+                    throw new IllegalStateException("최대 재시도 횟수를 초과했습니다.");
+                }
+                try {
+                    // 재시도 전에 대기 (Exponential Backoff 등 사용 가능)
+                    Thread.sleep(RETRY_DELAY_MS);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("재시도중 인터럽트가 발생했습니다.");
+                }
+            }
+        }
+        return response;
+    }
+
 
     // 검증 후 쿠폰 발급
     @Transactional
-    public IssueCouponResponse issue(AuthUser authUser, Long couponId) {
+    public IssueCouponResponse tryIssueCoupon(AuthUser authUser, Long couponId) {
 
         if (authUser.getUserRole() != UserRole.PATIENT) {
             throw new ClientException(ErrorCode.FORBIDDEN_PATIENT_ONLY);
@@ -75,65 +103,4 @@ public class PatientCouponService {
 
         return IssueCouponResponse.of(user.getId(), coupon.getId(), coupon.getAvailableCount(), coupon.getStartDate(), coupon.getEndDate());
     }
-
-    // 쿠폰 목록 조회
-    @Transactional
-    public PageResult<PatientCouponResponse> findAllUserCoupons(Pageable pageable, AuthUser authUser) {
-
-        User user = userRepository.findByPatientId(authUser.getId()).orElseThrow(
-                () -> new ClientException(ErrorCode.USER_NOT_FOUND)
-        );
-
-        // 환자만 쿠폰 조회 가능
-        if (user.getUserRole() != UserRole.PATIENT) {
-            throw new ClientException(ErrorCode.FORBIDDEN_PATIENT_ONLY);
-        }
-
-        Page<PatientCoupon> coupons = patientCouponRepository.findAllByUserId(pageable, user.getId());
-
-        List<PatientCoupon> content = coupons.getContent();
-        Pageable patientCouponsPageable = coupons.getPageable();
-
-        List<PatientCouponResponse> patientCoupons = PatientCouponResponse.toPatientCouponResponses(content);
-
-        PageInfo pageInfo = PageInfo.builder()
-                .pageNum(patientCouponsPageable.getPageNumber())
-                .pageSize(patientCouponsPageable.getPageSize())
-                .totalElement(coupons.getTotalElements())
-                .totalPage(coupons.getTotalPages())
-                .build();
-
-        return new PageResult<>(patientCoupons, pageInfo);
-    }
-
-    // 받은 쿠폰 사용 후 히스토리 저장
-    @Transactional
-    public void useCoupon(User user, Long couponId, Long postId) {
-
-        PatientCoupon patientCoupon = patientCouponRepository.findPatientCouponByIdAndUserId(couponId, user.getId()).orElseThrow(
-                () -> new ClientException(ErrorCode.COUPON_NOT_FOUND)
-        );
-
-        // 자기 쿠폰인지 확인
-        if (!patientCoupon.getUser().getId().equals(user.getId())) {
-            throw new ClientException(ErrorCode.SELF_COUPON_ONLY);
-        }
-
-        // 사용가능 횟수가 0이면 예외처리
-        if (!patientCoupon.isAvailableCountValid()) {
-            throw new ClientException(ErrorCode.NO_AVAILABLE_USAGE);
-        }
-
-        // 쿠폰 사용 기간 체크
-        if (!patientCoupon.isValidPeriod()) {
-            throw new ClientException(ErrorCode.INVALID_COUPON_PERIOD);
-        }
-
-        patientCoupon.decreaseAvailableCount();
-        patientCouponRepository.save(patientCoupon);
-
-        // 쿠폰 히스토리에 저장
-        couponHistoryRepository.save(CouponHistory.of(patientCoupon, postId));
-    }
-
 }

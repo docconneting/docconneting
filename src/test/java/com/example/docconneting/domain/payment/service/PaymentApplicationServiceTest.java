@@ -16,6 +16,7 @@ import com.example.docconneting.domain.payment.enums.PaymentStatus;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.order.enums.OrderStatus;
+import com.example.docconneting.domain.user.repository.UserRepository;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.Payment;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,8 +55,13 @@ class PaymentApplicationServiceTest {
 
     @Autowired
     private PaymentService paymentService;
+
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private OrderService orderService;
 
@@ -70,7 +76,7 @@ class PaymentApplicationServiceTest {
     @BeforeEach
     void setUp() {
         user = User.of("test@test.com", "test123!", "환자", 0, false, UserRole.PATIENT);
-        ReflectionTestUtils.setField(user, "id", 1L);
+        user = userRepository.save(user);
 
         orderRequest = new OrderRequest();
         ReflectionTestUtils.setField(orderRequest, "orderType", OrderType.POINT);
@@ -79,7 +85,7 @@ class PaymentApplicationServiceTest {
 
         paymentVerificationRequest = new PaymentVerificationRequest();
         ReflectionTestUtils.setField(paymentVerificationRequest, "impUid", "imp_123456");
-        ReflectionTestUtils.setField(paymentVerificationRequest, "userId", 1L);
+        ReflectionTestUtils.setField(paymentVerificationRequest, "userId", user.getId());
         ReflectionTestUtils.setField(paymentVerificationRequest, "merchantId", "merchant_abc123");
         ReflectionTestUtils.setField(paymentVerificationRequest, "orderRequest", orderRequest);
     }
