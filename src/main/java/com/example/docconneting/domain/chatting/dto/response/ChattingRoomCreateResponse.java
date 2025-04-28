@@ -10,21 +10,27 @@ public class ChattingRoomCreateResponse {
 
     private final Long patientId;
 
+    private final String patientName;
+
     private final Long doctorId;
+
+    private final String doctorName;
 
     private final Boolean isRecovered;
 
     private final LocalDateTime createdAt;
 
-    private ChattingRoomCreateResponse(Long id, Long patientId, Long doctorId, Boolean isRecovered, LocalDateTime createdAt) {
+    private ChattingRoomCreateResponse(Long id, Long patientId, String patientName, Long doctorId, String doctorName, Boolean isRecovered, LocalDateTime createdAt) {
         this.id = id;
         this.patientId = patientId;
+        this.patientName = patientName;
         this.doctorId = doctorId;
+        this.doctorName = doctorName;
         this.isRecovered = isRecovered;
         this.createdAt = createdAt;
     }
 
-    public static ChattingRoomCreateResponse of(Long id, Long patientId, Long doctorId, Boolean isRecovered, LocalDateTime createdAt){
-        return new ChattingRoomCreateResponse(id, patientId, doctorId, isRecovered, createdAt);
+    public static ChattingRoomCreateResponse of(Long id, Long patientId, String patientName, Long doctorId, String doctorName, Boolean isRecovered, LocalDateTime createdAt){
+        return new ChattingRoomCreateResponse(id, patientId, patientName, doctorId, doctorName, isRecovered, createdAt);
     }
 }
