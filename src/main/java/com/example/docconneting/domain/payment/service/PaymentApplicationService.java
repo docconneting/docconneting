@@ -88,13 +88,15 @@ public class PaymentApplicationService {
 
             // 채팅 주문 후처리 (비동기)
             if (order.isChatOrder()) {
-                User patient = userRepository.findById(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
-                User doctor = userRepository.findById(order.getDoctorId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
-                alarmSenderService.sendMedicalRequestMessage(patient, doctor);
                 log.info("채팅 주문으로 채팅방 생성 시도 | doctorId={}", order.getDoctorId());
                 ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
                 order.assignChattingRoomId(response.getId());
                 log.info("채팅방 생성 완료 | chattingRoomId={}", response.getId());
+
+                // 채팅 생성이 완료되면 의사에게 알람 전송
+                User patient = userRepository.findById(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+                User doctor = userRepository.findById(order.getDoctorId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
+                alarmSenderService.sendMedicalRequestMessage(patient, doctor);
                 log.info("채팅 주문으로 채팅방 비동기 생성 시도 | doctorId={}", order.getDoctorId());
                 chattingRoomAsyncService.createChattingRoom(order);
             }
