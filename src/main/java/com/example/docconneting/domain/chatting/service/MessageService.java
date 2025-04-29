@@ -5,10 +5,10 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.chatting.dto.projection.MessageList;
 import com.example.docconneting.domain.chatting.dto.request.MessageRequest;
-import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
-import com.example.docconneting.domain.chatting.dto.response.MessageResponse;
+import com.example.docconneting.domain.chatting.dto.response.MessageQueuePayload;
 import com.example.docconneting.domain.chatting.entity.ChattingRoom;
 import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.repository.ChattingRoomRepository;
@@ -17,6 +17,8 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,24 +30,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageService {
 
+    @Value("${chat.exchange}")
+    private String exchange;
+
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final ChattingRoomRepository chattingRoomRepository;
+    private final RabbitMessagingTemplate rabbitTemplate;
 
     @Transactional
-    public MessageResponse createMessage(MessageRequest messageRequest, Long userId, Long chattingRoomId){
+    public void createMessage(MessageRequest messageRequest, Long userId, Long chattingRoomId){
 
-        // 채팅방에 들어올 삭제된 유저인지 여부를 확인 하므로 유저만 찾아오도록 함
         User findUser = userRepository.findById(userId).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+        if(findUser.getIsDeleted()){
+            throw new ClientException(ErrorCode.USER_NOT_FOUND);
+        }
 
-        // 채팅방에 들어올 때 비활성화 된 채팅방인지 여부를 확인 하므로 채팅방만 찾아오도록 함
         ChattingRoom findChattingRoom = chattingRoomRepository.findById(chattingRoomId).orElseThrow(() -> new ClientException(ErrorCode.CHATTING_ROOM_NOT_FOUND));
+        if(!findChattingRoom.getIsActive()){
+            throw new ClientException(ErrorCode.INACTIVE_CHATTING_ROOM);
+        }
 
         Message message = Message.of(findUser, findChattingRoom, messageRequest.getContents());
 
         Message savedMessage = messageRepository.save(message);
 
-        return MessageResponse.of(userId, findUser.getUsername(), savedMessage.getContents(), savedMessage.getCreatedAt());
+        MessageQueuePayload messageQueuePayload = MessageQueuePayload.of(chattingRoomId, userId, savedMessage.getContents(), savedMessage.getCreatedAt());
+
+        rabbitTemplate.convertAndSend(exchange, "", messageQueuePayload);
     }
 
     @Transactional(readOnly = true)
@@ -78,9 +90,10 @@ public class MessageService {
 
         }
 
-        Page<Message> messages = messageRepository.findAllMessagesWithUser(chattingRoomId, pageable);
+        Page<MessageList> messages = messageRepository.findAllMessagesWithUser(chattingRoomId, pageable);
 
-        List<Message> content = messages.getContent();
+        List<MessageList> content = messages.getContent();
+
         Pageable messagesPageable = messages.getPageable();
 
         List<MessageListResponse> messageListResponses = MessageListResponse.toMessageListResponses(content);

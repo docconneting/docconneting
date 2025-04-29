@@ -79,9 +79,12 @@ class ChattingRoomControllerTest {
         boolean isRecovered = false;
         LocalDateTime createdAt = LocalDateTime.now();
 
+        String patientName = "patient";
+        String doctorName = "doctor";
+
         String accessToken = jwtUtil.createToken(userId, userRole);
 
-        ChattingRoomCreateResponse chattingRoomCreateResponse = ChattingRoomCreateResponse.of(chattingRoomId, userId, doctorId, isRecovered, createdAt);
+        ChattingRoomCreateResponse chattingRoomCreateResponse = ChattingRoomCreateResponse.of(chattingRoomId, userId, patientName, doctorId, doctorName, isRecovered, createdAt);
 
         given(chattingRoomService.createdChattingRoom(refEq(authUser), eq(doctorId))).willReturn(chattingRoomCreateResponse);
 
@@ -111,7 +114,7 @@ class ChattingRoomControllerTest {
 
         String accessToken = jwtUtil.createToken(userId, userRole);
 
-        ChattingRoomSingleResponse chattingRoomSingleResponsee = ChattingRoomSingleResponse.of(chattingRoomId, userId, doctorId, createdAt);
+        ChattingRoomSingleResponse chattingRoomSingleResponsee = ChattingRoomSingleResponse.of(chattingRoomId, userId, null, doctorId, null, createdAt);
 
         given(chattingRoomService.findChattingRoomById(refEq(authUser), eq(chattingRoomId))).willReturn(chattingRoomSingleResponsee);
 
