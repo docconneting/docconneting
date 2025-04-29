@@ -18,12 +18,20 @@ public class RabbitMQConfig {
     @Value("${chat.queue}")
     private String queue;
 
+    @Value("${chat.elasticsearch}")
+    private String elasticsearchQueue;
+
     @Value("${chat.exchange}")
     private String exchange;
 
     @Bean
     public Queue queue(){
         return new Queue(queue + "." + id);
+    }
+
+    @Bean
+    public Queue elasticsearchQueue(){
+        return new Queue(elasticsearchQueue);
     }
 
     @Bean
@@ -35,6 +43,13 @@ public class RabbitMQConfig {
     public Binding binding(){
         return BindingBuilder
                 .bind(queue())
+                .to(exchange());
+    }
+
+    @Bean
+    public Binding elasticsearchBinding(){
+        return BindingBuilder
+                .bind(elasticsearchQueue())
                 .to(exchange());
     }
 
