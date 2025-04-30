@@ -1,7 +1,5 @@
 package com.example.docconneting.common.principal;
 
-import io.opencensus.internal.DefaultVisibilityForTesting;
-
 import java.security.Principal;
 
 public class StompPrincipal implements Principal {

@@ -21,9 +21,17 @@ public class RabbitMQConfig {
     @Value("${chat.exchange}")
     private String exchange;
 
+    @Value("${alarm.queue.name}")
+    private String alarmQueueName;
+
     @Bean
     public Queue queue(){
         return new Queue(queue + "." + id);
+    }
+
+    @Bean
+    public Queue registerAlarmQueue() {
+        return new Queue(alarmQueueName, true);
     }
 
     @Bean
