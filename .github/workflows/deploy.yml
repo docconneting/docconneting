@@ -1,159 +1,113 @@
-name: Deploy
+name: Deploy Main Service
 
 on:
-  pull_request:
-    types: [ closed ]
+  push:
     branches:
-      - dev
+      - feat/cicd  # 이 브랜치에 push될 때마다 작동
+  workflow_dispatch:  # 수동 실행도 가능하게
 
 env:
   AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: main-service
+  IMAGE_TAG: latest
 
 jobs:
-  build-and-push-to-ecr:
-    if: github.event.pull_request.merged == true
+  deploy:
     runs-on: ubuntu-latest
 
-    outputs:
-      ecr-registry: ${{ steps.login-ecr.outputs.registry }}
-
     steps:
-      # 1. GitHub 코드 체크아웃
-      - name: Checkout code
+      # 1. GitHub 리포지토리의 코드 체크아웃
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Java 17 세팅
+      # 2. Java 17 환경 구성 (Gradle 빌드용)
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      # 3. gradlew 실행 권한 부여
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+      # 3. Gradle로 bootJar 빌드 (테스트 생략)
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar -x test
 
-      # 4. 리소스 파일 생성 (base64 복호화)
-      - name: Create resource files
-        run: |
-          mkdir -p src/main/resources/firebase
-          echo "${{ secrets.FCM_CERT_JSON_CONTENT }}" | base64 --decode > src/main/resources/firebase/docconneting-firebase-adminsdk-fbsvc-017c34b883.json
-          echo "${{ secrets.APPLICATION_LOCAL_YML_CONTENT }}" | base64 --decode > src/main/resources/application-local.yml
-          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
-
-      # 5. 프로젝트 빌드 (Test 제외)
-      - name: Build the project
-        run: ./gradlew clean build -x test
-
-      # 6. 실행용 Jar 따로 빌드
-      - name: Build bootJar
-        run: ./gradlew clean bootJar
-
-      # 7. Docker Buildx 세팅
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # 8. AWS Credentials 세팅
+      # 4. AWS 자격증명 구성 (ECR 접근용)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
+          aws-region: ${{ env.AWS_REGION }}
 
-      # 9. AWS ECR 로그인
+      # 5. ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 10. Docker 이미지 빌드 및 ECR 푸시
-      - name: Build and push Docker image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: docconneting
-          IMAGE_TAG: latest
+      # 6. Docker 이미지 빌드 및 ECR 푸시
+      - name: Build and Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-  deploy-on-ec2:
-    needs: build-and-push-to-ecr
-    runs-on: ubuntu-latest
+      # 7. SSH 키 준비 및 .env, SSH 설정 구성
+      - name: Prepare SSH and .env
+        run: |
+          mkdir -p ~/.ssh
 
-    steps:
-      # 11. GitHub 코드 다시 체크아웃
-      - name: Checkout code
-        uses: actions/checkout@v4
+          # .pem 키 복원
+          echo "${{ secrets.DOCCONNETING_SSH_KEY }}" | base64 --decode > ~/.ssh/docconneting.pem
+          chmod 600 ~/.ssh/docconneting.pem
 
-      # 12. AWS Credentials 세팅
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
+          # SSH ProxyJump 설정
+          cat <<EOF > ~/.ssh/config
+          Host bastion
+            HostName ${{ secrets.BASTION_HOST }}
+            User ubuntu
+            IdentityFile ~/.ssh/docconneting.pem
+            StrictHostKeyChecking no
 
-      # 13. AWS ECR 로그인
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+          Host main
+            HostName ${{ secrets.MAIN_PRIVATE_IP }}
+            User ubuntu
+            IdentityFile ~/.ssh/docconneting.pem
+            ProxyJump bastion
+            StrictHostKeyChecking no
+          EOF
 
-      # 14. SSH Agent 세팅
-      - name: Set up SSH Agent
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+          # .env 파일 생성
+          cat <<EOF > .env
+          SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=6379
+          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION=ap-northeast-2
+          S3_BUCKET=docconneting-bucket
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}
+          PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}
+          RABBITMQ_ADDRESSES=${{ secrets.RABBITMQ_ADDRESSES }}
+          RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}
+          RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
+          SPRING_PORT=9002
+          EOF
 
-      # 15. EC2 서버에 접속해서 배포
-      - name: Deploy on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            # (1) AWS CLI 설치 (존재하면 스킵)
-            if ! command -v aws &> /dev/null
-            then
-              echo "AWS CLI not found, installing..."
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install
-            else
-              echo "AWS CLI already installed, skipping installation."
-            fi
+      # 8. Main EC2로 파일 전송 및 배포 실행
+      - name: Deploy to Main EC2 via Bastion
+        run: |
+          # docker-compose.yml과 .env 전송
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env main:/home/ubuntu/server/
 
-            # (2) 서버 디렉토리 이동
-            mkdir -p ~/server
+          # Main EC2에 접속 후 배포 스크립트 실행
+          ssh main <<'EOF'
             cd ~/server
-
-            # (3) AWS ECR 로그인
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ needs.build-and-push-to-ecr.outputs.ecr-registry }}
-
-            # (4) 필요한 환경 변수 .env 파일로 저장
-            echo "SPRING_DATASOURCE_URL=jdbc:mysql://docconneting-service-db.cfuesu40qxcw.ap-northeast-2.rds.amazonaws.com:3306/docconneting" > .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" >> .env
-            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
-            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
-            echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-            echo "PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}" >> .env
-            echo "PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}" >> .env
-            echo "OPENSEARCH_HOST=${{ secrets.OPENSEARCH_HOST }}" >> .env
-            echo "OPENSEARCH_USERNAME=${{ secrets.OPENSEARCH_USERNAME }}" >> .env
-            echo "OPENSEARCH_PASSWORD=${{ secrets.OPENSEARCH_PASSWORD }}" >> .env
-            
-            # (5) docker-compose down + orphan 제거
             docker compose down --remove-orphans
-
-            # (6) 최신 이미지 pull
+            aws ecr get-login-password --region ap-northeast-2 \
+              | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
             docker compose pull
-
-            # (7) 사용하지 않는 Docker 리소스 모두 정리
             docker system prune -af
-
-            # (8) docker-compose up
             docker compose up -d
- 
+          EOF
