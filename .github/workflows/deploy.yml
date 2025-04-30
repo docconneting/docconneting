@@ -78,10 +78,11 @@ jobs:
           # .env 파일 생성
           cat <<EOF > .env
           SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
           REDIS_HOST=${{ secrets.REDIS_HOST }}
           REDIS_PORT=6379
+          SERVER_ID=${{ secrets.SERVER_ID }}
           AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
           AWS_REGION=ap-northeast-2
