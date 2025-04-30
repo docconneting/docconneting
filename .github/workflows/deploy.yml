@@ -88,11 +88,11 @@ jobs:
           redisson.idle-connection-min=5
           redisson.timeout=10000
 
-          SERVER_ID=${{ secrets.SERVER_ID }}
-          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-          AWS_REGION=ap-northeast-2
-          S3_BUCKET=docconneting-bucket
+          spring.cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}
+          spring.cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_KEY }}
+          spring.cloud.aws.region.static=${{ env.AWS_REGION }}
+          spring.cloud.aws.s3.bucket=docconneting-bucket
+
           JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
           PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}
           PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}
@@ -103,6 +103,7 @@ jobs:
           SPRING_RABBITMQ_VIRTUAL_HOST=/
           SPRING_RABBITMQ_SSL_ENABLED=true
 
+          SERVER_ID=${{ secrets.SERVER_ID }}
           SERVER_PORT=9002
           SPRING_PROFILES_ACTIVE=prod
 
