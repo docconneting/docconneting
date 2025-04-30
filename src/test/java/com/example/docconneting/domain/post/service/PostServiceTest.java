@@ -5,6 +5,7 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.service.PatientCouponService;
 import com.example.docconneting.domain.point.service.PointService;
@@ -62,6 +63,9 @@ class PostServiceTest {
 
     @Mock
     PointService pointService;
+
+    @Mock
+    AlarmSenderService alarmSenderService;
 
     @InjectMocks
     PostService postService;
