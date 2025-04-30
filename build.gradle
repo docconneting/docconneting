@@ -71,9 +71,6 @@ dependencies {
     //redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.37.0'
 
-    // Firebase
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
-
     // 웹 소켓
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
