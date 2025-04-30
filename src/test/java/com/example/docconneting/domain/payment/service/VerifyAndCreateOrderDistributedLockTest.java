@@ -3,6 +3,7 @@ package com.example.docconneting.domain.payment.service;
 import com.example.docconneting.common.config.TestAsyncConfig;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.order.dto.request.OrderRequest;
 import com.example.docconneting.domain.order.enums.OrderProduct;
@@ -45,6 +46,9 @@ public class VerifyAndCreateOrderDistributedLockTest {
     @MockitoBean
     private PortOneService portOneService;
 
+    @MockitoBean
+    private AlarmSenderService alarmSenderService;
+
     @Autowired
     private OrderRepository orderRepository;
 
@@ -61,9 +65,9 @@ public class VerifyAndCreateOrderDistributedLockTest {
         this.impUid = "imp_test_" + System.currentTimeMillis();
         this.merchantId = "kakao_test_" + System.currentTimeMillis();
 
-        User user = User.of("test@test.com", "test123!", "테스트", 0, false, UserRole.PATIENT);
-        userRepository.save(user);
-        authUser = AuthUser.of(user.getId(), user.getUserRole());
+        User user1 = User.of("test@test.com", "test123!", "테스트", 0, false, UserRole.PATIENT);
+        userRepository.save(user1);
+        authUser = AuthUser.of(user1.getId(), user1.getUserRole());
 
         Payment mockPayment = mock(Payment.class);
         given(mockPayment.getPgProvider()).willReturn("kakao");
@@ -83,13 +87,16 @@ public class VerifyAndCreateOrderDistributedLockTest {
         ReflectionTestUtils.setField(orderRequest, "orderType", OrderType.CHAT);
         ReflectionTestUtils.setField(orderRequest, "orderProduct", OrderProduct.CHAT_3000);
         ReflectionTestUtils.setField(orderRequest, "price", 3000);
-        ReflectionTestUtils.setField(orderRequest, "doctorId", 3L);
+        ReflectionTestUtils.setField(orderRequest, "doctorId", 2L);
 
         PaymentVerificationRequest verificationRequest = new PaymentVerificationRequest();
         ReflectionTestUtils.setField(verificationRequest, "impUid", impUid);
         ReflectionTestUtils.setField(verificationRequest, "merchantId", merchantId);
         ReflectionTestUtils.setField(verificationRequest, "userId", authUser.getId());
         ReflectionTestUtils.setField(verificationRequest, "orderRequest", orderRequest);
+
+        User user2 = User.of("test@test.com", "test123!", "테스트", 0, false, UserRole.DOCTOR);
+        userRepository.save(user2);
 
         int threadCount = 5; // 동시에 실행될 작업(스레드)
         ExecutorService executor = Executors.newFixedThreadPool(threadCount); // 멀티스레드 작업 도구
