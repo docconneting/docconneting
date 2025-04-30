@@ -7,6 +7,7 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.chatting.dto.request.MessageRequest;
 import com.example.docconneting.domain.chatting.dto.response.ElasticsearchMessageListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
+import com.example.docconneting.domain.chatting.dto.response.MessageSearchListResponse;
 import com.example.docconneting.domain.chatting.service.ElasticsearchMessageService;
 import com.example.docconneting.domain.chatting.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,18 @@ public class MessageController {
                                                                                @PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                                @PathVariable Long chattingRoomId){
         PageResult<MessageListResponse> messages = messageService.findAllMessages(authUser, chattingRoomId, pageable);
+
+        return ResponseEntity
+                .ok()
+                .body(Response.of(messages.getContent(), messages.getPageInfo()));
+    }
+
+    @GetMapping("/api/v1/chattingRooms/{chattingRoomId}/search")
+    public ResponseEntity<Response<List<MessageSearchListResponse>>> findMessagesByKeywordV1(@Auth AuthUser authUser,
+                                                                                             @PageableDefault Pageable pageable,
+                                                                                             @PathVariable Long chattingRoomId,
+                                                                                             @RequestParam String keyword){
+        PageResult<MessageSearchListResponse> messages = messageService.findMessagesByKeyword(authUser, chattingRoomId, keyword, pageable);
 
         return ResponseEntity
                 .ok()
