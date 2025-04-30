@@ -3,7 +3,7 @@ name: Deploy Main Service
 on:
   push:
     branches:
-      - feat/cicd            # 해당 브랜치에 push 시 실행
+      - feat/cicd            # 해당 브랜치에 push될 때 실행
   workflow_dispatch:         # 수동 실행도 가능하게 설정
 
 env:
@@ -13,25 +13,25 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest   # GitHub Actions 실행 환경
+    runs-on: ubuntu-latest   # GitHub Actions가 실행될 환경 (최신 Ubuntu)
 
     steps:
-      # 1. GitHub 리포지토리 코드 체크아웃
+      # 1. GitHub 리포지토리의 코드 체크아웃
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Java 17 환경 구성 (Gradle 빌드를 위해 필요)
+      # 2. Java 17 환경 구성 (Gradle 빌드에 필요)
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 3. Gradle로 bootJar 빌드 (테스트는 생략)
+      # 3. Gradle로 bootJar 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean bootJar -x test
 
-      # 4. AWS 자격 증명 구성 (ECR 접근용)
+      # 4. AWS 자격증명 구성 (ECR 접근을 위해)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -44,21 +44,22 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 6. Docker 이미지 빌드 및 ECR 푸시
+      # 6. Docker 이미지 빌드 및 ECR에 푸시
       - name: Build and Push Docker Image
         run: |
           docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      # 7. SSH 설정 및 .env 파일 생성
+      # 7. SSH 접속 및 Spring .env 파일 구성
       - name: Prepare SSH and .env
         run: |
-          # SSH 키 디렉토리 생성 및 권한 설정
           mkdir -p ~/.ssh
+
+          # SSH 프라이빗 키 디코딩 및 권한 설정
           echo "${{ secrets.DOCCONNETING_SSH_KEY }}" | base64 --decode > ~/.ssh/docconneting.pem
           chmod 600 ~/.ssh/docconneting.pem
 
-          # SSH ProxyJump 구성 (Bastion → Main)
+          # SSH ProxyJump 구성: Bastion → Main
           cat <<EOF > ~/.ssh/config
           Host bastion
             HostName ${{ secrets.BASTION_HOST }}
@@ -74,20 +75,15 @@ jobs:
             StrictHostKeyChecking no
           EOF
 
-          # Spring Boot에 필요한 환경변수 파일(.env) 생성
+          # Spring Boot에서 사용하는 환경 변수 파일 생성
           cat <<EOF > .env
           SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
           SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
           SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-          SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }}
-          SPRING_DATA_REDIS_PORT=6379
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
           SERVER_ID=${{ secrets.SERVER_ID }}
           AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-          # AWS credentials for Spring Cloud AWS
-          spring.cloud.aws.credentials.access-key=${AWS_ACCESS_KEY}
-          spring.cloud.aws.credentials.secret-key=${AWS_SECRET_KEY}
-          spring.cloud.aws.region.static=${AWS_REGION}
           AWS_REGION=ap-northeast-2
           S3_BUCKET=docconneting-bucket
           JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
@@ -121,14 +117,14 @@ jobs:
                 - .env
           EOF
 
-      # 8. Bastion → Main EC2에 배포 수행
+      # 8. Bastion을 통해 Main EC2에 배포
       - name: Deploy to Main EC2 via Bastion
         run: |
-          # Main 서버에 docker-compose.yml 및 .env 전송
+          # EC2 서버에 필요한 파일 전송
           scp -o StrictHostKeyChecking=no docker-compose.yml .env main:/home/ubuntu/server/
 
-          # Main 서버 접속 후 배포 수행
-          ssh main <<'EOF'
+          # EC2에서 Docker Compose 재시작
+          ssh main <<EOF
             cd ~/server
             docker compose down --remove-orphans
             aws ecr get-login-password --region ap-northeast-2 \

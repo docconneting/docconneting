@@ -1,12 +1,12 @@
 package com.example.docconneting.common.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.redisson.config.Config;
 
 @Configuration
 @ConditionalOnProperty(name = "redisson.enabled", havingValue = "true")
@@ -26,6 +26,10 @@ public class RedissonConfig {
 
     @Bean(destroyMethod = "shutdown")
     public RedissonClient redissonClient() {
+        if (!redisAddress.startsWith("redis://") && !redisAddress.startsWith("rediss://")) {
+            throw new IllegalArgumentException("Invalid Redis address. Must start with redis:// or rediss://");
+        }
+
         Config config = new Config();
         config.useSingleServer()
                 .setAddress(redisAddress)
@@ -36,4 +40,3 @@ public class RedissonConfig {
         return Redisson.create(config);
     }
 }
-
