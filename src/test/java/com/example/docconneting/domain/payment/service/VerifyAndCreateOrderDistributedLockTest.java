@@ -61,9 +61,9 @@ public class VerifyAndCreateOrderDistributedLockTest {
         this.impUid = "imp_test_" + System.currentTimeMillis();
         this.merchantId = "kakao_test_" + System.currentTimeMillis();
 
-        User user = User.of("test@test.com", "test123!", "테스트", 0, false, UserRole.PATIENT);
-        userRepository.save(user);
-        authUser = AuthUser.of(user.getId(), user.getUserRole());
+        User user1 = User.of("test@test.com", "test123!", "테스트", 0, false, UserRole.PATIENT);
+        userRepository.save(user1);
+        authUser = AuthUser.of(user1.getId(), user1.getUserRole());
 
         Payment mockPayment = mock(Payment.class);
         given(mockPayment.getPgProvider()).willReturn("kakao");
@@ -83,13 +83,16 @@ public class VerifyAndCreateOrderDistributedLockTest {
         ReflectionTestUtils.setField(orderRequest, "orderType", OrderType.CHAT);
         ReflectionTestUtils.setField(orderRequest, "orderProduct", OrderProduct.CHAT_3000);
         ReflectionTestUtils.setField(orderRequest, "price", 3000);
-        ReflectionTestUtils.setField(orderRequest, "doctorId", 3L);
+        ReflectionTestUtils.setField(orderRequest, "doctorId", 2L);
 
         PaymentVerificationRequest verificationRequest = new PaymentVerificationRequest();
         ReflectionTestUtils.setField(verificationRequest, "impUid", impUid);
         ReflectionTestUtils.setField(verificationRequest, "merchantId", merchantId);
         ReflectionTestUtils.setField(verificationRequest, "userId", authUser.getId());
         ReflectionTestUtils.setField(verificationRequest, "orderRequest", orderRequest);
+
+        User user2 = User.of("test@test.com", "test123!", "테스트", 0, false, UserRole.DOCTOR);
+        userRepository.save(user2);
 
         int threadCount = 5; // 동시에 실행될 작업(스레드)
         ExecutorService executor = Executors.newFixedThreadPool(threadCount); // 멀티스레드 작업 도구
