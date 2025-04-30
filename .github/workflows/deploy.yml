@@ -99,6 +99,7 @@ jobs:
           SPRING_RABBITMQ_VIRTUAL_HOST=/
           SPRING_RABBITMQ_SSL_ENABLED=true
           SERVER_PORT=9002
+          SPRING_PROFILES_ACTIVE=prod
           CHAT_QUEUE=chat
           CHAT_EXCHANGE=chat.fanout
           ALARM_QUEUE_NAME=alarm-queue
