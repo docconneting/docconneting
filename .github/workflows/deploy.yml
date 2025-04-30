@@ -84,6 +84,10 @@ jobs:
           SERVER_ID=${{ secrets.SERVER_ID }}
           AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+          # AWS credentials for Spring Cloud AWS
+          spring.cloud.aws.credentials.access-key=${AWS_ACCESS_KEY}
+          spring.cloud.aws.credentials.secret-key=${AWS_SECRET_KEY}
+          spring.cloud.aws.region.static=${AWS_REGION}
           AWS_REGION=ap-northeast-2
           S3_BUCKET=docconneting-bucket
           JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
