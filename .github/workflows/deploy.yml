@@ -95,6 +95,21 @@ jobs:
           SPRING_PORT=9002
           EOF
 
+      # 7.5. docker-compose.yml 파일 동적으로 생성
+      - name: Generate docker-compose.yml dynamically
+        run: |
+          cat <<EOF > docker-compose.yml
+          services:
+            main-app:
+              image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+              container_name: main-app
+              restart: always
+              ports:
+                - "9002:9002"
+              env_file:
+                - .env
+          EOF
+
       # 8. Main EC2로 파일 전송 및 배포 실행
       - name: Deploy to Main EC2 via Bastion
         run: |
