@@ -24,7 +24,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ActiveProfiles("test")
@@ -100,6 +101,7 @@ class PointServiceTest {
                     point,
                     false,
                     UserRole.PATIENT);
+            ReflectionTestUtils.setField(user, "id", userId);
 
             PointHistory pointHistory = PointHistory.of(
                     user,
@@ -125,7 +127,6 @@ class PointServiceTest {
             // given
             long userId = 1L;
             Long postId = 1L;
-            int point = 1000;
 
             given(userRepository.findUserByIdAndUserRole(userId, UserRole.PATIENT)).willReturn(Optional.empty());
 
@@ -176,6 +177,7 @@ class PointServiceTest {
                     point,
                     false,
                     UserRole.PATIENT);
+            ReflectionTestUtils.setField(user, "id", userId);
 
             PointHistory pointHistory = PointHistory.of(
                     user,
