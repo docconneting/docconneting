@@ -65,7 +65,7 @@ public class ElasticsearchMessageService {
 
         }
 
-        Page<ElasticsearchMessage> messages = elasticsearchMessageRepository.findMessagesByKeyword(keyword, pageable);
+        Page<ElasticsearchMessage> messages = elasticsearchMessageRepository.findMessagesByKeyword(chattingRoomId, keyword, pageable);
 
         List<ElasticsearchMessage> content = messages.getContent();
 
