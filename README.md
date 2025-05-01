@@ -119,6 +119,6 @@
 
 ## 7. [API 명세서](https://linen-town-985.notion.site/API-1e68f60328ad80699326f21c4a97ef3e)
 
-## 8. [기술적 의사결정](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
+## 8. [기술적 의사결정](https://www.notion.so/1e697548af5f8070a6c3faa6c7e5380a)
 
-## 9. [트러블 슈팅 & 최적화 전략](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
+## 9. [트러블 슈팅 & 최적화 전략](https://www.notion.so/1e697548af5f80a4b299db76146051c9)
