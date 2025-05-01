@@ -117,7 +117,7 @@
 ## 6. ERD
 ![Image](https://github.com/user-attachments/assets/441265a6-1a1c-4943-8d97-1683784f1fdf)
 
-## 7. [API 명세서](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
+## 7. [API 명세서](https://linen-town-985.notion.site/API-1e68f60328ad80699326f21c4a97ef3e)
 
 ## 8. [기술적 의사결정](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
 
