@@ -9,10 +9,13 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 public interface ElasticsearchMessageRepository extends ElasticsearchRepository<ElasticsearchMessage, String> {
     @Query("""
             {
-                "match": {
-                    "contents": "?0"
-                }
-            }
+               "bool": {
+                 "must": [
+                   { "term": { "chatting_room_id": "?0" } },
+                   { "match": { "contents": "?1" } }
+                 ]
+               }
+             }
             """)
-    Page<ElasticsearchMessage> findMessagesByKeyword(String keyword, Pageable pageable);
+    Page<ElasticsearchMessage> findMessagesByKeyword(Long chattingRoomId, String keyword, Pageable pageable);
 }
