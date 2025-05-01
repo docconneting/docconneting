@@ -92,33 +92,38 @@
 1. **쿠폰**  
      사용자는 한정된 수량의 쿠폰을 발급받아 유료 게시물을 올릴 때 포인트 대신 사용할 수 있습니다. 또한 자신이 소유하고 있는 쿠폰 목록을 조회할 수 있습니다.
 
-<h4>[결제 로직]</h4>
+
+<h3>[결제 로직]</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/78634d5b-4b12-405a-bebf-13bf48654425" width="600px">
+  <img src="https://github.com/user-attachments/assets/78634d5b-4b12-405a-bebf-13bf48654425" width="580px">
 </p>
 
-<h4>[알림 로직]</h4>
+<h3>[알림 로직]</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5ca55b28-c15b-4c99-8637-966a80265c65" width="600px">
+  <img src="https://github.com/user-attachments/assets/619ff468-02fd-44e4-804c-4d271ac90981" width="580px">
 </p>
 
-<h4>[채팅 로직]</h4>
+<h3>[채팅 로직]</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/50c8d3a3-5f6b-45f2-b0a2-6fd0fb7d732e" width="600px">
+  <img src="https://github.com/user-attachments/assets/fbc2ef1f-1ad9-45e3-99d0-78c06eb8e6f5" width="580px">
 </p>
+
 
 ## 5. 아키텍쳐
-
-![Image](https://github.com/user-attachments/assets/e0ca9c0f-d859-461a-a9a1-a3ee1c0745c0)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e0ca9c0f-d859-461a-a9a1-a3ee1c0745c0" width="580px">
+</p>
 
 ## 6. ERD
-![Image](https://github.com/user-attachments/assets/441265a6-1a1c-4943-8d97-1683784f1fdf)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/441265a6-1a1c-4943-8d97-1683784f1fdf" width="580px">
+</p>
 
-## 7. [API 명세서](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
+## 7. [API 명세서](https://linen-town-985.notion.site/API-1e68f60328ad80699326f21c4a97ef3e)
 
-## 8. [기술적 의사결정](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
+## 8. [기술적 의사결정](https://www.notion.so/1e697548af5f8070a6c3faa6c7e5380a)
 
-## 9. [트러블 슈팅 & 최적화 전략](https://www.notion.so/1e697548af5f8038a7cfdfa46fc1a727?pvs=4)
+## 9. [트러블 슈팅 & 최적화 전략](https://www.notion.so/1e697548af5f80a4b299db76146051c9)
