@@ -1,8 +1,11 @@
 package com.example.docconneting.domain.comment.controller;
 
 import com.example.docconneting.common.config.JwtUtil;
+import com.example.docconneting.common.filter.JwtFilter;
+import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.chatting.controller.MessageController;
 import com.example.docconneting.domain.comment.dto.request.CommentRequest;
 import com.example.docconneting.domain.comment.dto.response.CommentListResponse;
 import com.example.docconneting.domain.comment.dto.response.CommentResponse;
@@ -14,10 +17,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -37,8 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(CommentController.class)
+@Import({JwtUtil.class, JwtFilter.class, AuthUserArgumentResolver.class})
 class CommentControllerTest {
 
     @Autowired
@@ -49,6 +55,9 @@ class CommentControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
