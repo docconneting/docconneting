@@ -5,6 +5,7 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.entity.PatientCoupon;
 import com.example.docconneting.domain.coupon.service.PatientCouponService;
@@ -37,6 +38,7 @@ public class PostService {
 
     private final PointService pointService;
     private final PatientCouponService patientCouponService;
+    private final AlarmSenderService alarmSenderService;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final EntityManager entityManager;
@@ -69,12 +71,19 @@ public class PostService {
                 Post savedPost = postRepository.save(post);
 
                 patientCouponService.useCoupon(user, couponId, savedPost.getId());
+
+                // 유료 게시물 등록 완료 후, 의사들에게 알람 전송
+                alarmSenderService.sendPostUploadCompletedMessage(major);
             }
 
             case POINT -> {
                 post.updatePayType(PayType.POINT);
                 Post savedPost = postRepository.save(post);
 
+                pointService.usePoint(user.getId(), savedPost.getId());
+
+                // 유료 게시물 등록 완료 후, 의사들에게 알람 전송
+                alarmSenderService.sendPostUploadCompletedMessage(major);
                 pointService.usePoint(user.getId(), savedPost.getId());
             }
 

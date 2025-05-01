@@ -127,6 +127,29 @@ public class AuthService {
         return UserSignInResponse.of(accessToken, refreshToken);
     }
 
+    /*
+     * 로그인을 진행할 때 프론트에서 넘겨준 FCM 토큰과 알람 수락 권한을 데이터베이스에 저장
+     */
+    @Transactional
+    public void saveFcmToken(UserSignInRequest requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+
+        String fcmToken = requestDto.getFcmToken();
+        Long isTokenPresent = userRepository.existsByFcmToken(user.getId());
+        boolean exist = isTokenPresent > 0;
+
+        // fcm 토큰이 존재하지 않는다면 토큰과 알람 수락 권한 저장, 프론트 구현이 안 됐으므로 알람 수신 여부는 일단 true로 지정
+        if (!exist) {
+            user.updateAlarmInfo(requestDto.getFcmToken(), true);
+        }
+
+        // 기존에 가지고 있던 fcm 토큰과 클라이언트로부터 받은 fcm 토큰이 다르다면 fcm 토큰을 업데이트
+        if (exist && !user.getFcmToken().equals(fcmToken)){
+            user.updateFcmToken(requestDto.getFcmToken());
+        }
+    }
+
     //토큰 재발급
     @Transactional
     public UserRefreshTokenResponse refreshAccessToken(AuthUser authuser, UserRefreshTokenRequest dto) {
