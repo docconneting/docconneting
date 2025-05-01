@@ -2,7 +2,7 @@ package com.example.docconneting.domain.comment.service;
 
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ServerException;
-import com.example.docconneting.domain.alarm.service.AlarmService;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.comment.dto.request.CommentRequest;
 import com.example.docconneting.domain.comment.dto.response.CommentResponse;
 import com.example.docconneting.common.exception.object.ClientException;
@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final AlarmService alarmService;
+    private final AlarmSenderService alarmSenderService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -51,6 +51,9 @@ public class CommentService {
         Comment comment = Comment.of(user, post, request.getContents());
 
         Comment saved = commentRepository.save(comment);
+
+        // 게시물 작성자에게 알람 전송
+        alarmSenderService.sendCommentCompletedMessage(post.getPatient());
 
         CommentResponse response = CommentResponse.of(
                 comment.getId(),

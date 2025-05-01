@@ -24,6 +24,16 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+ext {
+    set('springCloudVersion', "2024.0.1")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -65,9 +75,6 @@ dependencies {
     //redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.37.0'
 
-    // Firebase
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
-
     // 웹 소켓
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
@@ -77,6 +84,9 @@ dependencies {
 
     // 포트원 연동
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
+
+    // spring cloud
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     // rabbitMQ 연결
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
@@ -90,4 +100,17 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+//서버 로그 한국 시간으로 변경
+tasks.withType(JavaExec) {
+    jvmArgs '-Duser.timezone=Asia/Seoul'
+}
+
+bootRun {
+    jvmArgs '-Duser.timezone=Asia/Seoul'
+}
+
+test {
+    jvmArgs '-Duser.timezone=Asia/Seoul'
 }
