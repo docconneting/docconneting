@@ -137,17 +137,19 @@ jobs:
                 - .env
           EOF
 
-      # 9. Bastion을 통해 EC2에 배포 및 실행
       - name: Deploy to EC2 via Bastion
         run: |
           # 파일 전송
-          scp -o StrictHostKeyChecking=no docker-compose.yml .env application-prod.yml message-setting.json main:/home/ubuntu/server/
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env \
+            src/main/resources/application-prod.yml \
+            src/main/resources/message/message-setting.json \
+            main:/home/ubuntu/server/
 
           # EC2 서버에서 실행
           ssh main <<EOF
             cd ~/server
 
-            # message json 위치 맞춰 저장
+            # Docker Compose 실행 전, 파일 위치 조정
             mkdir -p src/main/resources/message
             mv message-setting.json src/main/resources/message/message-setting.json
 
