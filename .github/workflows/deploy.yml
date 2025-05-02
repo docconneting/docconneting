@@ -110,13 +110,11 @@ jobs:
           CHAT_QUEUE=chat
           CHAT_EXCHANGE=chat.fanout
           ALARM_QUEUE_NAME=alarm-queue
+          
+          elastic:
+            username: elastic
+            password: 429123
           EOF
-
-      # 7.5 yml 파일 생성
-      - name: Decode application-prod.yml from Secret
-        run: |
-          echo "${{ secrets.APPLICATION_PROD_YML_BASE64 }}" | base64 -d > application-prod.yml
-          cat application-prod.yml
 
       # 8. Docker Compose 파일 동적 생성
       - name: Generate docker-compose.yml dynamically
