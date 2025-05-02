@@ -109,10 +109,9 @@ jobs:
 
           CHAT_QUEUE=chat
           CHAT_EXCHANGE=chat.fanout
+          CHAT_ELASTICSEARCH=elasticsearch
           ALARM_QUEUE_NAME=alarm-queue
-          
-          ELASTIC_HOST=10.0.1.222
-          ELASTIC_PORT=9200
+
           
           EOF
 
