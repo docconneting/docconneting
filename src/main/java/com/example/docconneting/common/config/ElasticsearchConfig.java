@@ -11,10 +11,13 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 @Configuration
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
+    @Value("${spring.data.elasticsearch.uris}")
+    private String elasticsearchUri;
+
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
+                .connectedTo(elasticsearchUri.replace("http://", ""))
                 .usingSsl(false)
                 .build();
     }
