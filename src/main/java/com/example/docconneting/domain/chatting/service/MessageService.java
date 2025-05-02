@@ -9,9 +9,11 @@ import com.example.docconneting.domain.chatting.dto.projection.MessageList;
 import com.example.docconneting.domain.chatting.dto.request.MessageRequest;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageQueuePayload;
+import com.example.docconneting.domain.chatting.dto.response.MessageSearchListResponse;
 import com.example.docconneting.domain.chatting.entity.ChattingRoom;
 import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.repository.ChattingRoomRepository;
+import com.example.docconneting.domain.chatting.repository.ElasticsearchMessageRepository;
 import com.example.docconneting.domain.chatting.repository.MessageRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -37,6 +39,8 @@ public class MessageService {
     private final UserRepository userRepository;
     private final ChattingRoomRepository chattingRoomRepository;
     private final RabbitMessagingTemplate rabbitTemplate;
+
+    private final ElasticsearchMessageRepository elasticsearchMessageRepository;
 
     @Transactional
     public void createMessage(MessageRequest messageRequest, Long userId, Long chattingRoomId){
@@ -90,13 +94,61 @@ public class MessageService {
 
         }
 
-        Page<MessageList> messages = messageRepository.findAllMessagesWithUser(chattingRoomId, pageable);
+        Page<MessageList> messages = messageRepository.findAllMessages(chattingRoomId, pageable);
 
         List<MessageList> content = messages.getContent();
 
         Pageable messagesPageable = messages.getPageable();
 
         List<MessageListResponse> messageListResponses = MessageListResponse.toMessageListResponses(content);
+
+        PageInfo pageInfo = PageInfo.builder()
+                .pageNum(messagesPageable.getPageNumber())
+                .pageSize(messagesPageable.getPageSize())
+                .totalElement(messages.getTotalElements())
+                .totalPage(messages.getTotalPages())
+                .build();
+
+        return new PageResult<>(messageListResponses, pageInfo);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<MessageSearchListResponse> findMessagesByKeyword(AuthUser authUser, Long chattingRoomId, String keyword, Pageable pageable){
+
+        ChattingRoom findChattingRoom = chattingRoomRepository.findById(chattingRoomId).orElseThrow(() -> new ClientException(ErrorCode.CHATTING_ROOM_NOT_FOUND));
+
+        if (UserRole.PATIENT.equals(authUser.getUserRole())){
+
+            userRepository.findByPatientId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+
+            if (authUser.getId() != findChattingRoom.getPatient().getId()){
+                throw new ClientException(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
+            }
+
+        }
+        else if (UserRole.DOCTOR.equals(authUser.getUserRole())){
+
+            userRepository.findByDoctorId(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
+
+            if (authUser.getId() != findChattingRoom.getDoctor().getId()){
+                throw new ClientException(ErrorCode.FORBIDDEN_CHATTING_ROOM_ACCESS);
+            }
+
+        }
+
+        if (!findChattingRoom.getIsActive()){
+
+            throw new ClientException(ErrorCode.INACTIVE_CHATTING_ROOM);
+
+        }
+
+        Page<MessageList> messages = messageRepository.findAllMessagesByKeyword(chattingRoomId, keyword, pageable);
+
+        List<MessageList> content = messages.getContent();
+
+        Pageable messagesPageable = messages.getPageable();
+
+        List<MessageSearchListResponse> messageListResponses = MessageSearchListResponse.toMessageListResponses(content);
 
         PageInfo pageInfo = PageInfo.builder()
                 .pageNum(messagesPageable.getPageNumber())

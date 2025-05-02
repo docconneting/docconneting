@@ -11,6 +11,7 @@ import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListRes
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
 import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
+import com.example.docconneting.domain.chatting.service.ElasticsearchMessageService;
 import com.example.docconneting.domain.chatting.service.MessageService;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -48,6 +50,12 @@ class MessageControllerTest {
 
     @MockitoBean
     MessageService messageService;
+
+    @MockitoBean
+    ElasticsearchMessageService elasticsearchMessageService;
+
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;

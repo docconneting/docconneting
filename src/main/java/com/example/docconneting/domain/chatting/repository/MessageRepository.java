@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
@@ -14,6 +13,13 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "FROM Message m " +
             "WHERE m.chattingRoom.id = :chattingRoomId " +
             "ORDER BY m.createdAt DESC")
-    Page<MessageList> findAllMessagesWithUser(Long chattingRoomId, Pageable pageable);
+    Page<MessageList> findAllMessages(Long chattingRoomId, Pageable pageable);
+
+    @Query("SELECT m.user.id AS userId, m.contents AS contents, m.createdAt AS createdAt " +
+            "FROM Message m " +
+            "WHERE m.chattingRoom.id = :chattingRoomId " +
+            "AND m.contents LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY m.createdAt DESC")
+    Page<MessageList> findAllMessagesByKeyword(Long chattingRoomId, String keyword, Pageable pageable);
 
 }
