@@ -6,10 +6,8 @@ import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.chatting.dto.projection.MessageList;
-import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
 import com.example.docconneting.domain.chatting.entity.ChattingRoom;
-import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.repository.ChattingRoomRepository;
 import com.example.docconneting.domain.chatting.repository.MessageRepository;
 import com.example.docconneting.domain.user.entity.User;
@@ -77,7 +75,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(0)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -107,7 +105,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -137,7 +135,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(0)).findByPatientId(userId);
         verify(userRepository, times(1)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -174,7 +172,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -211,7 +209,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(0)).findByPatientId(userId);
         verify(userRepository, times(1)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -249,7 +247,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -286,7 +284,7 @@ class MessageServiceTest {
 
         given(userRepository.findByPatientId(userId)).willReturn(Optional.of(findUser));
 
-        given(messageRepository.findAllMessagesWithUser(chattingRoomId, pageable)).willReturn(chattingRoomPage);
+        given(messageRepository.findAllMessages(chattingRoomId, pageable)).willReturn(chattingRoomPage);
 
         // when
         PageResult<MessageListResponse> pageResult = messageService.findAllMessages(authUser, chattingRoomId, pageable);
@@ -304,7 +302,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(1)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(1)).findAllMessages(chattingRoomId, pageable);
     }
 
     static class FakeMessageList implements MessageList {
