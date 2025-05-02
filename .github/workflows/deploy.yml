@@ -27,11 +27,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 3. Gradle 빌드 (테스트 제외)
+      # ✅ 3. message-setting.json을 빌드 전에 복원 (JAR에 포함되도록)
+      - name: Prepare Resource Files Before Build
+        run: |
+          mkdir -p src/main/resources/message
+          echo "${{ secrets.MESSAGE_SETTING_JSON_BASE64 }}" | base64 --decode > src/main/resources/message/message-setting.json
+
+      # 4. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean bootJar -x test
 
-      # 4. AWS 인증 설정 (ECR 사용을 위함)
+      # 5. AWS 인증 설정 (ECR 사용을 위함)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -39,19 +45,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 5. ECR 로그인
+      # 6. ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 6. Docker 이미지 빌드 및 푸시
+      # 7. Docker 이미지 빌드 및 푸시
       - name: Build and Push Docker Image
         run: |
           docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      # 7. SSH 접속 및 리소스 파일 준비
-      - name: Prepare SSH and Resource Files
+      # 8. SSH 접속 및 .env, 설정 파일 준비
+      - name: Prepare SSH and Config Files
         run: |
           # SSH 키 구성
           mkdir -p ~/.ssh
@@ -116,12 +122,10 @@ jobs:
           spring.data.elasticsearch.uris=http://10.0.1.222:9200
           EOF
 
-          # 리소스 파일 생성 (지정 경로에 복원)
-          mkdir -p src/main/resources/message
-          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
-          echo "${{ secrets.MESSAGE_SETTING_JSON_BASE64 }}" | base64 --decode > src/main/resources/message/message-setting.json
+          # application-prod.yml 생성
+          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > application-prod.yml
 
-      # 8. Docker Compose 파일 생성
+      # 9. Docker Compose 파일 생성
       - name: Generate docker-compose.yml
         run: |
           cat <<EOF > docker-compose.yml
@@ -136,22 +140,15 @@ jobs:
                 - .env
           EOF
 
-      # 9. EC2 서버에 파일 전송 및 배포 실행
+      # 10. EC2 서버에 파일 전송 및 배포 실행
       - name: Deploy to EC2 via Bastion
         run: |
           # 파일 전송
-          scp -o StrictHostKeyChecking=no docker-compose.yml .env \
-            src/main/resources/application-prod.yml \
-            src/main/resources/message/message-setting.json \
-            main:/home/ubuntu/server/
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env application-prod.yml main:/home/ubuntu/server/
 
           # EC2 서버에서 Docker Compose 실행
           ssh main <<EOF
             cd ~/server
-
-            # 리소스 파일 위치 맞춰 재배치
-            mkdir -p src/main/resources/message
-            mv message-setting.json src/main/resources/message/message-setting.json
 
             docker compose down --remove-orphans
             aws ecr get-login-password --region ap-northeast-2 \
