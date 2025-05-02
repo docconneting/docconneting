@@ -11,14 +11,14 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 @Configuration
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
+    // 로컬/배포 분기 나눔
     @Value("${spring.data.elasticsearch.uris}")
-    private String elasticsearchUri;
+    private String elasticUri;
 
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
-                .connectedTo(elasticsearchUri.replace("http://", ""))
-                .usingSsl(false)
+                .connectedTo(elasticUri.replace("http://", ""))
                 .build();
     }
 }
