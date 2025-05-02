@@ -117,10 +117,13 @@ jobs:
           EOF
 
           # application-prod.yml 복원
-          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > application-prod.yml
-
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
+          
           # message-setting.json 복원
-          echo "${{ secrets.MESSAGE_SETTING_JSON_BASE64 }}" | base64 --decode > message-setting.json
+          mkdir -p src/main/resources/message
+          echo "${{ secrets.MESSAGE_SETTING_JSON_BASE64 }}" | base64 --decode > src/main/resources/message/message-setting.json
+
 
       # 8. Docker Compose 파일 생성
       - name: Generate docker-compose.yml
