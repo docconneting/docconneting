@@ -74,9 +74,9 @@ jobs:
 
           # .env 파일 생성
           cat <<EOF > .env
-          SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-          SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          spring.datasource.url=${{ secrets.SPRING_DATASOURCE_URL }}
+          spring.datasource.username=${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          spring_datasource_password=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 
           spring.data.redis.host=${{ secrets.REDIS_HOST }}
           spring.data.redis.port=6379
@@ -92,24 +92,26 @@ jobs:
           spring.cloud.aws.region.static=${{ env.AWS_REGION }}
           spring.cloud.aws.s3.bucket=docconneting-bucket
 
-          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
-          PORTONE_API_KEY=${{ secrets.PORTONE_API_KEY }}
-          PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}
+          jwt.secret.key=${{ secrets.JWT_SECRET_KEY }}
+          portone.api.key=${{ secrets.PORTONE_API_KEY }}
+          portone.api.secret=${{ secrets.PORTONE_API_SECRET }}
 
-          SPRING_RABBITMQ_ADDRESSES=${{ secrets.RABBITMQ_ADDRESSES }}
-          SPRING_RABBITMQ_USERNAME=${{ secrets.SPRING_RABBITMQ_USERNAME }}
-          SPRING_RABBITMQ_PASSWORD=${{ secrets.SPRING_RABBITMQ_PASSWORD }}
-          SPRING_RABBITMQ_VIRTUAL_HOST=/
-          SPRING_RABBITMQ_SSL_ENABLED=false
-
-          SERVER_ID=${{ secrets.SERVER_ID }}
-          SERVER_PORT=9002
-          SPRING_PROFILES_ACTIVE=prod
-
-          CHAT_QUEUE=chat
-          CHAT_EXCHANGE=chat.fanout
-          CHAT_ELASTICSEARCH=elasticsearch
-          ALARM_QUEUE_NAME=alarm-queue
+          spring.rabbitmq.addresses=${{ secrets.RABBITMQ_ADDRESSES }}
+          spring.rabbitmq.username=${{ secrets.SPRING_RABBITMQ_USERNAME }}
+          spring.rabbitmq.password=${{ secrets.SPRING_RABBITMQ_PASSWORD }}
+          spring.rabbitmq.virtual-host=/
+          spring.rabbitmq.ssl.enabled=false
+          
+          server.id=${{ secrets.SERVER_ID }}
+          server.port=9002
+          spring.profiles.active=prod
+          
+          chat.queue=chat
+          chat.exchange=chat.fanout
+          chat.elasticsearch=elasticsearch
+          alarm.queue.name=alarm-queue
+          
+          spring.data.elasticsearch.uris=http://10.0.1.222:9200
           EOF
 
           # application-prod.yml 파일 복호화 및 저장
