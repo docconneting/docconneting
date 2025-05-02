@@ -90,6 +90,8 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
 
+    // 일라스틱 서치
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
     // Logstash
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
