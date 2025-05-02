@@ -50,7 +50,7 @@ jobs:
           docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      # 7. SSH 접속 및 Spring .env 파일 구성
+      # 7. SSH 접속 설정 및 Spring Boot .env 파일 구성
       - name: Prepare SSH and .env
         run: |
           mkdir -p ~/.ssh
@@ -98,8 +98,8 @@ jobs:
           PORTONE_API_SECRET=${{ secrets.PORTONE_API_SECRET }}
 
           SPRING_RABBITMQ_ADDRESSES=${{ secrets.RABBITMQ_ADDRESSES }}
-          SPRING_RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}
-          SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
+          SPRING_RABBITMQ_USERNAME=${{ secrets.SPRING_RABBITMQ_USERNAME }}
+          SPRING_RABBITMQ_PASSWORD=${{ secrets.SPRING_RABBITMQ_PASSWORD }}
           SPRING_RABBITMQ_VIRTUAL_HOST=/
           SPRING_RABBITMQ_SSL_ENABLED=false
 
@@ -112,7 +112,7 @@ jobs:
           ALARM_QUEUE_NAME=alarm-queue
           EOF
 
-      # 7.5. docker-compose.yml 동적 생성
+      # 8. Docker Compose 파일 동적 생성
       - name: Generate docker-compose.yml dynamically
         run: |
           cat <<EOF > docker-compose.yml
@@ -127,7 +127,7 @@ jobs:
                 - .env
           EOF
 
-      # 8. Bastion을 통해 Main EC2에 배포
+      # 9. Bastion을 통해 Main EC2에 배포
       - name: Deploy to Main EC2 via Bastion
         run: |
           # EC2 서버에 필요한 파일 전송
