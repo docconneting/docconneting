@@ -111,9 +111,6 @@ jobs:
           CHAT_EXCHANGE=chat.fanout
           ALARM_QUEUE_NAME=alarm-queue
           
-          elastic:
-            username: elastic
-            password: 429123
           EOF
 
       # 8. Docker Compose 파일 동적 생성
