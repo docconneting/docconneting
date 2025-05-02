@@ -18,6 +18,7 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PatientCouponService {
@@ -134,6 +137,12 @@ public class PatientCouponService {
 
         // 쿠폰 히스토리에 저장
         couponHistoryRepository.save(CouponHistory.of(patientCoupon, postId));
-    }
 
+        log.info("{}", Map.of(
+                "type", "COUPON_USAGE",
+                "userId", user.getId(),
+                "patientCouponId", patientCoupon.getId(),
+                "postId", couponId
+        ));
+    }
 }
