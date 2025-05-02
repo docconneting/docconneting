@@ -111,6 +111,9 @@ jobs:
           CHAT_EXCHANGE=chat.fanout
           ALARM_QUEUE_NAME=alarm-queue
           
+          ELASTIC_HOST=10.0.1.222
+          ELASTIC_PORT=9200
+          
           EOF
 
       # 8. Docker Compose 파일 동적 생성
