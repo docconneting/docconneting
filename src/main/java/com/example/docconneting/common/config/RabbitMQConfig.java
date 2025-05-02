@@ -18,7 +18,8 @@ public class RabbitMQConfig {
     @Value("${chat.queue}")
     private String queue;
 
-    @Value("${chat.elasticsearch}")
+    //누락 대비 기본값 설정
+    @Value("${chat.elasticsearch:elasticsearch}")
     private String elasticsearchQueue;
 
     @Value("${chat.exchange}")
