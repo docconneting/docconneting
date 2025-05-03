@@ -5,10 +5,7 @@ import com.example.docconneting.common.filter.JwtFilter;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
-import com.example.docconneting.domain.coupon.service.DistributedCouponService;
-import com.example.docconneting.domain.coupon.service.OptimisticLockService;
-import com.example.docconneting.domain.coupon.service.PatientCouponService;
-import com.example.docconneting.domain.coupon.service.PessimisticLockService;
+import com.example.docconneting.domain.coupon.service.*;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +54,9 @@ class PatientCouponControllerTest {
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
+
+    @MockitoBean
+    private RabbitCouponIssueProducer rabbitCouponIssueProducer;
 
     @Autowired
     ObjectMapper objectMapper;
