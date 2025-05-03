@@ -86,6 +86,7 @@ jobs:
           # .env 파일 생성
           cat <<EOF > .env
           spring.profiles.active=prod
+          spring.jpa.hibernate.ddl-auto=create
           
           spring.datasource.url=${{ secrets.SPRING_DATASOURCE_URL }}
           spring.datasource.username=${{ secrets.SPRING_DATASOURCE_USERNAME }}
