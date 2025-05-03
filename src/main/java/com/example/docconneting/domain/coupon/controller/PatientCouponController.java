@@ -6,10 +6,7 @@ import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
 import com.example.docconneting.domain.coupon.dto.response.PatientCouponResponse;
-import com.example.docconneting.domain.coupon.service.DistributedCouponService;
-import com.example.docconneting.domain.coupon.service.OptimisticLockService;
-import com.example.docconneting.domain.coupon.service.PatientCouponService;
-import com.example.docconneting.domain.coupon.service.PessimisticLockService;
+import com.example.docconneting.domain.coupon.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,6 +24,7 @@ public class PatientCouponController {
     private final DistributedCouponService distributedCouponService;
     private final OptimisticLockService optimisticLockService;
     private final PessimisticLockService pessimisticLockService;
+    private final RabbitCouponIssueProducer rabbitCouponIssueProducer;
 
     // 사용자가 쿠폰 발급
     @PostMapping("/{couponId}")
@@ -66,5 +64,15 @@ public class PatientCouponController {
     ) {
         IssueCouponResponse response = pessimisticLockService.issueWithPessimisticLock(authUser, couponId);
         return ResponseEntity.ok(Response.of(response));
+    }
+
+    // RabbitMQ 쿠폰 발급
+    @PostMapping("/rabbitmq/{couponId}")
+    public ResponseEntity<Response<String>> issueWithRabbitMQ(
+            @Auth AuthUser authUser,
+            @PathVariable(name = "couponId") Long couponId
+    ) {
+        rabbitCouponIssueProducer.sendCouponIssueMessage(authUser, couponId);
+        return ResponseEntity.accepted().body(Response.of("쿠폰 발급 요청이 접수되었습니다."));
     }
 }

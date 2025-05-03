@@ -19,6 +19,7 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
                 .connectedTo(elasticUri.replace("http://", ""))
+
                 .build();
     }
 }
