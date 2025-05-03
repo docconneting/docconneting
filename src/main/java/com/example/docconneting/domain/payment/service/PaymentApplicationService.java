@@ -3,7 +3,9 @@ package com.example.docconneting.domain.payment.service;
 import com.example.docconneting.common.config.annotation.DistributedLock;
 import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.chatting.dto.response.ChattingRoomCreateResponse;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
 import com.example.docconneting.domain.order.dto.response.OrderResponse;
 import com.example.docconneting.domain.order.entity.Order;
@@ -15,15 +17,17 @@ import com.example.docconneting.domain.payment.dto.request.PaymentWebhookRequest
 import com.example.docconneting.domain.payment.dto.response.PortOnePaymentResponse;
 import com.example.docconneting.domain.payment.enums.PaymentMethod;
 import com.example.docconneting.domain.payment.enums.PaymentStatus;
+import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
+import com.example.docconneting.domain.user.repository.UserRepository;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.Payment;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -35,7 +39,9 @@ public class PaymentApplicationService {
     private final PortOneService portOneService;
     private final OrderService orderService;
     private final ChattingRoomService chattingRoomService;
+    private final AlarmSenderService alarmSenderService;
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
     private final ChattingRoomAsyncService chattingRoomAsyncService;
 
     @DistributedLock(value = "#request.merchantId")
@@ -82,6 +88,15 @@ public class PaymentApplicationService {
 
             // 채팅 주문 후처리 (비동기)
             if (order.isChatOrder()) {
+                log.info("채팅 주문으로 채팅방 생성 시도 | doctorId={}", order.getDoctorId());
+                ChattingRoomCreateResponse response = chattingRoomService.createdChattingRoom(authUser, order.getDoctorId());
+                order.assignChattingRoomId(response.getId());
+                log.info("채팅방 생성 완료 | chattingRoomId={}", response.getId());
+
+                // 채팅 생성이 완료되면 의사에게 알람 전송
+                User patient = userRepository.findById(authUser.getId()).orElseThrow(() -> new ClientException(ErrorCode.USER_NOT_FOUND));
+                User doctor = userRepository.findById(order.getDoctorId()).orElseThrow(() -> new ClientException(ErrorCode.DOCTOR_NOT_FOUND));
+                alarmSenderService.sendMedicalRequestMessage(patient, doctor);
                 log.info("채팅 주문으로 채팅방 비동기 생성 시도 | doctorId={}", order.getDoctorId());
                 chattingRoomAsyncService.createChattingRoom(order);
             }

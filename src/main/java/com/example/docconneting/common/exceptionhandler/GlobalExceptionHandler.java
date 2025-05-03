@@ -4,6 +4,7 @@ import com.example.docconneting.common.exception.constant.ErrorCode;
 import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.exception.object.ServerException;
 import com.example.docconneting.common.response.ErrorResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -18,7 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+
     @ExceptionHandler(ClientException.class)
     public ResponseEntity<ErrorResponse> handleClientException(ClientException ex) {
         ErrorCode errorCode = ex.getErrorCode();
@@ -47,7 +51,7 @@ public class GlobalExceptionHandler {
     }
 
     @MessageExceptionHandler(ClientException.class)
-    @SendToUser("/queue/errors")
+    @SendToUser(value = "/messages/errors", broadcast = false)
     public ErrorResponse handleClientMessageException(ClientException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         return ErrorResponse.of(errorCode);

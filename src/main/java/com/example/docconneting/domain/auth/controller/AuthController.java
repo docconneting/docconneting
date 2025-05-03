@@ -1,11 +1,10 @@
 package com.example.docconneting.domain.auth.controller;
 
 import com.example.docconneting.common.response.Response;
-import com.example.docconneting.domain.alarm.service.AlarmService;
 import com.example.docconneting.domain.auth.annotation.Auth;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
-import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
+import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
 import com.example.docconneting.domain.auth.dto.response.UserRefreshTokenResponse;
 import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.auth.entity.AuthUser;
@@ -14,7 +13,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,7 +28,6 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final AlarmService alarmService;
 
     //회원가입
     @PostMapping("/signup")
@@ -44,7 +45,7 @@ public class AuthController {
             @Valid @RequestBody UserSignInRequest requestDto
     ) {
         UserSignInResponse response = authService.signIn(requestDto);
-        alarmService.saveFcmToken(requestDto);
+        authService.saveFcmToken(requestDto);
         return ResponseEntity.ok(Response.of(response));
     }
 

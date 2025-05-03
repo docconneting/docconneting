@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -61,6 +62,9 @@ class ChattingRoomControllerTest {
     @MockitoBean
     ChattingRoomService chattingRoomService;
 
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
+
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
@@ -79,9 +83,12 @@ class ChattingRoomControllerTest {
         boolean isRecovered = false;
         LocalDateTime createdAt = LocalDateTime.now();
 
+        String patientName = "patient";
+        String doctorName = "doctor";
+
         String accessToken = jwtUtil.createToken(userId, userRole);
 
-        ChattingRoomCreateResponse chattingRoomCreateResponse = ChattingRoomCreateResponse.of(chattingRoomId, userId, doctorId, isRecovered, createdAt);
+        ChattingRoomCreateResponse chattingRoomCreateResponse = ChattingRoomCreateResponse.of(chattingRoomId, userId, patientName, doctorId, doctorName, isRecovered, createdAt);
 
         given(chattingRoomService.createdChattingRoom(refEq(authUser), eq(doctorId))).willReturn(chattingRoomCreateResponse);
 
@@ -111,7 +118,7 @@ class ChattingRoomControllerTest {
 
         String accessToken = jwtUtil.createToken(userId, userRole);
 
-        ChattingRoomSingleResponse chattingRoomSingleResponsee = ChattingRoomSingleResponse.of(chattingRoomId, userId, doctorId, createdAt);
+        ChattingRoomSingleResponse chattingRoomSingleResponsee = ChattingRoomSingleResponse.of(chattingRoomId, userId, null, doctorId, null, createdAt);
 
         given(chattingRoomService.findChattingRoomById(refEq(authUser), eq(chattingRoomId))).willReturn(chattingRoomSingleResponsee);
 
