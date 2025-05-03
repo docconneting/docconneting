@@ -104,7 +104,7 @@ jobs:
           portone.api.key=${{ secrets.PORTONE_API_KEY }}
           portone.api.secret=${{ secrets.PORTONE_API_SECRET }}
 
-          spring.rabbitmq.host=${{ secrets.RABBITMQ_ADDRESSES }}
+          spring.rabbitmq.addresses=${{ secrets.RABBITMQ_ADDRESSES }}
           spring.rabbitmq.username=${{ secrets.SPRING_RABBITMQ_USERNAME }}
           spring.rabbitmq.password=${{ secrets.SPRING_RABBITMQ_PASSWORD }}
           spring.rabbitmq.virtual-host=/
