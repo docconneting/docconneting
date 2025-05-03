@@ -77,6 +77,9 @@ dependencies {
 
     // 포트원 연동
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
+
+    // RabbitMQ 프로토콜 다루는 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 tasks.named('test') {
