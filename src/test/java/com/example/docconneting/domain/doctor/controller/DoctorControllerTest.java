@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -34,6 +35,9 @@ class DoctorControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;

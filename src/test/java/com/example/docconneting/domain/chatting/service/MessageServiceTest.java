@@ -5,10 +5,9 @@ import com.example.docconneting.common.exception.object.ClientException;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
-import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
+import com.example.docconneting.domain.chatting.dto.projection.MessageList;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
 import com.example.docconneting.domain.chatting.entity.ChattingRoom;
-import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.repository.ChattingRoomRepository;
 import com.example.docconneting.domain.chatting.repository.MessageRepository;
 import com.example.docconneting.domain.user.entity.User;
@@ -27,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +75,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(0)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -105,7 +105,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -135,7 +135,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(0)).findByPatientId(userId);
         verify(userRepository, times(1)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -172,7 +172,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -209,7 +209,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(0)).findByPatientId(userId);
         verify(userRepository, times(1)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -247,7 +247,7 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(0)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(0)).findAllMessages(chattingRoomId, pageable);
     }
 
     @Test
@@ -272,20 +272,19 @@ class MessageServiceTest {
         ReflectionTestUtils.setField(chattingRoom, "patient", patient);
         ReflectionTestUtils.setField(chattingRoom, "isActive", true);
 
-        List<Message> content = new ArrayList<>();
+        List<MessageList> content = new ArrayList<>();
         for(int i=0;i<10;i++){
-            Message message = Message.of(null, null, null);
-            ReflectionTestUtils.setField(message, "user", patient);
+            MessageList message = new FakeMessageList(null, null, null);
             content.add(message);
         }
 
-        Page<Message> chattingRoomPage = new PageImpl<>(content, pageable, content.size());
+        Page<MessageList> chattingRoomPage = new PageImpl<>(content, pageable, content.size());
 
         given(chattingRoomRepository.findById(userId)).willReturn(Optional.of(chattingRoom));
 
         given(userRepository.findByPatientId(userId)).willReturn(Optional.of(findUser));
 
-        given(messageRepository.findAllMessagesWithUser(chattingRoomId, pageable)).willReturn(chattingRoomPage);
+        given(messageRepository.findAllMessages(chattingRoomId, pageable)).willReturn(chattingRoomPage);
 
         // when
         PageResult<MessageListResponse> pageResult = messageService.findAllMessages(authUser, chattingRoomId, pageable);
@@ -303,6 +302,33 @@ class MessageServiceTest {
         verify(chattingRoomRepository, times(1)).findById(chattingRoomId);
         verify(userRepository, times(1)).findByPatientId(userId);
         verify(userRepository, times(0)).findByDoctorId(userId);
-        verify(messageRepository, times(1)).findAllMessagesWithUser(chattingRoomId, pageable);
+        verify(messageRepository, times(1)).findAllMessages(chattingRoomId, pageable);
+    }
+
+    static class FakeMessageList implements MessageList {
+        private final Long userId;
+        private final String contents;
+        private final LocalDateTime createdAt;
+
+        public FakeMessageList(Long userId, String contents, LocalDateTime createdAt) {
+            this.userId = userId;
+            this.contents = contents;
+            this.createdAt = createdAt;
+        }
+
+        @Override
+        public Long getUserId() {
+            return userId;
+        }
+
+        @Override
+        public String getContents() {
+            return contents;
+        }
+
+        @Override
+        public LocalDateTime getCreatedAt() {
+            return createdAt;
+        }
     }
 }

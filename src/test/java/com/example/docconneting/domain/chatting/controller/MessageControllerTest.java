@@ -6,10 +6,12 @@ import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
 import com.example.docconneting.common.response.PageInfo;
 import com.example.docconneting.common.response.PageResult;
 import com.example.docconneting.domain.auth.entity.AuthUser;
+import com.example.docconneting.domain.chatting.dto.projection.MessageList;
 import com.example.docconneting.domain.chatting.dto.response.ChattingRoomListResponse;
 import com.example.docconneting.domain.chatting.dto.response.MessageListResponse;
 import com.example.docconneting.domain.chatting.entity.Message;
 import com.example.docconneting.domain.chatting.service.ChattingRoomService;
+import com.example.docconneting.domain.chatting.service.ElasticsearchMessageService;
 import com.example.docconneting.domain.chatting.service.MessageService;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
@@ -23,11 +25,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +50,12 @@ class MessageControllerTest {
 
     @MockitoBean
     MessageService messageService;
+
+    @MockitoBean
+    ElasticsearchMessageService elasticsearchMessageService;
+
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
@@ -68,10 +78,9 @@ class MessageControllerTest {
         User messageUser = User.of(null, null, null, null, null, null);
         ReflectionTestUtils.setField(messageUser, "id", 1L);
 
-        List<Message> messages = new ArrayList<>();
+        List<MessageList> messages = new ArrayList<>();
         for(int i=0;i<10;i++){
-            Message message = Message.of(null, null, null);
-            ReflectionTestUtils.setField(message, "user", messageUser);
+            MessageList message = new FakeMessageList(null, null, null);
             messages.add(message);
         }
 
@@ -96,5 +105,32 @@ class MessageControllerTest {
         mockMvc.perform(get("/api/v1/chattingRooms/{chattingRoomId}/messages", chattingRoomId)
                 .header("Authorization", accessToken))
                 .andExpect(status().isOk());
+    }
+
+    static class FakeMessageList implements MessageList {
+        private final Long userId;
+        private final String contents;
+        private final LocalDateTime createdAt;
+
+        public FakeMessageList(Long userId, String contents, LocalDateTime createdAt) {
+            this.userId = userId;
+            this.contents = contents;
+            this.createdAt = createdAt;
+        }
+
+        @Override
+        public Long getUserId() {
+            return userId;
+        }
+
+        @Override
+        public String getContents() {
+            return contents;
+        }
+
+        @Override
+        public LocalDateTime getCreatedAt() {
+            return createdAt;
+        }
     }
 }

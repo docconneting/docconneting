@@ -11,9 +11,13 @@ import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -48,6 +52,15 @@ public class PointService {
                 PointType.EXPENSE,
                 POST_POINT_COST);
         pointHistoryRepository.save(pointHistory);
+
+        log.info("{}", Map.of(
+                "type", "POINT_USAGE",
+                "userId", user.getId(),
+                "postId", pointHistory.getPostId(),
+                "isRefunded", pointHistory.getIsRefunded(),
+                "pointType", pointHistory.getPointType(),
+                "point", pointHistory.getPoint()
+        ));
     }
 
     @DistributedLock(value = "#userId")
@@ -65,6 +78,15 @@ public class PointService {
                 PointType.INCOME,
                 point);
         pointHistoryRepository.save(pointHistory);
+
+        log.info("{}", Map.of(
+                "type", "POINT_REFUND",
+                "userId", user.getId(),
+                "postId", pointHistory.getPostId(),
+                "isRefunded", pointHistory.getIsRefunded(),
+                "pointType", pointHistory.getPointType(),
+                "point", pointHistory.getPoint()
+        ));
     }
 
     // 결제할 수 있는 포인트를 가지고 있는지 검증

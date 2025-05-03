@@ -4,7 +4,7 @@ package com.example.docconneting.domain.auth.controller;
 import com.example.docconneting.common.config.JwtUtil;
 import com.example.docconneting.common.filter.JwtFilter;
 import com.example.docconneting.common.resolver.AuthUserArgumentResolver;
-import com.example.docconneting.domain.alarm.service.AlarmService;
+import com.example.docconneting.domain.alarm.service.AlarmSenderService;
 import com.example.docconneting.domain.auth.dto.request.UserRefreshTokenRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignInRequest;
 import com.example.docconneting.domain.auth.dto.request.UserSignUpRequest;
@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -59,7 +60,7 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @MockitoBean
-    private AlarmService alarmService;
+    private AlarmSenderService alarmSenderService;
 
     @MockitoBean
     private UserRepository userRepository;
@@ -70,6 +71,9 @@ public class AuthControllerTest {
 
     @MockitoBean
     private JpaMetamodelMappingContext jpaMetamodelMappingContext;
+
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
 
     @Test
     public void 회원가입() throws Exception {

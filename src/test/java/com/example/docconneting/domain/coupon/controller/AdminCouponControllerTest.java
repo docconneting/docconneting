@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -45,6 +46,9 @@ class AdminCouponControllerTest {
 
     @MockitoBean
     private CouponService couponService;
+
+    @MockitoBean(name = "elasticsearchMappingContext")
+    private MappingContext<?, ?> elasticsearchMappingContext;
 
     @MockitoBean
     JpaMetamodelMappingContext jpaMetamodelMappingContext;
