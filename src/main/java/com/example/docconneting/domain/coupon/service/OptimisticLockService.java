@@ -7,13 +7,11 @@ import com.example.docconneting.domain.auth.entity.AuthUser;
 import com.example.docconneting.domain.coupon.dto.response.IssueCouponResponse;
 import com.example.docconneting.domain.coupon.entity.Coupon;
 import com.example.docconneting.domain.coupon.entity.PatientCoupon;
-import com.example.docconneting.domain.coupon.repository.CouponHistoryRepository;
 import com.example.docconneting.domain.coupon.repository.CouponRepository;
 import com.example.docconneting.domain.coupon.repository.PatientCouponRepository;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -61,7 +59,6 @@ public class OptimisticLockService {
         }
         return response;
     }
-
 
     // 검증 후 쿠폰 발급
     @Transactional
