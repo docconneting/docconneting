@@ -33,6 +33,9 @@ jobs:
           mkdir -p src/main/resources/message
           echo "${{ secrets.MESSAGE_SETTING_JSON_BASE64 }}" | base64 --decode > src/main/resources/message/message-setting.json
 
+          # ✅ application-prod.yml도 리소스 디렉터리에 복원 (JAR에 포함됨)
+          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
+
       # 4. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean bootJar -x test
@@ -114,7 +117,6 @@ jobs:
 
           server.id=${{ secrets.SERVER_ID }}
           server.port=9002
-          spring.profiles.active=prod
 
           chat.queue=chat
           chat.exchange=chat.fanout
@@ -123,9 +125,6 @@ jobs:
 
           spring.data.elasticsearch.uris=http://10.0.1.222:9200
           EOF
-
-          # application-prod.yml 생성
-          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
       # 9. Docker Compose 파일 생성
       - name: Generate docker-compose.yml
@@ -142,11 +141,11 @@ jobs:
                 - .env
           EOF
 
-      # 10. EC2 서버에 파일 전송 및 배포 실행
+      # ✅ 10. EC2 서버에 파일 전송 및 배포 실행 (application-prod.yml 제거됨)
       - name: Deploy to EC2 via Bastion
         run: |
           # 파일 전송
-          scp -o StrictHostKeyChecking=no docker-compose.yml .env application-prod.yml main:/home/ubuntu/server/
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env main:/home/ubuntu/server/
 
           # EC2 서버에서 Docker Compose 실행
           ssh main <<EOF
