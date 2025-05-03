@@ -86,7 +86,7 @@ jobs:
           # .env 파일 생성
           cat <<EOF > .env
           spring.profiles.active=prod
-          spring.jpa.hibernate.ddl-auto=update # 임시로 테이블 생성
+          
           spring.datasource.url=${{ secrets.SPRING_DATASOURCE_URL }}
           spring.datasource.username=${{ secrets.SPRING_DATASOURCE_USERNAME }}
           spring.datasource.password=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
