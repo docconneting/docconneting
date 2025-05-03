@@ -22,7 +22,7 @@ public class RabbitCouponIssueConsumer {
     private final UserRepository userRepository;
 
     @Transactional
-    @RabbitListener(queues = "${rabbitmq.queue.name}")
+    @RabbitListener(queues = "${rabbitmq.queue.coupon-name}")
     public void consumeCouponIssue(CouponIssueRequestMessage message) {
         log.info("받은 메세지: {}", message);
 
