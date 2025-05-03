@@ -82,6 +82,8 @@ jobs:
 
           # .env 파일 생성
           cat <<EOF > .env
+          spring.profiles.active=prod
+          
           spring.datasource.url=${{ secrets.SPRING_DATASOURCE_URL }}
           spring.datasource.username=${{ secrets.SPRING_DATASOURCE_USERNAME }}
           spring.datasource.password=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
@@ -123,7 +125,7 @@ jobs:
           EOF
 
           # application-prod.yml 생성
-          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > application-prod.yml
+          echo "${{ secrets.APPLICATION_PROD_YML_CONTENT }}" | base64 --decode > src/main/resources/application-prod.yml
 
       # 9. Docker Compose 파일 생성
       - name: Generate docker-compose.yml
