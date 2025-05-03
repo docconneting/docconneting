@@ -22,7 +22,6 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
         return ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
                 .usingSsl(false)
-                .withBasicAuth(username, password)
                 .build();
     }
 }
