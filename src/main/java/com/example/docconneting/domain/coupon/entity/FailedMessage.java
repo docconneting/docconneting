@@ -32,13 +32,6 @@ public class FailedMessage {
 
     private boolean resolved;
 
-//    private FailedMessage(Long couponId, Long userId, String errorMessage, boolean resolved) {
-//        this.couponId = couponId;
-//        this.userId = userId;
-//        this.errorMessage = errorMessage;
-//        this.resolved = resolved;
-//    }
-
     public static FailedMessage of(CouponIssueRequestMessage message, String errorMessage) {
         FailedMessage failedMessage = new FailedMessage();
         failedMessage.userId = message.getUserId();
