@@ -172,7 +172,7 @@
 
 <h3>[결제 로직]</h3>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/db88199c-2999-4555-8234-fed3b7e389cf" width="580px">
+  <img src="https://github.com/user-attachments/assets/cc141ac0-a27d-441a-b276-01e450e16beb" width="580px">
 </p>
 
 <h3>[쿠폰 로직]</h3>
