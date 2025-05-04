@@ -1268,7 +1268,7 @@ public class Message {
 
 ![Image](https://github.com/user-attachments/assets/da254892-191d-499a-84a9-1448a013f1b7)
 
-- Backword index scan으르 통해서 따로 정렬하는 작업을 수행하지 않고 인덱스를 역방향으로 탐색하여 결과를 찾는 것을 확인
+- Backword index scan을 통해서 따로 정렬하는 작업을 수행하지 않고 인덱스를 역방향으로 탐색하여 결과를 찾는 것을 확인
 - 평균 263ms
 - 27.95% 개선
 
