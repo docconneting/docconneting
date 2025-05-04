@@ -16,13 +16,13 @@ public class DlqConsumer {
 
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${coupon.exchange.name}")
     private String exchange;
-    @Value("${rabbitmq.routing.retry-key}")
+    @Value("${coupon.routing.retry-key}")
     private String retryRoutingKey;
 
     @Transactional
-    @RabbitListener(queues = "${rabbitmq.queue.dlq-name}")
+    @RabbitListener(queues = "${coupon.queue.dlq-name}")
     public void consumeDlqMessage(CouponIssueRequestMessage message) {
         log.error("DLQ에서 받은 메세지: {}", message);
 

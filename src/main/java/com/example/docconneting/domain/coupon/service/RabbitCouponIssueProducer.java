@@ -13,9 +13,9 @@ public class RabbitCouponIssueProducer {
 
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${coupon.exchange.name}")
     private String exchange;
-    @Value("${rabbitmq.routing.key}")
+    @Value("${coupon.routing.key}")
     private String routingKey;
 
     public void sendCouponIssueMessage(AuthUser authUser, Long couponId) {

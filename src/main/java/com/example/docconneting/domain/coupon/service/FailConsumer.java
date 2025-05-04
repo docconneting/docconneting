@@ -17,7 +17,7 @@ public class FailConsumer {
     private final FailedMessageRepository failedMessageRepository;
 
     @Transactional
-    @RabbitListener(queues = "${rabbitmq.queue.fail-name}")
+    @RabbitListener(queues = "${coupon.queue.fail-name}")
     public void consumeFailMessage(CouponIssueRequestMessage message) {
         log.error("DLQ에서 받은 메세지: {}", message);
 
