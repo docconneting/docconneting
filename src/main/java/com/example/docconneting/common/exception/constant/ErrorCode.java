@@ -12,6 +12,7 @@ public enum ErrorCode {
 
     // 400
     UNSUPPORTED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "J001", "지원되지 않는 JWT 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "J002", "리프레시 토큰이 일치하지 않습니다."),
 
     // 401
     JWT_TOKEN_REQUIRED(HttpStatus.UNAUTHORIZED, "J002", "JWT 토큰이 필요합니다."),
@@ -19,41 +20,41 @@ public enum ErrorCode {
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "J004", "유효하지 않은 JWT 서명입니다."),
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "J005", "만료된 JWT 토큰입니다."),
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "J006", "유효하지 않은 JWT 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "J007", "만료된 리프레시 토큰입니다."),
+
+    // 404
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "J008", "토큰이 존재하지 않습니다."),
 
     // 회원 에러코드 U
 
     // 400
-    EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "U001", "이미 존재하는 이메일입니다."),
-    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "U002", "기존 비밀번호와 동일한 비밀번호로 수정할 수 없습니다."),
+    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "U001", "기존 비밀번호와 동일한 비밀번호로 수정할 수 없습니다."),
 
-    //404
+    // 401
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "U002", "의사만 접근 가능한 기능입니다."),
+
+    // 404
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U003", "존재하지 않는 회원입니다."),
 
-    //500
+    // 500
     AUTH_WITHOUT_AUTHUSER(HttpStatus.INTERNAL_SERVER_ERROR, "U004", "@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
 
     // 의사 조회 에러코드 D
 
-    //404
+    // 404
     DOCTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "존재하지 않는 의사입니다."),
     MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, "D002", "존재하지 않는 전공입니다."),
 
-    //로그인 에러 코드 A
+    // 회원가입/로그인 에러 코드 A
 
-    //400
-    USERROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "A001", "권한 이름을 잘못 입력하셨습니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A002", "비밀번호가 일치하지 않습니다."),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "A003", "리프레시 토큰이 일치하지 않습니다."),
-    IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "A004", "이미지는 필수 입력 값입니다."),
-    STARTTIME_NOT_FOUND(HttpStatus.BAD_REQUEST, "A005", "근무 시작 시간은 필수 입력 값입니다."),
-    ENDTIME_NOT_FOUND(HttpStatus.BAD_REQUEST, "A006", "근무 종료 시간은 필수 입력 값입니다."),
+    // 400
+    EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "A001", "이미 존재하는 이메일입니다."),
+    USERROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "A002", "권한 이름을 잘못 입력하셨습니다."),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A003", "비밀번호가 일치하지 않습니다."),
+    IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "A005", "이미지는 필수 입력 값입니다."),
+    STARTTIME_NOT_FOUND(HttpStatus.BAD_REQUEST, "A006", "근무 시작 시간은 필수 입력 값입니다."),
+    ENDTIME_NOT_FOUND(HttpStatus.BAD_REQUEST, "A007", "근무 종료 시간은 필수 입력 값입니다."),
 
-    //401
-    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "A007", "의사만 접근 가능한 기능입니다."),
-    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A008", "만료된 리프레시 토큰입니다."),
-
-    //404
-    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "A009", "토큰이 존재하지 않습니다."),
 
     // 게시글 에러 코드 B
 

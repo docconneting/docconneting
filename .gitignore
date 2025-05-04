@@ -51,6 +51,3 @@ out/
 *-prod.yml
 *-prod.properties
 
-### Firebase secret key ###
-*.json
-
