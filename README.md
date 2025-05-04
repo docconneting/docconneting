@@ -1106,6 +1106,7 @@ WebFlux | 56.44초
 - 메시지의 발행과 소비를 분리하여 비동기적으로 처리함으로써 서버의 부하를 줄일 수 있음
 
 ### 메시지 전달 흐름
+![image](https://github.com/user-attachments/assets/a9e644b9-bceb-4ccf-9db3-ed9d3dea9a60)
 
 ### 문제 상황
 
