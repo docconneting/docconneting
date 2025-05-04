@@ -35,31 +35,31 @@ public class RabbitMQConfig {
     @Value("${alarm.queue.name}")
     private String alarmQueueName;
 
-    @Value("${rabbitmq.queue.coupon-name}")
+    @Value("${coupon.queue.coupon-name}")
     private String couponQueueName;
 
-    @Value("${rabbitmq.queue.dlq-name}")
+    @Value("${coupon.queue.dlq-name}")
     private String dlqQueueName;
 
-    @Value("${rabbitmq.queue.retry-name}")
+    @Value("${coupon.queue.retry-name}")
     private String retryQueueName;
 
-    @Value("${rabbitmq.queue.fail-name}")
+    @Value("${coupon.queue.fail-name}")
     private String failQueueName;
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${coupon.exchange.name}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routing.key}")
+    @Value("${coupon.routing.key}")
     private String routingKey;
 
-    @Value("${rabbitmq.routing.dlq-key}")
+    @Value("${coupon.routing.dlq-key}")
     private String dlqRoutingKey;
 
-    @Value("${rabbitmq.routing.retry-key}")
+    @Value("${coupon.routing.retry-key}")
     private String retryRoutingKey;
 
-    @Value("${rabbitmq.routing.fail-key}")
+    @Value("${coupon.routing.fail-key}")
     private String failRoutingKey;
 
     @Bean
