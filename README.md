@@ -243,8 +243,9 @@
 
 ## 7. 아키텍쳐
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/8f3f8cf7-3a5f-49f1-ab41-6d9b220d1893" width="580px">
+  <img src="https://github.com/user-attachments/assets/c185947c-fb91-48fd-8171-33266f7145cf" width="580px">
 </p>
+
 
 ## 8. ERD
 <p align="center">
