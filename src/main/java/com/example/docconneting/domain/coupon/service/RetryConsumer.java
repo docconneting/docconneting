@@ -23,13 +23,13 @@ public class RetryConsumer {
     private final UserRepository userRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${coupon.exchange.name}")
     private String exchange;
-    @Value("${rabbitmq.routing.fail-key}")
+    @Value("${coupon.routing.fail-key}")
     private String failRoutingKey;
 
     @Transactional
-    @RabbitListener(queues = "${rabbitmq.queue.retry-name}")
+    @RabbitListener(queues = "${coupon.queue.retry-name}")
     public void consumeRetryMessage(CouponIssueRequestMessage message) {
         log.info("retry Queue에서 받은 메세지: {}", message);
 
