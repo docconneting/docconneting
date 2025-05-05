@@ -666,7 +666,7 @@ RabbitMQ
 
   </details>
 
-## 11. [트러블 슈팅 & 최적화 전략](https://www.notion.so/1e697548af5f80a4b299db76146051c9)
+## 11. [트러블 슈팅 & 최적화 전략]
 <details>
   <summary>다건 알람(1만개) 전송 시간 개선</summary>
 
