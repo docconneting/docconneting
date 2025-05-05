@@ -14,7 +14,7 @@ import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import com.example.docconneting.domain.user.service.S3Service;
+//import com.example.docconneting.domain.user.service.S3Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final S3Service s3Service;
+//    private final S3Service s3Service;
 
     // 회원가입
     @Transactional
