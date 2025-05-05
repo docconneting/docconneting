@@ -97,11 +97,11 @@ public class AuthService {
         //유저 저장 -> ID 생성
         userRepository.save(user);
 
-        //의사인 경우 이미지 url 삽입하기
-        if (role == UserRole.DOCTOR) {
-            String imageUrl = s3Service.uploadImage(user.getId(),multipartFile);
-            user.updateImage(imageUrl); // 엔티티에 imageUrl을 세팅
-        }
+//         //의사인 경우 이미지 url 삽입하기
+//         if (role == UserRole.DOCTOR) {
+//             String imageUrl = s3Service.uploadImage(user.getId(),multipartFile);
+//             user.updateImage(imageUrl); // 엔티티에 imageUrl을 세팅
+//         }
 
         Map<String, String> message = new HashMap<>();
         message.put("message", "회원 가입이 성공적으로 됐습니다");
