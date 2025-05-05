@@ -1530,6 +1530,53 @@ id로 넘겨주게 되면 refundPoint 메서드 안에서 `userRepository.findBy
 
 </details>
 
+<details>
+  <summary>결제 테스트 실패에서의 문제 해결</summary>
+
+  ### 문제 상황
+
+  - 중복 merchant_uid 로 인한 테스트 실패
+  ```java
+  org.springframework.dao.DataIntegrityViolationException:
+Duplicate entry 'merchant_123456' for key 'orders.uq_merchant_uid'
+  ```
+
+### 원인
+
+- Order 엔티티에서 merchant_uid에 @Column(unique = true) 제약이 존재
+- 테스트 코드에서 동일한 merchant_uid 값(예: merchant_123456)을 반복 사용
+- 테스트 반복 실행 시 DB 충돌 발생
+
+### 해결 방안
+
+ ```java
+  String uniqueMerchantUid = "merchant_" + UUID.randomUUID();
+Order order = Order.ofChatOrder(patient, OrderProduct.CHAT_3000, doctor.getId(), uniqueMerchantUid);
+ ```
+
+- 매 테스트마다 고유한 merchant_uid를 생성하여 충돌 회피
+
+### 문제 상황
+
+- JMeter 테스트 시 PortOne 결제 실패 (400 Bad Request)
+
+### 원인
+
+- 결제 검증 로직은 실제 결제된 imp_uid를 기반으로 PG 서버에 상태 검증
+- 테스트 환경에서는 실제 결제가 없으므로, 존재하지 않는 imp_uid로 검증 시도 → 실패
+
+### 해결 방안
+
+```java
+  if (request.getImpUid().startsWith("TEST_")) {
+ 
+}
+```
+
+- imp_uid가 TEST_로 시작하면 테스트 모드로 간주
+- 실제 PG 검증을 건너뛰고, 모킹된 응답을 통해 흐름 테스트 가능하게 구성
+</details>
+
 ## 12. 팀원소개
 
 | 역할    | 이름   | 주요 담당 업무 |
