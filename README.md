@@ -22,7 +22,7 @@
 - GitHub Actions 기반의 CI/CD 파이프라인 구축으로 배포 자동화 실현 - Docker 기반 컨테이너화를 통해 환경 이식성 및 확장성 강화
 
 2️⃣ **알림 서버 분리 및 비동기 알림 처리**
-
+- 알람 서버 링크 (https://github.com/docconneting/docconneting-alarm-server-webflux)
 - Spring Cloud 기반으로 알림 서버를 분리하고, WebFlux를 적용하여 비동기 논블로킹 방식으로 알림 전송 처리
 - 주문, 결제, 쿠폰 등 다양한 이벤트 발생 시에도 서버 부하 없이 실시간 알림 발송 가능
 - 알람 서버에서 RabbitMQ를 이용해 이벤트 기반 메시지를 수신하고, FCM으로 푸시 알림을 전송하여 알람 전송 속도 향상
