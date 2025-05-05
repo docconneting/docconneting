@@ -27,7 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
-    private final S3Service s3Service;
+//    private final S3Service s3Service;
 
 
     //마이페이지 조회
@@ -68,8 +68,8 @@ public class UserService {
         {
             throw new ClientException(ErrorCode.UNAUTHORIZED_USER);
         }
-        String newImage = s3Service.updateImage(user.getId(), user.getImage(), multipartFile);
-        user.updateImage(newImage);
+//         String newImage = s3Service.updateImage(user.getId(), user.getImage(), multipartFile);
+//         user.updateImage(newImage);
         Map<String, String> message = new HashMap<>();
         message.put("message","이미지 수정이 성공적으로 됐습니다");
         return message;
