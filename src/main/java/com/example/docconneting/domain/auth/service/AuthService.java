@@ -14,7 +14,7 @@ import com.example.docconneting.domain.auth.dto.response.UserSignInResponse;
 import com.example.docconneting.domain.user.entity.User;
 import com.example.docconneting.domain.user.enums.UserRole;
 import com.example.docconneting.domain.user.repository.UserRepository;
-import com.example.docconneting.domain.user.service.S3Service;
+//import com.example.docconneting.domain.user.service.S3Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final S3Service s3Service;
+//    private final S3Service s3Service;
 
     // 회원가입
     @Transactional
@@ -97,11 +97,11 @@ public class AuthService {
         //유저 저장 -> ID 생성
         userRepository.save(user);
 
-        //의사인 경우 이미지 url 삽입하기
-        if (role == UserRole.DOCTOR) {
-            String imageUrl = s3Service.uploadImage(user.getId(),multipartFile);
-            user.updateImage(imageUrl); // 엔티티에 imageUrl을 세팅
-        }
+//         //의사인 경우 이미지 url 삽입하기
+//         if (role == UserRole.DOCTOR) {
+//             String imageUrl = s3Service.uploadImage(user.getId(),multipartFile);
+//             user.updateImage(imageUrl); // 엔티티에 imageUrl을 세팅
+//         }
 
         Map<String, String> message = new HashMap<>();
         message.put("message", "회원 가입이 성공적으로 됐습니다");
