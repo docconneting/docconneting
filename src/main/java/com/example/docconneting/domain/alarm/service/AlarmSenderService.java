@@ -1,61 +1,139 @@
 package com.example.docconneting.domain.alarm.service;
 
-import com.example.docconneting.common.enums.Major;
-import com.example.docconneting.domain.alarm.enums.AlarmType;
-import com.example.docconneting.domain.user.entity.User;
-import com.example.docconneting.domain.user.repository.UserRepository;
-import com.example.docconneting.infra.rabbitmq.dto.FcmInfo;
-import com.example.docconneting.infra.rabbitmq.dto.Message;
-import com.example.docconneting.infra.rabbitmq.producer.AlarmServerSender;
+import com.example.docconneting.common.exception.constant.ErrorCode;
+import com.example.docconneting.common.exception.object.ServerException;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.firebase.messaging.MessagingErrorCode.*;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AlarmSenderService {
 
-    private final UserRepository userRepository;
-    private final AlarmServerSender alarmServerSender;
+    private final FcmTokenService fcmTokenService;
 
     /*
-     * 사용자가 유료 게시물을 올렸을 떄 해당 전공에 해당되는 의사들에게 알람 전송
+     * 다건 알람 전송
      */
-    @Transactional
-    public void sendPostUploadCompletedMessage(Major major) {
-        List<User> users = userRepository.findByMajor(major);
-        List<FcmInfo> fcmInfoList = users.stream()
-                                    .map(user -> FcmInfo.of(user.getFcmToken(), user.getId()))
-                                    .toList();
+    @Async("fcmExecutor")
+    public void sendMulticastAlarm(List<String> fcmTokenBatche, String content) {
+        List<String> targets = new ArrayList<>(fcmTokenBatche);
+        int maxAttempts = 3;
+        int attempt = 1;
 
-        Message messageDto = Message.of(fcmInfoList, "새로운 유료 질문이 등록되었습니다", AlarmType.POST_UPLOAD);
-        alarmServerSender.send(messageDto);
+        while (attempt <= maxAttempts && !targets.isEmpty()) {
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle("Docconneting")
+                            .setBody(content)
+                            .build())
+                    .addAllTokens(targets)
+                    .build();
+
+            try {
+                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+
+                List<String> failedTokens = new ArrayList<>();
+                List<SendResponse> responses = response.getResponses();
+
+                for (int i = 0; i < responses.size(); i++) {
+                    SendResponse sendResponse = responses.get(i);
+                    String fcmToken = targets.get(i);
+
+                    if (!sendResponse.isSuccessful()) {
+                        FirebaseMessagingException exception = (FirebaseMessagingException) sendResponse.getException();
+                        MessagingErrorCode errorCode = exception.getMessagingErrorCode();
+
+                        if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
+                            log.error("FCM 서버 내부 오류 발생 - 알람 전송 재시도 리스트에 추가");
+                            failedTokens.add(fcmToken);
+                        }
+
+                        if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
+                            log.error("FCM 토큰 이상 발생 - 토큰 제거");
+                            fcmTokenService.deleteFcmToken(fcmToken);
+                        }
+
+                        if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
+                            log.error("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+                        }
+                    }
+                }
+
+                if (failedTokens.isEmpty()) {
+                    log.info("알림 전송 완료 - 성공횟수 : {}, 실패횟수 : {}", response.getSuccessCount(), response.getFailureCount());
+                    return;
+                }
+
+                targets = failedTokens;
+                attempt++;
+
+            } catch (FirebaseMessagingException e) {
+                log.error("알람 전체 전송 실패 - {}", e.getMessagingErrorCode());
+                return;
+            }
+
+        }
+
+        if (!targets.isEmpty()) {
+            log.error("알람 전송 최종 실패 명수 - {}", targets.size());
+        }
     }
 
     /*
-     * 게시물에 의사가 댓글을 달았을 때 게시물 작성자에게 알람 전송
+     * 단건 알람 전송
      */
-    @Transactional
-    public void sendCommentCompletedMessage(User user) {
-        FcmInfo fcmInfo = FcmInfo.of(user.getFcmToken(), user.getId());
-        List<FcmInfo> fcmInfoList = List.of(fcmInfo);
-        String message = "회원님의 게시물에 의사가 답변을 달았습니다";
-        Message messageDto = Message.of(fcmInfoList, message, AlarmType.COMMENT);
-        alarmServerSender.send(messageDto);
+    @Async("fcmExecutor")
+    @Retryable(
+            retryFor = ServerException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void sendAlarm(String fcmToken, String content) {
+        try {
+            Message message = Message.builder()
+                    .setToken(fcmToken)
+                    .setNotification(Notification.builder()
+                            .setTitle("Docconneting")
+                            .setBody(content)
+                            .build())
+                    .build();
+
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.info("알림 전송 완료 - 메시지 ID: {}", response);
+        } catch (FirebaseMessagingException exception) {
+            MessagingErrorCode errorCode = exception.getMessagingErrorCode();
+
+            if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
+                log.error("FCM 서버 내부 오류 발생 - 알람 전송 재시도");
+                throw new ServerException(ErrorCode.FCM_SEND_FAILED);
+            }
+
+            if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
+                log.error("FCM 토큰 이상 발생 - 토큰 제거");
+                fcmTokenService.deleteFcmToken(fcmToken);
+            }
+
+            if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
+                log.error("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+            }
+        }
     }
 
-    /*
-     * 채팅 진료 결제가 완료 됐을 때 해당 의사에게 알람 전송
-     */
-    @Transactional
-    public void sendMedicalRequestMessage(User patient, User doctor) {
-        FcmInfo fcmInfo = FcmInfo.of(doctor.getFcmToken(), doctor.getId());
-        List<FcmInfo> fcmInfoList = List.of(fcmInfo);
-        String message = patient.getUsername() + "님이 채팅 진료를 요청 했습니다";
-        Message messageDto = Message.of(fcmInfoList, message, AlarmType.MEDICAL_REQUEST);
-        alarmServerSender.send(messageDto);
+    @Recover
+    public void recover(ServerException exception, String fcmToken, String content) {
+        log.info("FCM 알림 재시도 3회 실패 - token : {}, content : {}", fcmToken, content);
     }
 
 }
