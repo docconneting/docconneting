@@ -56,17 +56,17 @@ public class AlarmSenderService {
                         MessagingErrorCode errorCode = exception.getMessagingErrorCode();
 
                         if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
-                            log.info("FCM 서버 내부 오류 발생 - 알람 전송 재시도 리스트에 추가");
+                            log.error("FCM 서버 내부 오류 발생 - 알람 전송 재시도 리스트에 추가");
                             failedTokens.add(fcmToken);
                         }
 
                         if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
-                            log.info("FCM 토큰 이상 발생 - 토큰 제거");
+                            log.error("FCM 토큰 이상 발생 - 토큰 제거");
                             fcmTokenService.deleteFcmToken(fcmToken);
                         }
 
                         if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
-                            log.info("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+                            log.error("서버 설정/인증서 문제 발생 - 서버 확인 필요");
                         }
                     }
                 }
@@ -80,14 +80,14 @@ public class AlarmSenderService {
                 attempt++;
 
             } catch (FirebaseMessagingException e) {
-                log.info("알람 전체 전송 실패 - {}", e.getMessagingErrorCode());
+                log.error("알람 전체 전송 실패 - {}", e.getMessagingErrorCode());
                 return;
             }
 
         }
 
         if (!targets.isEmpty()) {
-            log.info("알람 전송 최종 실패 명수 - {}", targets.size());
+            log.error("알람 전송 최종 실패 명수 - {}", targets.size());
         }
     }
 
@@ -116,17 +116,17 @@ public class AlarmSenderService {
             MessagingErrorCode errorCode = exception.getMessagingErrorCode();
 
             if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
-                log.info("FCM 서버 내부 오류 발생 - 알람 전송 재시도");
+                log.error("FCM 서버 내부 오류 발생 - 알람 전송 재시도");
                 throw new ServerException(ErrorCode.FCM_SEND_FAILED);
             }
 
             if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
-                log.info("FCM 토큰 이상 발생 - 토큰 제거");
+                log.error("FCM 토큰 이상 발생 - 토큰 제거");
                 fcmTokenService.deleteFcmToken(fcmToken);
             }
 
             if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
-                log.info("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+                log.error("서버 설정/인증서 문제 발생 - 서버 확인 필요");
             }
         }
     }
