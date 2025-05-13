@@ -17,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
             "AND u.isDeleted = FALSE ")
     Optional<User> findByDoctorId(Long id);
 
+    @Query("SELECT u FROM User u " +
+            "WHERE u.fcmToken = :id ")
+    Optional<User> findByFcmToken(String fcmToken);
+
     Optional<User> findUserByIdAndUserRole(Long id, UserRole userRole);
 
     Optional<User> findByEmail(String email);

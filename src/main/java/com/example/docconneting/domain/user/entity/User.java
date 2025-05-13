@@ -107,6 +107,11 @@ public class User extends BaseEntity {
         this.fcmToken = fcmToken;
     }
 
+    // fcm 토큰을 제거하는 메서드
+    public void deleteFcmToken() {
+        this.fcmToken = null;
+    }
+
     // 알람 권한을 업데이트하는 메서드
     public void updateAlarmInfo(String fcmToken, Boolean isAlarmEnabled) {
         this.fcmToken = fcmToken;

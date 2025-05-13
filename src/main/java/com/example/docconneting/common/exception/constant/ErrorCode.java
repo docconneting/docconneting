@@ -141,6 +141,9 @@ public enum ErrorCode {
     // 429
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "N001", "요청이 너무 많아 더 이상 요청을 처리할 수 없습니다."),
 
+    // 503
+    FCM_SEND_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "N002", "FCM 서버 문제로 알림 전송에 실패했습니다."),
+
     // 결제 에러코드 P
 
     // 400

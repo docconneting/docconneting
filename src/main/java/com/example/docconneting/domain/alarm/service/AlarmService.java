@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class AlarmService {
 
@@ -111,4 +111,5 @@ public class AlarmService {
         AlarmHistories alarmHistories = AlarmHistories.of(content, id, alarmType);
         alarmHistoriesRepository.save(alarmHistories);
     }
+
 }
