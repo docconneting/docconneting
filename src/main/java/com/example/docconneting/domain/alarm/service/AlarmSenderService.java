@@ -11,6 +11,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.firebase.messaging.MessagingErrorCode.*;
@@ -27,23 +28,66 @@ public class AlarmSenderService {
      */
     @Async("fcmExecutor")
     public void sendMulticastAlarm(List<String> fcmTokenBatche, String content) {
-        try {
+        List<String> targets = new ArrayList<>(fcmTokenBatche);
+        int maxAttempts = 3;
+        int attempt = 1;
+
+        while (attempt <= maxAttempts && !targets.isEmpty()) {
             MulticastMessage message = MulticastMessage.builder()
                     .setNotification(Notification.builder()
                             .setTitle("Docconneting")
                             .setBody(content)
                             .build())
-                    .addAllTokens(fcmTokenBatche)
+                    .addAllTokens(targets)
                     .build();
 
-            BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+            try {
+                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
 
-            int successCount = response.getSuccessCount();
-            int failureCount = response.getFailureCount();
+                List<String> failedTokens = new ArrayList<>();
+                List<SendResponse> responses = response.getResponses();
 
-            log.info("알림 전송 완료 - 성공횟수: {}, 실패횟수: {}", successCount, failureCount);
-        } catch (FirebaseMessagingException e) {
-            throw new RuntimeException(e);
+                for (int i = 0; i < responses.size(); i++) {
+                    SendResponse sendResponse = responses.get(i);
+                    String fcmToken = targets.get(i);
+
+                    if (!sendResponse.isSuccessful()) {
+                        FirebaseMessagingException exception = (FirebaseMessagingException) sendResponse.getException();
+                        MessagingErrorCode errorCode = exception.getMessagingErrorCode();
+
+                        if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
+                            log.info("FCM 서버 내부 오류 발생 - 알람 전송 재시도 리스트에 추가");
+                            failedTokens.add(fcmToken);
+                        }
+
+                        if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
+                            log.info("FCM 토큰 이상 발생 - 토큰 제거");
+                            fcmTokenService.deleteFcmToken(fcmToken);
+                        }
+
+                        if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
+                            log.info("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+                        }
+                    }
+                }
+
+                if (failedTokens.isEmpty()) {
+                    log.info("알림 전송 완료 - 성공횟수 : {}, 실패횟수 : {}", response.getSuccessCount(), response.getFailureCount());
+                    return;
+                }
+
+                targets = failedTokens;
+                attempt++;
+
+            } catch (FirebaseMessagingException e) {
+                log.info("알람 전체 전송 실패 - {}", e.getMessagingErrorCode());
+                return;
+            }
+
+        }
+
+        if (!targets.isEmpty()) {
+            log.info("알람 전송 최종 실패 명수 - {}", targets.size());
         }
     }
 
