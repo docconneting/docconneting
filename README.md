@@ -640,6 +640,138 @@ RabbitMQ
 ## 11. [트러블 슈팅 & 최적화 전략]
 
 <details>
+  
+  <summary>알람 전송 재시도를 통한 오류율 개선</summary>
+
+  ## 문제 상황
+
+- 기존 코드에서는 알람 전송시에 재시도 로직이 존재하지 않아, 알람을 1만건 보냈을 때 성공한 횟수, 실패한 횟수만 볼 수 있었음
+- 알람 전송 실패에 대한 여러 케이스들에 대한 처리가 되어있지 않아 이를 해결할 수 있는 방법이 없었음
+
+```java
+@Async("fcmExecutor")
+    public void sendMulticastAlarm(List<String> fcmTokenBatche, String content) {
+        try {
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle("Docconneting")
+                            .setBody(content)
+                            .build())
+                    .addAllTokens(fcmTokenBatche)
+                    .build();
+
+            BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+
+            int successCount = response.getSuccessCount();
+            int failureCount = response.getFailureCount();
+
+            log.info("알림 전송 완료 - 성공횟수: {}, 실패횟수: {}", successCount, failureCount);
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+```
+
+## 해결방안
+
+**FCM 에러 종류에 따라서 케이스를 구분**
+
+- `INTERNAL` , `UNAVAILABLE`
+    
+    ```java
+    @Retryable(
+                retryFor = ServerException.class,
+                maxAttempts = 3,
+                backoff = @Backoff(delay = 1000, multiplier = 2)
+        )
+        public void sendAlarm(String fcmToken, String content) {
+            try {
+                Message message = Message.builder()
+                        .setToken(fcmToken)
+                        .setNotification(Notification.builder()
+                                .setTitle("Docconneting")
+                                .setBody(content)
+                                .build())
+                        .build();
+    
+                String response = FirebaseMessaging.getInstance().send(message);
+                log.info("알림 전송 완료 - 메시지 ID: {}", response);
+            } catch (FirebaseMessagingException exception) {
+                MessagingErrorCode errorCode = exception.getMessagingErrorCode();
+    
+                if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
+                    log.error("FCM 서버 내부 오류 발생 - 알람 전송 재시도");
+                    throw new ServerException(ErrorCode.FCM_SEND_FAILED);
+                }
+                
+                // 나머지 오류 처리들...
+              }
+        }
+    
+     @Recover
+     public void recover(ServerException exception, String fcmToken, String content) {
+           log.info("FCM 알림 재시도 3회 실패 - token : {}, content : {}", fcmToken, content);
+      }
+    ```
+    
+    - FCM 서버 내부 오류와 일시적 장애이기 때문에 지수 백오프 전략을 이용하여 1초, 2초, 4초의 딜레이를 주며 최대 3회까지 FCM 알람 서버로 알람 전송 재시도 수행
+- `INVALID_ARGUMENT`, `UNREGISTERED`
+    
+    ```java
+    if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
+                    log.error("FCM 토큰 이상 발생 - 토큰 제거");
+                    fcmTokenService.deleteFcmToken(fcmToken);
+                }
+    ```
+    
+    - 메시지 내용이나 토큰자체가 잘못됐을 때 발생하는 에러이기 때문에 토큰을 삭제
+    - 로그로 에러 상황 기록
+- `THIRD_PARTY_AUTH_ERROR`, `SENDER_ID_MISMATCH`
+    
+    ```java
+    if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
+                    log.error("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+                }
+    ```
+    
+    - 서버의 인증서나 설정과 관련된 에러이기 때문에 서버의 코드를 직접확인해야 하므로 로그로 에러 상황 기록
+
+## 도입 전후 비교
+
+- 시나리오 : 1만건의 알람을 `sendEachForMulticast` 메서드를 사용하여 100개씩 Batch 전송한다고 가정
+
+**📌 도입 전 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/45b2a568-db18-4419-aa47-675aae723ada)
+
+☑️ 알람 전송 초반에 실패하는 경우 발생
+
+| 성공횟수 | 실패횟수 | 오류율 |
+| --- | --- | --- |
+| 9699 | 301 | 3.01% |
+
+**📌  도입 후 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/8962a152-cc74-4f6a-b157-13bd64f96970)
+
+☑️ 알람 전송 초반에도 재시도 로직을 통해서 무사히 누락되는 알람 없이 잘 전송됨
+
+| 성공횟수 | 실패횟수 | 오류율 |
+| --- | --- | --- |
+| 10000 | 0 | 0% |
+
+**성능 개선 요약**
+
+**📌 요약 그래프**
+
+<img src="https://github.com/user-attachments/assets/6a955aff-d36b-4b80-bfb3-6c7aed995489" width="500"/>
+
+- 1만건의 알람을 `sendEachForMulticast` 메서드를 통해서 보냈을 때, 오류율이 3.01% 였으나, 재시도 로직을 도입하고 오류율을 0%로 감소
+  
+</details>
+
+
+<details>
   <summary>1만개 알람 전송 시간 개선</summary>
   
   ## 문제 상황
