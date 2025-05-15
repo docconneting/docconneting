@@ -12,8 +12,8 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "users",
-        indexes = {@Index(name = "idx_is_deleted", columnList = "isDeleted"),
-                @Index(name = "idx_major_is_deleted", columnList = "major, isDeleted")}
+        indexes = {@Index(name = "idx_user_role_is_deleted", columnList = "userRole, isDeleted"),
+                @Index(name = "idx_major_user_role_is_deleted", columnList = "major, userRole, isDeleted")}
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
