@@ -243,7 +243,7 @@
 
 ## 7. 아키텍쳐
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ddb39782-afd6-4f38-965a-a47f4a133353" width="580px">
+  <img src="https://github.com/user-attachments/assets/86ba4eea-1645-49ac-9d63-7ccd0d805794" width="580px">
 </p>
 
 
@@ -638,6 +638,47 @@ RabbitMQ
   </details>
 
 ## 11. [트러블 슈팅 & 최적화 전략]
+
+<details>
+  <summary>전공별 의사리스트 조회 기능 개선</summary>
+
+  ## 문제 상황
+
+- 의사와의 채팅을 하기 위해서는 어떤 의사와 채팅을 할지 의사 리스트를 조회해야 하는 경우가 필요했음
+- 전공별 의사 리스트 조회는 사용자가 자주 호출하는 기능이기 때문에 이에 대한 응답 속도를 개선해야 할 필요성을 느낌
+
+## 해결방안
+
+- 전공별 의사 리스트 조회를 빠르게 하기 위해서 검색조건인 major에 인덱스 적용
+- 의사인 유저와 삭제되지 않은 의사 리스트를 보여줘야 하기 때문에 major 다음 검색 조건인 userRole, isDeleted에도 인덱스 적용
+
+```java
+@Index(name = "doctor_idx", columnList = "major, userRole, isDeleted")
+```
+
+## 도입 전후 비교
+
+- 시나리오 : 10만건의 유저 데이터를 60초동안 1000번의 요청을 2번 반복
+
+![Image](https://github.com/user-attachments/assets/0216b9af-b9bb-44ce-aabb-77c7fdad8070)
+
+**📌 도입 전 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/fe01d7e6-f198-427d-810f-fddfe92139a9)
+
+**📌  도입 후 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/d262fc78-4f70-47d6-bf69-a08d5e417a02)
+
+**성능 개선 요약**
+
+**📌 요약 그래프**
+
+<img src="https://github.com/user-attachments/assets/c330639c-68b8-48c2-ba1a-42813fb7e159" width="400" height="300" />
+
+- Average Response Time을 24ms에서 14ms로 약 **41.67%** 조회 성능 개선
+  
+</details>
 
 <details>
   
