@@ -199,11 +199,12 @@
   <img src="https://img.shields.io/badge/JWT-000?style=for-the-badge&logo=jsonwebtokens&logoColor=white">
 </p>
 
-<h3 align="center">메시징</h3>
+<h3 align="center">메시징 및 알림</h3>
 
 <p align="center">
   <img src="https://img.shields.io/badge/RABBITMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=FFFFFF">
   <img src="https://img.shields.io/badge/Websocket-5cffd1?style=for-the-badge&logo=&logoColor=white">
+  <img src="https://img.shields.io/badge/FCM-DD2C00?style=for-the-badge&logo=firebase&logoColor=white">
 </p>
 
 <h3 align="center">데이터베이스</h3>
