@@ -243,7 +243,7 @@
 
 ## 7. 아키텍쳐
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ddb39782-afd6-4f38-965a-a47f4a133353" width="580px">
+  <img src="https://github.com/user-attachments/assets/86ba4eea-1645-49ac-9d63-7ccd0d805794" width="580px">
 </p>
 
 
@@ -258,6 +258,50 @@
 
 
 ## 10. 기술적 의사결정
+
+<details>
+  <summary>알람 전송 기술로 FCM을 선택한 이유</summary>
+
+  ### 도입배경
+
+- 해당 서비스에서는 알람이 호출되는 상황이 총 3가지 발생함
+    - 첫 번째, 환자가 유료게시물을 올렸을 때
+    - 두 번째, 의사가 환자의 게시물에 댓글을 달았을 때
+    - 세 번째, 환자가 채팅 결제를 완료했을 때
+- 알람의 경우 자주 호출되는 기능이고, 대량의 알람이 사용자가 유료 게시물을 올릴 때마다 전송되기 때문에 서버에서 많은 리소스를 소모할 수 밖에 없음
+- 그렇기 때문에 서버의 자원을 제일 덜 소모하는 기술을 선택하기로 결정
+
+### 선택지
+
+- Short Polling
+    - 클라이언트가 일정한 짧을 주기로 지속해서 요청을 보내고 서버에서 줄 데이터가 없는 경우엔 빈 응답, 줄 데이터가 있는 경우에는 데이터를 담은 응답을 보내주는 형식
+    - 서버에서 줄 데이터가 없어도 요청과 응답 작업을 반복하기 때문에 불필요한 트래픽이 많이 발생함
+    - 일정한 주기로 요청과 응답이 오가기 때문에 서버에서 알람을 전송해도 클라리언트는 즉각적으로 알람을 수신할 수 없음
+- Long Polling
+    - 서버에서 클라이언트와 커넥션을 계속 유지하며 서버에서 줄 데이터가 생겼을 때 응답을 보내는 방식
+    - Short Polling에 비해서 이벤트의 실시간성이 잘 보장되지만 클라이언트와 연결을 계속 유지하는 동안 서버 자원을 지속해서 소모하고 있게 됨
+- Websoket
+    - 클라이언트와 서버가 한 번 연결을 맺고 나면 해당 연결이 쭉 유지되고 이를 통해 클라이언트와 서버는 양방향 통신을 할 수 있음
+    - 서버에서 이벤트가 발생한 경우, 서버에서 먼저 데이터를 전송할 수 있기 때문에 실시간 알림기능을 구현하기 적합함
+    - 서버와 클라이언트는 연결을 계속 유지하고 있다는 점에서  Long Polling 방식이 가지고 있는 서버 자원 소모 문제점을 동일하게 가지고 있음
+- Server Sent Events
+    - 클라이언트에서 서버로 요청을 보내면 일정 시간동안 연결을 유지하면서 서버에서 이벤트가 발생했을 때 실시간으로 클라이언트에게 데이터를 넘겨주는 실시간 단방향 통신 방법
+    - Long Polling과 다르게 일정 시간동안 연결을 끊지 않고 계속 유지함
+    - Spring에서 개발한다면 별도의 라이브러리 없이 SSE를 지원하는 도구를 제공하여 개발에 편함
+- Firebase Cloud Messaging
+    - 무료로 메시지를 보낼 수 있는 교차 플랫폼 메시징 클라우드 서버
+    - Long Polling, Web Socket, SSE는 클라이언트와 서버가 연결을 유지하는 동안 서버의 자원을 지속해서 소모함
+    - 이러한 상호작용으로 인해서 서버는 다른 기술들과 다르게 서버 자원 고갈 문제를 해결하고 클라이언트 또한 최적화 기능을 제공하는 fcm클라우드 서버와 연결하기 때문에 비교적 적은 배터리와 네트워크 사용만으로 알람을 수신할 수 있음
+    - Google의 인프라를 기반으로 하여, 대량의 메시지를 안정적으로 처리할 수 있음
+    - Google 서비스에 의존적이므로, Google 서비스가 제한된 지역에서는 사용이 어려울 수 있음
+    - 사용자 기기에서 푸시 알림을 비활성화하면, 메시지를 전달할 수 없음
+
+### 최종결정
+
+- 해당 서비스에서는 알람을 전송하는 경우가 총 3가지가 있고, 그 중에서 대량 알람을 전송하는 요구사항이 있었기 때문에 클라이언트와 서버가 연결을 유지하는 동안 서버의 자원을 지속해서 소모하는 Long Polling, Web Socket, SSE는 적절하지 않다고 판단
+- 또한, 환자가 유료 질문 게시물을 올리고 48시간 이내에 의사가 한명이라도 댓글을 달아주지 않는다면 환불이 되기 때문에 실시간성이 중요하므로 Short Polling은 적절하지 않다고 판단
+- 이러한 이유로, 알람 전송 기술로 FCM 채택
+</details>
 
 <details>
     <summary>FCM 토큰 관리 방식으로 RDB를 선택한 이유</summary>
@@ -594,6 +638,179 @@ RabbitMQ
   </details>
 
 ## 11. [트러블 슈팅 & 최적화 전략]
+
+<details>
+  <summary>전공별 의사리스트 조회 기능 개선</summary>
+
+  ## 문제 상황
+
+- 의사와의 채팅을 하기 위해서는 어떤 의사와 채팅을 할지 의사 리스트를 조회해야 하는 경우가 필요했음
+- 전공별 의사 리스트 조회는 사용자가 자주 호출하는 기능이기 때문에 이에 대한 응답 속도를 개선해야 할 필요성을 느낌
+
+## 해결방안
+
+- 전공별 의사 리스트 조회를 빠르게 하기 위해서 검색조건인 major에 인덱스 적용
+- 의사인 유저와 삭제되지 않은 의사 리스트를 보여줘야 하기 때문에 major 다음 검색 조건인 userRole, isDeleted에도 인덱스 적용
+
+```java
+@Index(name = "doctor_idx", columnList = "major, userRole, isDeleted")
+```
+
+## 도입 전후 비교
+
+- 시나리오 : 10만건의 유저 데이터를 60초동안 1000번의 요청을 2번 반복
+
+![Image](https://github.com/user-attachments/assets/0216b9af-b9bb-44ce-aabb-77c7fdad8070)
+
+**📌 도입 전 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/fe01d7e6-f198-427d-810f-fddfe92139a9)
+
+**📌  도입 후 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/d262fc78-4f70-47d6-bf69-a08d5e417a02)
+
+**성능 개선 요약**
+
+**📌 요약 그래프**
+
+<img src="https://github.com/user-attachments/assets/c330639c-68b8-48c2-ba1a-42813fb7e159" width="400" height="300" />
+
+- Average Response Time을 24ms에서 14ms로 약 **41.67%** 조회 성능 개선
+  
+</details>
+
+<details>
+  
+  <summary>알람 전송 재시도를 통한 오류율 개선</summary>
+
+  ## 문제 상황
+
+- 기존 코드에서는 알람 전송시에 재시도 로직이 존재하지 않아, 알람을 1만건 보냈을 때 성공한 횟수, 실패한 횟수만 볼 수 있었음
+- 알람 전송 실패에 대한 여러 케이스들에 대한 처리가 되어있지 않아 이를 해결할 수 있는 방법이 없었음
+
+```java
+@Async("fcmExecutor")
+    public void sendMulticastAlarm(List<String> fcmTokenBatche, String content) {
+        try {
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle("Docconneting")
+                            .setBody(content)
+                            .build())
+                    .addAllTokens(fcmTokenBatche)
+                    .build();
+
+            BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+
+            int successCount = response.getSuccessCount();
+            int failureCount = response.getFailureCount();
+
+            log.info("알림 전송 완료 - 성공횟수: {}, 실패횟수: {}", successCount, failureCount);
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+```
+
+## 해결방안
+
+**FCM 에러 종류에 따라서 케이스를 구분**
+
+- `INTERNAL` , `UNAVAILABLE`
+    
+    ```java
+    @Retryable(
+                retryFor = ServerException.class,
+                maxAttempts = 3,
+                backoff = @Backoff(delay = 1000, multiplier = 2)
+        )
+        public void sendAlarm(String fcmToken, String content) {
+            try {
+                Message message = Message.builder()
+                        .setToken(fcmToken)
+                        .setNotification(Notification.builder()
+                                .setTitle("Docconneting")
+                                .setBody(content)
+                                .build())
+                        .build();
+    
+                String response = FirebaseMessaging.getInstance().send(message);
+                log.info("알림 전송 완료 - 메시지 ID: {}", response);
+            } catch (FirebaseMessagingException exception) {
+                MessagingErrorCode errorCode = exception.getMessagingErrorCode();
+    
+                if (errorCode.equals(INTERNAL) || errorCode.equals(UNAVAILABLE)) {
+                    log.error("FCM 서버 내부 오류 발생 - 알람 전송 재시도");
+                    throw new ServerException(ErrorCode.FCM_SEND_FAILED);
+                }
+                
+                // 나머지 오류 처리들...
+              }
+        }
+    
+     @Recover
+     public void recover(ServerException exception, String fcmToken, String content) {
+           log.info("FCM 알림 재시도 3회 실패 - token : {}, content : {}", fcmToken, content);
+      }
+    ```
+    
+    - FCM 서버 내부 오류와 일시적 장애이기 때문에 지수 백오프 전략을 이용하여 1초, 2초, 4초의 딜레이를 주며 최대 3회까지 FCM 알람 서버로 알람 전송 재시도 수행
+- `INVALID_ARGUMENT`, `UNREGISTERED`
+    
+    ```java
+    if (errorCode.equals(INVALID_ARGUMENT) || errorCode.equals(UNREGISTERED)) {
+                    log.error("FCM 토큰 이상 발생 - 토큰 제거");
+                    fcmTokenService.deleteFcmToken(fcmToken);
+                }
+    ```
+    
+    - 메시지 내용이나 토큰자체가 잘못됐을 때 발생하는 에러이기 때문에 토큰을 삭제
+    - 로그로 에러 상황 기록
+- `THIRD_PARTY_AUTH_ERROR`, `SENDER_ID_MISMATCH`
+    
+    ```java
+    if (errorCode.equals(THIRD_PARTY_AUTH_ERROR) || errorCode.equals(SENDER_ID_MISMATCH)) {
+                    log.error("서버 설정/인증서 문제 발생 - 서버 확인 필요");
+                }
+    ```
+    
+    - 서버의 인증서나 설정과 관련된 에러이기 때문에 서버의 코드를 직접확인해야 하므로 로그로 에러 상황 기록
+
+## 도입 전후 비교
+
+- 시나리오 : 1만건의 알람을 `sendEachForMulticast` 메서드를 사용하여 100개씩 Batch 전송한다고 가정
+
+**📌 도입 전 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/45b2a568-db18-4419-aa47-675aae723ada)
+
+☑️ 알람 전송 초반에 실패하는 경우 발생
+
+| 성공횟수 | 실패횟수 | 오류율 |
+| --- | --- | --- |
+| 9699 | 301 | 3.01% |
+
+**📌  도입 후 성능 테스트 결과**
+
+![Image](https://github.com/user-attachments/assets/8962a152-cc74-4f6a-b157-13bd64f96970)
+
+☑️ 알람 전송 초반에도 재시도 로직을 통해서 무사히 누락되는 알람 없이 잘 전송됨
+
+| 성공횟수 | 실패횟수 | 오류율 |
+| --- | --- | --- |
+| 10000 | 0 | 0% |
+
+**성능 개선 요약**
+
+**📌 요약 그래프**
+
+<img src="https://github.com/user-attachments/assets/6a955aff-d36b-4b80-bfb3-6c7aed995489" width="500"/>
+
+- 1만건의 알람을 `sendEachForMulticast` 메서드를 통해서 보냈을 때, 오류율이 3.01% 였으나, 재시도 로직을 도입하고 오류율을 0%로 감소
+  
+</details>
+
 
 <details>
   <summary>1만개 알람 전송 시간 개선</summary>
