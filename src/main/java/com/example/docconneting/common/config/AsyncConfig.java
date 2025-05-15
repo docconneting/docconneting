@@ -19,8 +19,8 @@ public class AsyncConfig implements AsyncConfigurer {
     @Bean(name = "fcmExecutor")
     public Executor fcmExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(6);
+        executor.setCorePoolSize(6);
+        executor.setMaxPoolSize(8);
         executor.setQueueCapacity(100);
         executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("FCM-Async-");
